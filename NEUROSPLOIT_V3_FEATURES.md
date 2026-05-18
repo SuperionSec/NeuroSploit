@@ -4,8 +4,11 @@
 1. [系统概览](#系统概览)
 2. [后端API接口](#后端api接口)
 3. [前端页面功能](#前端页面功能)
-4. [功能关联性分析](#功能关联性分析)
-5. [核心模块架构](#核心模块架构)
+4. [数据模型结构](#数据模型结构)
+5. [页面流转与导航](#页面流转与导航)
+6. [核心工作流程](#核心工作流程)
+7. [功能关联性分析](#功能关联性分析)
+8. [核心模块架构](#核心模块架构)
 
 ---
 
@@ -619,6 +622,824 @@ NeuroSploit v3.2.4 是一个 AI 驱动的渗透测试平台，具有以下核心
 | 扫描设置区域 | 并发限制、超时、速率限制等 | - |
 | 功能开关区域 | 启用/禁用各种功能模块 | - |
 | 保存设置按钮 | 保存所有更改 | `PUT /api/v1/settings` |
+
+---
+
+## 数据模型结构
+
+### 数据库实体关系图
+
+```
+┌─────────────────┐
+│     Scan        │
+│  (主扫描记录)    │
+├─────────────────┤
+│ id (PK)         │
+│ name            │
+│ status          │
+│ progress        │
+│ current_phase   │
+│ auth_type       │
+│ created_at      │
+│ started_at      │
+│ completed_at    │
+│ total_endpoints │
+│ total_vulns     │
+│ critical_count  │
+└────────┬────────┘
+         │1
+         │
+         │N
+┌────────▼────────┐
+│    Target       │
+│ (目标URL)       │
+├─────────────────┤
+│ id (PK)         │
+│ scan_id (FK)    │
+│ url             │
+│ hostname        │
+│ port            │
+│ protocol        │
+└────────┬────────┘
+         │
+         │
+         │
+         │N
+┌────────▼────────┐
+│    Endpoint     │
+│ (发现的端点)    │
+├─────────────────┤
+│ id (PK)         │
+│ scan_id (FK)    │
+│ target_id (FK)  │
+│ url             │
+│ method          │
+│ parameters      │
+│ technologies    │
+│ interesting     │
+└────────┬────────┘
+         │
+         │
+         │
+         │N
+┌────────▼────────┐     ┌─────────────────┐
+│  Vulnerability  │     │ Vulnerability-  │
+│  (漏洞记录)     │◄────┤ Test (测试记录) │
+├─────────────────┤     ├─────────────────┤
+│ id (PK)         │     │ id (PK)         │
+│ scan_id (FK)    │     │ scan_id (FK)    │
+│ test_id (FK)    │     │ endpoint_id (FK)│
+│ title           │     │ vuln_type       │
+│ vuln_type       │     │ payload         │
+│ severity        │     │ is_vulnerable   │
+│ cvss_score      │     │ evidence        │
+│ cvss_vector     │     └─────────────────┘
+│ cwe_id          │
+│ description     │
+│ affected_endpoint│
+│ poc_request     │
+│ poc_response    │
+│ poc_payload     │
+│ poc_code        │
+│ screenshots     │
+│ confidence_score│
+│ validation_status│
+└────────┬────────┘
+         │
+         │
+         │
+         │N
+┌────────▼────────┐
+│    Report       │
+│ (报告记录)      │
+├─────────────────┤
+│ id (PK)         │
+│ scan_id (FK)    │
+│ title           │
+│ format          │
+│ executive_summary│
+│ auto_generated  │
+│ is_partial      │
+│ generated_at    │
+└─────────────────┘
+
+┌─────────────────┐
+│   AgentTask     │
+│(代理任务记录)   │
+├─────────────────┤
+│ id (PK)         │
+│ scan_id (FK)    │
+│ task_type       │
+│ task_name       │
+│ tool_name       │
+│ status          │
+│ started_at      │
+│ completed_at    │
+│ duration_ms     │
+│ items_processed │
+│ items_found     │
+└─────────────────┘
+
+┌─────────────────┐
+│   Prompt        │
+│(自定义提示词)   │
+├─────────────────┤
+│ id (PK)         │
+│ name            │
+│ description     │
+│ content         │
+│ is_preset       │
+│ category        │
+└─────────────────┘
+
+┌─────────────────┐
+│ VulnLabChallenge│
+│(漏洞实验室挑战) │
+├─────────────────┤
+│ id (PK)         │
+│ target_url      │
+│ challenge_name  │
+│ vuln_type       │
+│ vuln_category   │
+│ status          │
+│ result          │
+│ agent_id        │
+│ scan_id         │
+│ findings_count  │
+│ logs            │
+│ created_at      │
+└─────────────────┘
+```
+
+### 核心数据模型详解
+
+#### 1. Scan 模型 (扫描主记录)
+**文件**: [backend/models/scan.py](file:///workspace/backend/models/scan.py)
+
+字段说明:
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | String(36) | UUID主键 |
+| name | String(255) | 扫描名称 (可选) |
+| status | String(50) | 扫描状态 (pending/running/completed/failed/stopped) |
+| scan_type | String(50) | 扫描类型 (quick/full/custom) |
+| recon_enabled | Boolean | 是否启用侦察 |
+| progress | Integer | 进度百分比 (0-100) |
+| current_phase | String(50) | 当前阶段 (recon/testing/reporting) |
+| config | JSON | 扫描配置参数 |
+| custom_prompt | Text | 自定义提示词 |
+| prompt_id | String(36) | 关联的提示词ID |
+| auth_type | String(50) | 认证类型 (none/cookie/header/basic/bearer) |
+| auth_credentials | JSON | 认证凭证 (加密存储) |
+| custom_headers | JSON | 自定义HTTP头 |
+| created_at | DateTime | 创建时间 |
+| started_at | DateTime | 开始时间 |
+| completed_at | DateTime | 完成时间 |
+| duration | Integer | 持续时间(秒) |
+| error_message | Text | 错误信息 |
+| total_endpoints | Integer | 发现的端点总数 |
+| total_vulnerabilities | Integer | 发现的漏洞总数 |
+| critical_count | Integer | Critical级别漏洞数 |
+| high_count | Integer | High级别漏洞数 |
+| medium_count | Integer | Medium级别漏洞数 |
+| low_count | Integer | Low级别漏洞数 |
+| info_count | Integer | Info级别漏洞数 |
+
+关系:
+- targets (1:N) - 关联的目标URL列表
+- endpoints (1:N) - 发现的端点列表
+- vulnerabilities (1:N) - 发现的漏洞列表
+- reports (1:N) - 生成的报告列表
+- agent_tasks (1:N) - 执行的代理任务列表
+
+---
+
+#### 2. Target 模型 (目标URL)
+**文件**: [backend/models/target.py](file:///workspace/backend/models/target.py)
+
+字段说明:
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | String(36) | UUID主键 |
+| scan_id | String(36) | 关联的扫描ID(外键) |
+| url | String(2048) | 完整URL |
+| hostname | String(255) | 主机名 |
+| port | Integer | 端口号 |
+| protocol | String(10) | 协议 (http/https) |
+| path | String(2048) | 路径 |
+| status | String(50) | 状态 |
+| created_at | DateTime | 创建时间 |
+
+关系:
+- scan (N:1) - 所属的扫描
+- endpoints (1:N) - 从此目标发现的端点
+
+---
+
+#### 3. Endpoint 模型 (发现的端点)
+**文件**: [backend/models/endpoint.py](file:///workspace/backend/models/endpoint.py)
+
+字段说明:
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | String(36) | UUID主键 |
+| scan_id | String(36) | 关联的扫描ID(外键) |
+| target_id | String(36) | 关联的目标ID(外键) |
+| url | Text | 完整URL |
+| method | String(10) | HTTP方法 (GET/POST/PUT/DELETE等) |
+| path | Text | URL路径 |
+| parameters | JSON | 参数列表 [{name, type, value}] |
+| headers | JSON | 响应头 |
+| response_status | Integer | 响应状态码 |
+| content_type | String(100) | 内容类型 |
+| content_length | Integer | 内容长度 |
+| technologies | JSON | 识别的技术栈列表 |
+| interesting | Boolean | 是否标记为"有趣"的端点 |
+| discovered_at | DateTime | 发现时间 |
+
+关系:
+- scan (N:1) - 所属的扫描
+- target (N:1) - 来源目标
+- vulnerability_tests (1:N) - 针对此端点的测试
+
+---
+
+#### 4. Vulnerability 模型 (漏洞记录)
+**文件**: [backend/models/vulnerability.py](file:///workspace/backend/models/vulnerability.py)
+
+字段说明:
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | String(36) | UUID主键 |
+| scan_id | String(36) | 关联的扫描ID(外键) |
+| test_id | String(36) | 关联的测试记录ID(外键) |
+| title | String(500) | 漏洞标题 |
+| vulnerability_type | String(100) | 漏洞类型 (xss_reflected/sqli_union等) |
+| severity | String(20) | 严重级别 (critical/high/medium/low/info) |
+| cvss_score | Float | CVSS评分 (0-10) |
+| cvss_vector | String(100) | CVSS向量字符串 |
+| cwe_id | String(50) | CWE编号 (如CWE-79) |
+| description | Text | 漏洞描述 |
+| affected_endpoint | Text | 受影响的端点URL |
+| poc_request | Text | PoC请求 |
+| poc_response | Text | PoC响应 |
+| poc_payload | Text | PoC有效载荷 |
+| poc_parameter | String(500) | 漏洞参数 |
+| poc_evidence | Text | 漏洞证据 |
+| impact | Text | 影响分析 |
+| remediation | Text | 修复建议 |
+| references | JSON | 参考链接列表 |
+| ai_analysis | Text | AI补充分析 |
+| poc_code | Text | 可执行的PoC代码 |
+| screenshots | JSON | 截图列表 (base64或文件路径) |
+| url | Text | 来源URL |
+| parameter | String(500) | 来源参数 |
+| confidence_score | Integer | 置信度 (0-100) |
+| confidence_breakdown | JSON | 置信度细分 (proof/impact/controls) |
+| proof_of_execution | Text | 执行证明 |
+| validation_status | String(20) | 验证状态 (ai_confirmed/validated/false_positive/pending_review) |
+| ai_rejection_reason | Text | AI拒绝原因 |
+| created_at | DateTime | 创建时间 |
+
+关系:
+- scan (N:1) - 所属的扫描
+- test (1:1) - 关联的测试记录
+
+---
+
+#### 5. VulnerabilityTest 模型 (漏洞测试记录)
+**文件**: [backend/models/vulnerability.py](file:///workspace/backend/models/vulnerability.py)
+
+字段说明:
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | String(36) | UUID主键 |
+| scan_id | String(36) | 关联的扫描ID(外键) |
+| endpoint_id | String(36) | 关联的端点ID(外键) |
+| vulnerability_type | String(100) | 测试的漏洞类型 |
+| payload | Text | 使用的有效载荷 |
+| request_data | JSON | 请求数据 |
+| response_data | JSON | 响应数据 |
+| is_vulnerable | Boolean | 是否判定为漏洞 |
+| confidence | Float | 置信度 (0.0-1.0) |
+| evidence | Text | 证据 |
+| tested_at | DateTime | 测试时间 |
+
+关系:
+- scan (N:1) - 所属的扫描
+- endpoint (N:1) - 测试的端点
+- vulnerability (1:1) - 生成的漏洞记录
+
+---
+
+#### 6. Report 模型 (报告记录)
+**文件**: [backend/models/report.py](file:///workspace/backend/models/report.py)
+
+字段说明:
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | String(36) | UUID主键 |
+| scan_id | String(36) | 关联的扫描ID(外键) |
+| title | String(255) | 报告标题 |
+| format | String(20) | 格式 (html/pdf/json) |
+| file_path | Text | 文件存储路径 |
+| executive_summary | Text | 执行摘要 |
+| auto_generated | Boolean | 是否自动生成 |
+| is_partial | Boolean | 是否为部分报告 (未完成的扫描) |
+| generated_at | DateTime | 生成时间 |
+
+关系:
+- scan (N:1) - 所属的扫描
+
+---
+
+#### 7. AgentTask 模型 (代理任务记录)
+**文件**: [backend/models/agent_task.py](file:///workspace/backend/models/agent_task.py)
+
+字段说明:
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | String(36) | UUID主键 |
+| scan_id | String(36) | 关联的扫描ID(外键) |
+| task_type | String(50) | 任务类型 (recon/analysis/testing/reporting) |
+| task_name | String(255) | 任务名称 |
+| description | Text | 任务描述 |
+| tool_name | String(100) | 使用的工具 (nmap/nuclei/claude等) |
+| tool_category | String(50) | 工具类别 (scanner/analyzer/ai/crawler) |
+| status | String(20) | 状态 (pending/running/completed/failed/cancelled) |
+| started_at | DateTime | 开始时间 |
+| completed_at | DateTime | 完成时间 |
+| duration_ms | Integer | 持续时间(毫秒) |
+| items_processed | Integer | 处理的项目数 |
+| items_found | Integer | 发现的项目数 |
+| result_summary | Text | 结果摘要 |
+| error_message | Text | 错误信息 |
+| created_at | DateTime | 创建时间 |
+
+关系:
+- scan (N:1) - 所属的扫描
+
+方法:
+- start() - 标记为开始
+- complete(items_processed, items_found, summary) - 标记为完成
+- fail(error) - 标记为失败
+
+---
+
+#### 8. Prompt 模型 (自定义提示词)
+**文件**: [backend/models/prompt.py](file:///workspace/backend/models/prompt.py)
+
+字段说明:
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | String(36) | UUID主键 |
+| name | String(255) | 提示词名称 |
+| description | Text | 描述 |
+| content | Text | 提示词内容 |
+| is_preset | Boolean | 是否为预设提示词 |
+| category | String(100) | 分类 (pentest/bug_bounty/api等) |
+| parsed_vulnerabilities | JSON | AI解析出的漏洞类型列表 |
+| created_at | DateTime | 创建时间 |
+| updated_at | DateTime | 更新时间 |
+
+---
+
+#### 9. VulnLabChallenge 模型 (漏洞实验室挑战)
+**文件**: [backend/models/vuln_lab.py](file:///workspace/backend/models/vuln_lab.py)
+
+字段说明:
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | String(36) | UUID主键 |
+| target_url | Text | 目标URL |
+| challenge_name | String(255) | 挑战名称 |
+| vuln_type | String(100) | 漏洞类型 |
+| vuln_category | String(50) | 漏洞分类 |
+| auth_type | String(20) | 认证类型 |
+| auth_value | Text | 认证值 |
+| status | String(20) | 状态 (pending/running/completed/failed/stopped) |
+| result | String(20) | 结果 (detected/not_detected/error) |
+| agent_id | String(36) | 关联的代理ID |
+| scan_id | String(36) | 关联的扫描ID |
+| findings_count | Integer | 发现数 |
+| critical_count | Integer | Critical发现数 |
+| high_count | Integer | High发现数 |
+| medium_count | Integer | Medium发现数 |
+| low_count | Integer | Low发现数 |
+| info_count | Integer | Info发现数 |
+| findings_detail | JSON | 发现详情列表 |
+| started_at | DateTime | 开始时间 |
+| completed_at | DateTime | 完成时间 |
+| duration | Integer | 持续时间(秒) |
+| notes | Text | 备注 |
+| logs | JSON | 执行日志列表 |
+| endpoints_count | Integer | 发现的端点数 |
+| created_at | DateTime | 创建时间 |
+
+---
+
+### 内存状态管理
+
+除了持久化存储外，系统还使用内存字典管理运行时状态:
+
+| 字典 | 说明 | 位置 |
+|------|------|------|
+| `agent_results` | 代理结果缓存 | [backend/api/v1/agent.py](file:///workspace/backend/api/v1/agent.py) |
+| `agent_tasks` | 异步任务字典 | [backend/api/v1/agent.py](file:///workspace/backend/api/v1/agent.py) |
+| `agent_instances` | 代理实例字典 | [backend/api/v1/agent.py](file:///workspace/backend/api/v1/agent.py) |
+| `agent_to_scan` | agent_id → scan_id映射 | [backend/api/v1/agent.py](file:///workspace/backend/api/v1/agent.py) |
+| `scan_to_agent` | scan_id → agent_id映射 | [backend/api/v1/agent.py](file:///workspace/backend/api/v1/agent.py) |
+
+---
+
+## 页面流转与导航
+
+### 前端路由表
+**文件**: [frontend/src/App.tsx](file:///workspace/frontend/src/App.tsx)
+
+| 路径 | 页面组件 | 说明 |
+|------|----------|------|
+| `/` | HomePage | 主页仪表板 |
+| `/auto` | AutoPentestPage | 一键自动渗透 |
+| `/full-ia` | FullIATestingPage | 全AI测试 |
+| `/vuln-lab` | VulnLabPage | 漏洞实验室 |
+| `/terminal` | TerminalAgentPage | 终端代理 |
+| `/scan/new` | NewScanPage | 创建新扫描 |
+| `/scan/:scan_id` | ScanDetailsPage | 扫描详情页 |
+| `/agent/:agent_id` | AgentStatusPage | 代理状态页 |
+| `/tasks` | TaskLibraryPage | 任务库 |
+| `/realtime` | RealtimeTaskPage | 实时任务 |
+| `/knowledge` | KnowledgePage | 知识管理 |
+| `/mcp` | MCPManagementPage | MCP服务器管理 |
+| `/scheduler` | SchedulerPage | 调度器 |
+| `/sandboxes` | SandboxDashboardPage | 沙箱仪表板 |
+| `/reports` | ReportsPage | 报告管理 |
+| `/reports/:report_id` | ReportViewPage | 报告查看 |
+| `/providers` | ProvidersPage | 提供商管理 |
+| `/settings` | SettingsPage | 设置页 |
+
+---
+
+### 导航入口点
+
+所有页面都通过侧边栏 (Sidebar) 导航，侧边栏包含以下导航项:
+
+| 导航项 | 图标 | 跳转路径 |
+|--------|------|----------|
+| Dashboard | 🏠 | `/` |
+| Auto Pentest | ⚡ | `/auto` |
+| Full IA | 🤖 | `/full-ia` |
+| Vuln Lab | 🧪 | `/vuln-lab` |
+| Terminal | 💻 | `/terminal` |
+| New Scan | ➕ | `/scan/new` |
+| Tasks | 📋 | `/tasks` |
+| Realtime | 🔄 | `/realtime` |
+| Knowledge | 📚 | `/knowledge` |
+| MCP | 🔌 | `/mcp` |
+| Scheduler | ⏰ | `/scheduler` |
+| Sandboxes | 📦 | `/sandboxes` |
+| Reports | 📄 | `/reports` |
+| Providers | 🔑 | `/providers` |
+| Settings | ⚙️ | `/settings` |
+
+---
+
+### 核心页面流转路径
+
+#### 1. 创建并执行扫描的完整流程
+
+```
+HomePage
+    ↓ (点击 "New Scan" 按钮或侧边栏导航)
+NewScanPage
+    ├─→ 输入目标URL
+    ├─→ (可选) 选择任务或输入自定义提示词
+    ├─→ (可选) 配置认证
+    ├─→ (可选) 配置高级选项
+    ↓ (点击 "Deploy Agent" 按钮)
+POST /api/v1/agent/run → 创建 Scan + Agent 记录
+    ↓ (自动跳转)
+AgentStatusPage (/agent/{agent_id})
+    ├─→ 实时查看执行日志
+    ├─→ 暂停/恢复/停止代理
+    ├─→ 发送自定义提示词
+    ├─→ 跳转到指定阶段
+    └─→ 查看发现结果
+    ↓ (扫描完成或停止后)
+    ↓ (点击 "View Scan Details" 或通过 Scan 链接)
+ScanDetailsPage (/scan/{scan_id})
+    ├─→ 查看扫描统计
+    ├─→ 查看发现的端点
+    ├─→ 查看发现的漏洞
+    ├─→ 验证漏洞状态
+    ├─→ 生成报告
+    └─→ AI生成详细报告
+    ↓ (点击报告链接或 "View Report")
+ReportViewPage (/reports/{report_id})
+    ├─→ 查看HTML报告
+    ├─→ 下载报告 (HTML/PDF/JSON)
+    └─→ 下载完整报告ZIP
+```
+
+---
+
+#### 2. 一键自动渗透流程
+
+```
+HomePage
+    ↓ (点击 "Auto Pentest" 快速操作按钮)
+AutoPentestPage
+    ├─→ 输入目标
+    ├─→ (可选) 启用子域发现
+    ├─→ (可选) 启用Kali沙箱
+    ├─→ (可选) 配置LLM提供商
+    ↓ (点击 "Start Auto Pentest")
+POST /api/v1/agent/run (mode=auto_pentest)
+    ↓ (自动跳转)
+AgentStatusPage
+```
+
+---
+
+#### 3. 漏洞实验室测试流程
+
+```
+HomePage / VulnLabPage
+    ↓ (选择漏洞类型分类)
+VulnLabPage
+    ├─→ 选择具体漏洞类型
+    ├─→ 输入目标URL
+    ├─→ (可选) 配置认证
+    ↓ (点击 "Start Test")
+POST /api/v1/vuln-lab/run → 创建 VulnLabChallenge + Agent
+    ↓
+VulnLabPage (实时状态更新)
+    ├─→ 查看执行日志
+    ├─→ 查看发现结果
+    └─→ 停止测试
+```
+
+---
+
+#### 4. 终端代理会话流程
+
+```
+HomePage / TerminalAgentPage
+    ↓
+TerminalAgentPage
+    ├─→ (可选) 选择场景模板
+    ├─→ 创建新会话 → POST /api/v1/terminal/session
+    ├─→ 选择会话
+    ├─→ 与AI聊天 → POST /api/v1/terminal/sessions/{id}/message
+    ├─→ 执行命令 → POST /api/v1/terminal/sessions/{id}/execute
+    ├─→ (可选) 记录利用路径步骤
+    └─→ (可选) 连接VPN
+```
+
+---
+
+#### 5. 报告生成与查看流程
+
+```
+HomePage / ReportsPage / ScanDetailsPage
+    ↓
+ReportsPage
+    ├─→ 查看报告列表
+    ├─→ (可选) 按扫描ID/自动生成筛选
+    ├─→ (可选) 删除报告
+    ↓ (点击 "View" 按钮)
+ReportViewPage
+    ├─→ 查看HTML报告内容
+    ├─→ 下载各种格式
+    └─→ 下载报告包
+```
+
+---
+
+#### 6. 提供商配置流程
+
+```
+HomePage / ProvidersPage
+    ↓
+ProvidersPage
+    ├─→ 查看提供商列表
+    ├─→ 查看使用配额
+    ├─→ 检测CLI令牌 → POST /api/v1/providers/detect-all
+    ├─→ 手动连接账户 → POST /api/v1/providers/{id}/connect
+    ├─→ 测试账户连接 → POST /api/v1/providers/test/{id}/{acc}
+    └─→ 编辑环境变量 → POST /api/v1/providers/env
+```
+
+---
+
+### 页面间的交叉链接
+
+| 源页面 | 目标页面 | 触发条件 |
+|--------|----------|----------|
+| HomePage | AgentStatusPage | 点击活跃代理卡片 |
+| HomePage | ScanDetailsPage | 点击最近扫描列表项 |
+| HomePage | ReportsPage | 点击报告相关链接 |
+| NewScanPage | AgentStatusPage | 成功启动代理后自动跳转 |
+| AgentStatusPage | ScanDetailsPage | 点击 "View Scan" 链接 |
+| ScanDetailsPage | AgentStatusPage | 点击 "View Agent Status" 链接 |
+| ScanDetailsPage | ReportViewPage | 点击生成的报告 |
+| ReportsPage | ReportViewPage | 点击报告 "View" 按钮 |
+| ReportsPage | ScanDetailsPage | 点击扫描ID链接 |
+| TaskLibraryPage | NewScanPage | 点击 "Use Task" 按钮 |
+| VulnLabPage | AgentStatusPage | 如果挑战关联了代理 |
+
+---
+
+### 状态流转
+
+#### 扫描状态流转
+
+```
+pending
+    ↓ (开始扫描)
+running
+    ├─→ (用户暂停) → paused ──┐
+    │                            │
+    │   (用户恢复) ←────────────┘
+    │
+    ├─→ (用户停止) → stopped
+    │
+    └─→ (正常完成) → completed
+    │
+    └─→ (出错) → failed
+```
+
+#### 漏洞验证状态流转
+
+```
+ai_confirmed (AI初始状态)
+    ↓ (用户验证)
+    ├─→ validated (确认真阳性)
+    └─→ false_positive (标记为假阳性)
+```
+
+---
+
+## 核心工作流程
+
+### 1. 自主代理扫描完整工作流
+
+#### 步骤1: 初始化阶段
+**触发点**: `POST /api/v1/agent/run`
+**代码**: [backend/api/v1/agent.py](file:///workspace/backend/api/v1/agent.py)
+
+流程:
+1. 接收扫描配置 (目标、模式、提示词、认证等)
+2. 创建数据库记录:
+   - 创建 [Scan](file:///workspace/backend/models/scan.py) 记录 (status=pending)
+   - 创建 [Target](file:///workspace/backend/models/target.py) 记录
+3. 初始化内存状态:
+   - 生成 agent_id (UUID)
+   - 建立 agent_id ↔ scan_id 双向映射
+   - 保存 agent_instances 实例
+4. 在后台启动异步任务
+5. 返回 agent_id 给前端
+
+#### 步骤2: 侦察阶段 (Recon Phase)
+**代码**: [backend/core/autonomous_agent.py](file:///workspace/backend/core/autonomous_agent.py)
+
+流程:
+1. 启动爬虫/发现工具
+2. 发现URL和端点:
+   - 从目标URL开始爬取
+   - 提取链接、表单、API端点
+   - 识别参数和输入点
+3. 技术栈识别:
+   - WAF检测
+   - 框架识别 (React、Django等)
+   - 技术指纹
+4. 存储发现结果:
+   - 创建 [Endpoint](file:///workspace/backend/models/endpoint.py) 记录
+   - 标记 "interesting" 端点
+5. 更新 [Scan](file:///workspace/backend/models/scan.py) 进度和阶段
+6. 创建 [AgentTask](file:///workspace/backend/models/agent_task.py) 记录
+
+#### 步骤3: 分析阶段 (Analyze Phase)
+**代码**: [backend/core/autonomous_agent.py](file:///workspace/backend/core/autonomous_agent.py)
+
+流程:
+1. 收集所有发现的端点
+2. AI分析:
+   - 确定优先测试的端点
+   - 识别潜在漏洞面
+   - 构建测试计划
+3. 优先级排序:
+   - 基于风险评分
+   - 基于可访问性
+   - 基于用户自定义提示词
+4. (可选) RAG知识注入:
+   - 检索相关安全文档
+   - 注入到提示词中
+
+#### 步骤4: 测试阶段 (Test Phase)
+**代码**: [backend/core/autonomous_agent.py](file:///workspace/backend/core/autonomous_agent.py) + [backend/core/vuln_engine/](file:///workspace/backend/core/vuln_engine/)
+
+流程:
+1. 遍历优先级队列中的端点
+2. 对于每个端点:
+   a. 选择适用的漏洞检测器
+   b. 生成有效载荷
+   c. 发送请求
+   d. 分析响应
+   e. 判定是否存在漏洞
+3. 如果检测到漏洞:
+   - 创建 [VulnerabilityTest](file:///workspace/backend/models/vulnerability.py) 记录
+   - 执行验证 (Proof of Execution)
+   - 创建 [Vulnerability](file:///workspace/backend/models/vulnerability.py) 记录
+   - 赋值严重级别、CVSS评分
+4. (可选) 漏洞代理编排:
+   - 并行启动多个AI代理
+   - 每个代理专攻特定漏洞类型
+5. 更新 [Scan](file:///workspace/backend/models/scan.py) 统计 (total_vulns, counts)
+6. 实时推送更新到前端 (WebSocket)
+
+#### 步骤5: 报告阶段 (Report Phase)
+**代码**: [backend/core/report_engine/](file:///workspace/backend/core/report_engine/)
+
+流程:
+1. 收集所有发现
+2. AI分析:
+   - 生成执行摘要
+   - 提供修复建议
+   - 按风险优先级排序
+3. 生成 [Report](file:///workspace/backend/models/report.py) 记录
+4. 输出多种格式 (HTML、PDF、JSON)
+5. 更新 [Scan](file:///workspace/backend/models/scan.py) 状态为 completed
+
+#### 步骤6: 后处理
+1. 清理内存中的代理实例
+2. (可选) 清理Kali沙箱容器
+3. (可选) 自适应学习:
+   - 记录用户的验证反馈
+   - 优化未来扫描的判断
+
+---
+
+### 2. 漏洞检测的完整数据流
+
+```
+目标URL
+    ↓
+侦察阶段 → 发现端点 → 分析攻击面 → 测试阶段 → 漏洞验证 → 报告生成
+```
+
+---
+
+### 3. Smart Router 的LLM调用路由流程
+
+**路径**: [backend/core/smart_router/](file:///workspace/backend/core/smart_router/)
+
+当系统需要调用LLM时:
+
+1. Smart Router 接收请求和偏好的提供商/模型
+2. 检查可用的已连接账户和配额:
+   - 如果指定了提供商和模型，尝试使用该配置
+   - 如果指定的不可用，自动回退到下一个可用的提供商
+3. 根据配置的策略选择最佳的账户:
+   - 负载均衡 (轮询或最少使用)
+   - 故障转移 (自动切换到健康的账户)
+   - 基于之前的成功/失败历史记录
+4. 调用选择的提供商的API:
+   - 如果启用了CLI令牌复用，使用CLI会话的令牌
+   - 否则使用存储的API密钥
+5. 记录调用的指标 (token使用、成功/失败状态、延迟)
+6. 返回结果或处理错误:
+   - 如果调用失败，自动尝试下一个可用的账户/提供商
+   - 记录失败以便将来进行故障转移决策
+7. 可选的自适应学习:
+   - 基于验证反馈调整置信度阈值
+   - 优化不同提供商的使用优先级
+
+---
+
+### 4. 实时任务的消息流 (RealtimeTask)
+
+**相关页面**: [RealtimeTaskPage](file:///workspace/frontend/src/pages/RealtimeTaskPage.tsx)
+
+当用户在实时任务页面发送消息时:
+
+1. 用户在聊天框中输入自然语言指令
+2. 点击发送 → `POST /api/v1/agent/realtime/{session_id}/message`
+3. 后端接收请求:
+   - 确定用户的意图
+   - (可选) 检索相关的RAG知识
+   - 构造合适的工具调用或直接回答
+   - 如果需要，调用安全工具执行
+   - 记录工具执行的结果
+   - 生成AI回应
+4. 结果返回前端:
+   - 更新聊天历史
+   - 显示工具执行的输出
+   - 可用时显示发现的漏洞
+5. 用户可以继续对话或:
+   - 查看会话的报告
+   - 删除会话
+   - 手动执行特定的工具
 
 ---
 
