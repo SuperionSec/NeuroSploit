@@ -158,8 +158,8 @@ DEFAULT_PROVIDERS: List[Dict] = [
     },
     {
         "id": "minimax", "name": "Minimax", "auth_type": "api_key",
-        "api_format": "openai_compat", "base_url": "https://api.minimax.chat/v1",
-        "tier": 2, "default_model": "abab6.5-chat",
+        "api_format": "openai_compat", "base_url": "https://api.minimaxi.com/v1",
+        "tier": 2, "default_model": "MiniMax-M2.7",
         "env_key": "MINIMAX_API_KEY",
     },
     {
