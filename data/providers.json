@@ -151,20 +151,7 @@
     "base_url": "https://open.bigmodel.cn/api/paas/v4",
     "tier": 2,
     "default_model": "glm-4-flash",
-    "accounts": {
-      "acct_65bf7af9": {
-        "id": "acct_65bf7af9",
-        "label": "API Key",
-        "source": "manual",
-        "credential_type": "api_key",
-        "created_at": "2026-05-19T00:36:48Z",
-        "last_used": null,
-        "tokens_used": 0,
-        "is_active": true,
-        "expires_at": null,
-        "model_override": null
-      }
-    },
+    "accounts": {},
     "env_key": "GLM_API_KEY",
     "enabled": true
   },
@@ -195,9 +182,21 @@
         "source": "env_var",
         "credential_type": "api_key",
         "created_at": "2026-05-19T01:38:56Z",
-        "last_used": "2026-05-19T05:57:02Z",
-        "tokens_used": 100207,
+        "last_used": "2026-05-19T06:05:21Z",
+        "tokens_used": 170494,
         "is_active": true,
+        "expires_at": null,
+        "model_override": null
+      },
+      "acct_5ff8079c": {
+        "id": "acct_5ff8079c",
+        "label": "T",
+        "source": "manual",
+        "credential_type": "api_key",
+        "created_at": "2026-05-19T06:03:00Z",
+        "last_used": null,
+        "tokens_used": 0,
+        "is_active": false,
         "expires_at": null,
         "model_override": null
       }

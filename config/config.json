@@ -88,6 +88,15 @@
             "args": [
                 "hello"
             ]
+        },
+        "Test-MCP-Verify": {
+            "transport": "stdio",
+            "description": "",
+            "enabled": true,
+            "command": "echo",
+            "args": [
+                "verify"
+            ]
         }
     },
     "sandbox": {
