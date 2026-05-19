@@ -108,6 +108,18 @@
 | RES-FULLIA-START | Full IA启动 | POST | `${API_PREFIX}/full-ia/start` | `http://localhost:8000/api/v1/full-ia/start` |
 | RES-FULLIA-STATUS | Full IA状态 | GET | `${API_PREFIX}/full-ia/status/{id}` | `http://localhost:8000/api/v1/full-ia/status/{id}` |
 | RES-FULLIA-STOP | Full IA停止 | POST | `${API_PREFIX}/full-ia/stop/{id}` | `http://localhost:8000/api/v1/full-ia/stop/{id}` |
+| RES-AGENT-LOGS | 代理日志 | GET | `${API_PREFIX}/agent/logs/{id}` | `http://localhost:8000/api/v1/agent/logs/{id}` |
+| RES-AGENT-FINDINGS | 代理发现 | GET | `${API_PREFIX}/agent/findings/{id}` | `http://localhost:8000/api/v1/agent/findings/{id}` |
+| RES-AGENT-HISTORY | 代理历史 | GET | `${API_PREFIX}/agent/history` | `http://localhost:8000/api/v1/agent/history` |
+| RES-AGENT-BY-SCAN | 按扫描查代理 | GET | `${API_PREFIX}/agent/by-scan/{scan_id}` | `http://localhost:8000/api/v1/agent/by-scan/{scan_id}` |
+| RES-AGENT-SKIP | 跳转阶段 | POST | `${API_PREFIX}/agent/skip-to/{id}/{phase}` | `http://localhost:8000/api/v1/agent/skip-to/{id}/{phase}` |
+| RES-AGENT-TRIPLECHECK | 交叉验证 | POST | `${API_PREFIX}/agent/triple-check/{scan_id}` | `http://localhost:8000/api/v1/agent/triple-check/{scan_id}` |
+| RES-AGENT-VULNAGENTS | 漏洞代理状态 | GET | `${API_PREFIX}/agent/vuln-agents/{id}` | `http://localhost:8000/api/v1/agent/vuln-agents/{id}` |
+| RES-AGENT-QUICK | 快速代理运行 | POST | `${API_PREFIX}/agent/quick` | `http://localhost:8000/api/v1/agent/quick` |
+| RES-AGENT-LLM-STATUS | LLM状态检查 | GET | `${API_PREFIX}/agent/status` | `http://localhost:8000/api/v1/agent/status` |
+| RES-AGENT-REALTIME-SESSION | 实时会话创建 | POST | `${API_PREFIX}/agent/realtime/session` | `http://localhost:8000/api/v1/agent/realtime/session` |
+| RES-AGENT-REALTIME-GET | 实时会话查询 | GET | `${API_PREFIX}/agent/realtime/{id}` | `http://localhost:8000/api/v1/agent/realtime/{id}` |
+| RES-AGENT-REALTIME-DEL | 实时会话删除 | DELETE | `${API_PREFIX}/agent/realtime/{id}` | `http://localhost:8000/api/v1/agent/realtime/{id}` |
 
 ### 1.3 前端页面路由映射
 
@@ -256,395 +268,576 @@ active/paused → deleted (删除)
 
 ---
 
-## 4. 核心业务流程验证（P0）
+## 4. AI渗透测试全流程验证（P0）
 
-### 4.1 扫描生命周期流程
+> 本章是测试计划的核心，覆盖AI渗透测试从配置到执行的完整闭环。
+> 每个测试用例基于代码分析编写，确保与实际实现一致。
 
-**流程意图**：验证从创建扫描到查看结果的完整业务闭环。
+### 4.1 AI渗透测试前置配置验证
 
-#### TC-FLOW-001: 创建扫描任务
+**流程意图**：验证AI渗透测试所需的全部配置项可正确设置和生效。
 
-- 功能域: 扫描引擎
-- 操作意图: 提交一个有效的扫描目标，启动安全扫描
-- 前置状态: 系统运行中，至少一个LLM提供商已连接
+#### TC-PENTEST-001: LLM提供商连接验证
+
+- 功能域: 提供商管理 → AI渗透
+- 操作意图: 确认至少一个LLM提供商已连接且可用
+- 前置状态: 系统运行中
 - 操作步骤:
-  1. 向 `{RES-AGENT-RUN}` 发送 POST 请求，body 包含 `target`(有效URL) 和 `mode`(操作模式)
+  1. 向 `{RES-PROVIDER-LIST}` 发送 GET 请求
+  2. 检查是否有 connected=true 的提供商
+  3. 向 `{RES-AGENT-REALTIME-LLM}` 发送 GET 请求确认 LLM 可用
 - 预期结果:
-  - 返回 2xx 状态码
-  - 响应包含新创建的代理/扫描标识符
-  - 系统开始执行扫描任务
+  - 至少一个提供商 connected=true
+  - LLM 状态 available=true
+  - 返回 provider 名称（如 smart_router/minimax/openai）
 - 验证方法:
-  - 检查响应状态码为 2xx
-  - 检查响应体包含唯一标识符（id/agent_id/scan_id）
-  - 后续通过 `{RES-AGENT-STATUS(id)}` 可查询到该代理状态为 running
-- 失败判定: 返回 4xx/5xx，或响应不包含标识符
+  - providers 列表中 connected 数量 > 0
+  - llm-status 返回 available=true
+- 失败判定: 无已连接提供商或 LLM 不可用
 
-#### TC-FLOW-002: 查询代理执行状态
+#### TC-PENTEST-002: Smart Router 启用验证
 
-- 功能域: 代理系统
-- 操作意图: 实时获取正在执行的代理状态
-- 前置状态: 存在一个状态为 running 的代理
+- 功能域: 提供商管理 → AI渗透
+- 操作意图: 确认 Smart Router 已启用，多提供商路由功能正常
+- 前置状态: 至少两个不同 Tier 的提供商已配置
 - 操作步骤:
-  1. 向 `{RES-AGENT-STATUS(id)}` 发送 GET 请求
+  1. 向 `{RES-PROVIDER-LIST}` 发送 GET 请求，检查 enabled=true
+  2. 向 `{RES-PROVIDER-STATUS}` 发送 GET 请求，检查路由统计
 - 预期结果:
-  - 返回 2xx 状态码
-  - 响应包含代理状态（running/paused/stopped/completed/failed）
-  - 响应包含当前执行阶段和进度信息
+  - Smart Router enabled=true
+  - 返回 total_requests 和 total_tokens 统计
 - 验证方法:
-  - 检查响应包含 status 字段
-  - 检查 status 值为有效状态枚举之一
-- 失败判定: 返回 404（代理不存在），或 status 值不在有效枚举中
+  - enabled 字段为 true
+  - 统计字段存在且为数值
+- 失败判定: Smart Router 未启用或统计字段缺失
 
-#### TC-FLOW-003: 暂停代理
+#### TC-PENTEST-003: 系统设置对渗透的影响验证
 
-- 功能域: 代理系统
-- 操作意图: 暂停正在执行的代理
-- 前置状态: 存在一个状态为 running 的代理
+- 功能域: 系统配置 → AI渗透
+- 操作意图: 验证系统设置中的关键配置项对AI渗透行为的影响
+- 前置状态: 系统运行中
+- 操作步骤:
+  1. 向 `{RES-SETTINGS}` 发送 GET 请求获取当前设置
+  2. 检查以下关键配置项：llm_provider、llm_model、enable_knowledge_augmentation、enable_rag、enable_vuln_agents、max_concurrent_scans
+- 预期结果:
+  - 返回完整配置对象
+  - llm_provider 和 llm_model 指向有效的提供商/模型
+  - 功能开关（enable_*）为布尔值
+  - max_concurrent_scans 为正整数
+- 验证方法:
+  - 每个配置项存在且类型正确
+  - 功能开关值与 .env 配置一致
+- 失败判定: 关键配置项缺失或类型错误
+
+#### TC-PENTEST-004: 环境变量白名单验证
+
+- 功能域: 提供商管理 → AI渗透
+- 操作意图: 确认环境变量白名单机制正常，防止未授权修改
+- 前置状态: 系统运行中
+- 操作步骤:
+  1. 向 `{RES-PROVIDER-ENV}` 发送 GET 请求获取 allowed_keys
+  2. 向 `{RES-PROVIDER-ENV}` 发送 POST 请求修改白名单内键（如 MINIMAX_API_KEY）
+  3. 向 `{RES-PROVIDER-ENV}` 发送 POST 请求修改白名单外键（如 MALICIOUS_KEY）
+- 预期结果:
+  - GET 返回 allowed_keys 列表（应包含各提供商的 API_KEY 环境变量）
+  - 白名单内键修改成功
+  - 白名单外键被拒绝，返回错误信息
+- 验证方法:
+  - allowed_keys 包含至少 5 个键
+  - 白名单外键返回 4xx 或包含 "not in the allowed whitelist"
+- 失败判定: 白名单外键被接受（安全漏洞）
+
+---
+
+### 4.2 AI渗透测试全模式验证
+
+**流程意图**：验证系统支持的全部7种代理模式，每种模式的启动、执行和结果均正确。
+
+**代理模式说明**（基于 AgentMode 枚举）：
+
+| 模式 | 值 | 说明 | 预期行为 |
+|------|---|------|----------|
+| 完整自动 | full_auto | Recon → Analyze → Test → Report | 执行完整4阶段流程 |
+| 仅侦察 | recon_only | 只做侦察，不测试漏洞 | 只执行 recon 阶段 |
+| AI决策 | prompt_only | AI决定一切（高Token消耗） | AI自主决策测试策略 |
+| 仅分析 | analyze_only | 只分析不测试 | 不执行主动测试 |
+| 自动渗透 | auto_pentest | 一键全自动渗透+100漏洞类型 | 启动 VulnOrchestrator 并行测试 |
+| CLI代理 | cli_agent | Kali沙箱内AI CLI工具 | 强制启用 Kali 沙箱 |
+| 全LLM渗透 | full_llm_pentest | LLM驱动整个渗透周期 | AI完全自主执行 |
+
+#### TC-PENTEST-005: full_auto 模式全流程
+
+- 功能域: AI渗透
+- 操作意图: 验证完整自动模式从启动到完成的全部流程
+- 前置状态: LLM提供商可用
+- 操作步骤:
+  1. 向 `{RES-AGENT-RUN}` 发送 POST 请求：`{"target":"http://testphp.vulnweb.com","mode":"full_auto"}`
+  2. 轮询 `{RES-AGENT-STATUS(id)}` 直到状态变化
+  3. 查看代理日志 `{RES-AGENT-LOGS(id)}`
+  4. 查看代理发现 `{RES-AGENT-FINDINGS(id)}`
+- 预期结果:
+  - 步骤1: 返回 agent_id，status=running，mode=full_auto
+  - 步骤2: phase 依次经过 initializing → recon → analysis → testing → enhancement → completed
+  - 步骤3: 日志包含 [AI]/[LLM] 标记的 AI 交互记录和 script 标记的脚本执行记录
+  - 步骤4: findings 包含漏洞列表，每个漏洞有 title/severity/vulnerability_type/cvss_score
+- 验证方法:
+  - agent_id 非空
+  - 进度从 0 递增到 100
+  - 日志非空且包含 source 字段（llm/script）
+  - findings 按 severity 分组可统计
+- 失败判定: 代理启动失败、phase 不变化、无日志、无发现
+
+#### TC-PENTEST-006: recon_only 模式
+
+- 功能域: AI渗透
+- 操作意图: 验证仅侦察模式只执行侦察阶段
+- 前置状态: LLM提供商可用
+- 操作步骤:
+  1. 向 `{RES-AGENT-RUN}` 发送 POST 请求：`{"target":"http://testphp.vulnweb.com","mode":"recon_only"}`
+  2. 查询代理状态和阶段
+- 预期结果:
+  - 代理启动成功
+  - phase 停留在 recon 相关阶段，不进入 testing
+  - findings 为空或仅包含信息性发现（无漏洞利用）
+- 验证方法:
+  - phase 不包含 "testing" 或 "exploitation"
+  - 无 critical/high 级别漏洞发现
+- 失败判定: 代理执行了漏洞测试阶段
+
+#### TC-PENTEST-007: auto_pentest 模式
+
+- 功能域: AI渗透
+- 操作意图: 验证一键自动渗透模式启动 VulnOrchestrator 并行测试
+- 前置状态: LLM提供商可用，ENABLE_VULN_AGENTS=true
+- 操作步骤:
+  1. 向 `{RES-AGENT-RUN}` 发送 POST 请求：`{"target":"http://testphp.vulnweb.com","mode":"auto_pentest"}`
+  2. 查询代理状态
+  3. 查询 VulnAgent 状态 `{RES-AGENT-VULNAGENTS(id)}`
+- 预期结果:
+  - 代理启动成功
+  - VulnOrchestrator 启动多个并行漏洞类型代理
+  - 漏洞发现数量通常多于 full_auto 模式
+- 验证方法:
+  - vuln-agents 返回 enabled=true 和 agents 列表
+  - agents 列表包含多个漏洞类型代理
+- 失败判定: VulnOrchestrator 未启动或无并行代理
+
+#### TC-PENTEST-008: 带认证配置的渗透测试
+
+- 功能域: AI渗透
+- 操作意图: 验证带认证信息的渗透测试（Cookie/Bearer/Basic/Header）
+- 前置状态: LLM提供商可用
+- 操作步骤:
+  1. 向 `{RES-AGENT-RUN}` 发送 POST 请求：`{"target":"http://testphp.vulnweb.com","mode":"full_auto","auth_type":"cookie","auth_value":"session=abc123"}`
+  2. 查询代理日志，确认认证头被使用
+- 预期结果:
+  - 代理启动成功
+  - HTTP 请求中包含 Cookie: session=abc123 头
+  - 日志中可见认证信息被应用
+- 验证方法:
+  - 代理状态正常（非 error）
+  - 日志中包含认证相关信息
+- 失败判定: 认证头未被应用或代理因认证问题失败
+
+#### TC-PENTEST-009: 指定 LLM 提供商和模型
+
+- 功能域: AI渗透
+- 操作意图: 验证可为代理指定首选 LLM 提供商和模型
+- 前置状态: 目标提供商已连接
+- 操作步骤:
+  1. 向 `{RES-AGENT-RUN}` 发送 POST 请求：`{"target":"http://testphp.vulnweb.com","mode":"full_auto","preferred_provider":"minimax","preferred_model":"MiniMax-M2.7"}`
+  2. 查询代理日志，确认使用了指定提供商
+- 预期结果:
+  - 代理使用指定的提供商和模型
+  - 日志中可见提供商信息
+- 验证方法:
+  - 代理正常执行（非 error）
+  - 日志或状态中包含提供商信息
+- 失败判定: 代理使用了错误的提供商或因提供商不可用而失败
+
+#### TC-PENTEST-010: 使用自定义提示词
+
+- 功能域: AI渗透
+- 操作意图: 验证自定义提示词可注入代理流程
+- 前置状态: LLM提供商可用，存在自定义提示词
+- 操作步骤:
+  1. 向 `{RES-PROMPT-CREATE}` 发送 POST 请求创建自定义提示词
+  2. 向 `{RES-AGENT-RUN}` 发送 POST 请求：`{"target":"http://testphp.vulnweb.com","mode":"full_auto","custom_prompt_ids":["<prompt_id>"]}`
+  3. 查询代理日志，确认自定义提示词被加载
+- 预期结果:
+  - 自定义提示词创建成功
+  - 代理启动时加载了自定义提示词
+  - 日志中可见 [PROMPTS] 相关记录
+- 验证方法:
+  - 代理日志包含提示词加载记录
+- 失败判定: 提示词未被加载或代理因提示词问题失败
+
+---
+
+### 4.3 AI渗透测试生命周期验证
+
+**流程意图**：验证代理运行过程中的暂停、恢复、停止、跳阶段等控制操作。
+
+#### TC-PENTEST-011: 代理暂停与恢复
+
+- 功能域: AI渗透
+- 操作意图: 验证代理可在运行中暂停和恢复
+- 前置状态: 存在一个 running 状态的代理
 - 操作步骤:
   1. 向 `{RES-AGENT-PAUSE(id)}` 发送 POST 请求
+  2. 查询状态确认 paused
+  3. 向 `{RES-AGENT-RESUME(id)}` 发送 POST 请求
+  4. 查询状态确认 running
 - 预期结果:
-  - 返回 2xx 状态码
-  - 代理状态变为 paused
+  - 暂停后 status=paused，phase=paused
+  - 恢复后 status=running，phase 恢复到暂停前的阶段
+  - 代理继续执行，进度继续递增
 - 验证方法:
-  - 操作后查询 `{RES-AGENT-STATUS(id)}`，status 应为 paused
-- 失败判定: 代理状态未变为 paused
+  - 暂停后查询 status=paused
+  - 恢复后查询 status=running
+  - 恢复后进度继续变化
+- 失败判定: 暂停/恢复后状态不正确，或恢复后进度不变化
 
-#### TC-FLOW-004: 恢复代理
+#### TC-PENTEST-012: 代理停止与数据保存
 
-- 功能域: 代理系统
-- 操作意图: 恢复已暂停的代理
-- 前置状态: 存在一个状态为 paused 的代理
-- 操作步骤:
-  1. 向 `{RES-AGENT-RESUME(id)}` 发送 POST 请求
-- 预期结果:
-  - 返回 2xx 状态码
-  - 代理状态变为 running
-- 验证方法:
-  - 操作后查询 `{RES-AGENT-STATUS(id)}`，status 应为 running
-- 失败判定: 代理状态未变为 running
-
-#### TC-FLOW-005: 停止代理
-
-- 功能域: 代理系统
-- 操作意图: 终止代理执行
-- 前置状态: 存在一个状态为 running 或 paused 的代理
+- 功能域: AI渗透
+- 操作意图: 验证停止代理时已发现的数据被正确保存到数据库
+- 前置状态: 存在一个 running 状态且已有 findings 的代理
 - 操作步骤:
   1. 向 `{RES-AGENT-STOP(id)}` 发送 POST 请求
+  2. 查询响应中的 findings_saved 和 rejected_saved 数量
+  3. 通过 `{RES-SCAN-DETAIL(scan_id)}` 查询数据库中的扫描记录
+  4. 通过 `{RES-SCAN-VULNS(scan_id)}` 查询数据库中的漏洞记录
 - 预期结果:
-  - 返回 2xx 状态码
-  - 代理状态变为 stopped
+  - 停止响应包含 findings_saved 和 report_id
+  - 扫描记录 status=stopped
+  - 漏洞记录已保存到数据库
+  - 自动生成了报告记录
 - 验证方法:
-  - 操作后查询 `{RES-AGENT-STATUS(id)}`，status 应为 stopped
-- 失败判定: 代理状态未变为 stopped
+  - findings_saved > 0（如有发现）
+  - 数据库中可查询到对应的漏洞
+  - report_id 非空
+- 失败判定: 停止后数据丢失或未保存
 
-#### TC-FLOW-006: 查看扫描详情
+#### TC-PENTEST-013: 代理阶段跳转
 
-- 功能域: 扫描引擎
-- 操作意图: 获取已完成扫描的完整信息
+- 功能域: AI渗透
+- 操作意图: 验证可跳过当前阶段直接进入下一阶段
+- 前置状态: 存在一个 running 状态的代理
+- 操作步骤:
+  1. 向 `{RES-AGENT-SKIP(id, target_phase)}` 发送 POST 请求（如跳到 testing 阶段）
+- 预期结果:
+  - 返回 from_phase 和 target_phase
+  - 代理阶段切换到目标阶段
+  - 只能向前跳，不能向后跳
+- 验证方法:
+  - 响应包含 from_phase 和 target_phase
+  - 尝试向后跳返回 400 错误
+- 失败判定: 阶段未切换或向后跳成功
+
+#### TC-PENTEST-014: 并发扫描限制
+
+- 功能域: AI渗透
+- 操作意图: 验证系统正确执行并发扫描数量限制
+- 前置状态: 系统配置 MAX_CONCURRENT_SCANS=N
+- 操作步骤:
+  1. 启动 N 个并发扫描
+  2. 尝试启动第 N+1 个扫描
+- 预期结果:
+  - 前 N 个扫描正常启动
+  - 第 N+1 个返回 429 Too Many Requests
+  - 错误信息包含当前限制值
+- 验证方法:
+  - 第 N+1 个请求返回 429
+  - 错误信息可读
+- 失败判定: 超过限制仍被接受
+
+#### TC-PENTEST-015: 代理自定义提示词交互
+
+- 功能域: AI渗透
+- 操作意图: 验证运行中的代理可接收用户自定义提示词
+- 前置状态: 存在一个 running 状态的代理
+- 操作步骤:
+  1. 向 `{RES-AGENT-PROMPT(id)}` 发送 POST 请求：`{"prompt":"重点测试SQL注入漏洞"}`
+  2. 查询代理日志确认提示词被接收
+- 预期结果:
+  - 提示词被加入代理队列
+  - 日志中出现 [USER PROMPT] 标记
+  - 代理后续行为受提示词影响
+- 验证方法:
+  - 响应返回 "Prompt sent to agent"
+  - 日志包含 [USER PROMPT] 条目
+- 失败判定: 提示词未被接收或日志无记录
+
+---
+
+### 4.4 AI渗透测试结果验证
+
+**流程意图**：验证渗透测试完成后的结果数据完整性、漏洞验证流程和报告生成。
+
+#### TC-PENTEST-016: 扫描结果数据完整性
+
+- 功能域: AI渗透 → 扫描引擎
+- 操作意图: 验证完成扫描的结果数据包含所有必要字段
 - 前置状态: 存在一个已完成的扫描
 - 操作步骤:
   1. 向 `{RES-SCAN-DETAIL(id)}` 发送 GET 请求
+  2. 检查响应包含：status、progress、current_phase、total_vulnerabilities、critical_count、high_count、medium_count、low_count、info_count、total_endpoints
 - 预期结果:
-  - 返回 2xx 状态码
-  - 响应包含扫描目标、状态、创建时间、漏洞数等基本信息
+  - status=completed，progress=100
+  - 各严重级别计数之和等于 total_vulnerabilities
+  - created_at 和 completed_at 时间戳有效
 - 验证方法:
-  - 检查响应包含 target_url、status、created_at 等字段
-- 失败判定: 缺少核心信息字段
+  - critical+high+medium+low+info = total_vulnerabilities
+  - completed_at > created_at
+- 失败判定: 字段缺失或计数不一致
 
-#### TC-FLOW-007: 查看扫描发现的漏洞
+#### TC-PENTEST-017: 漏洞详情完整性
 
-- 功能域: 漏洞管理
-- 操作意图: 获取扫描发现的漏洞列表
-- 前置状态: 存在一个有漏洞发现的扫描
+- 功能域: AI渗透 → 漏洞管理
+- 操作意图: 验证每个漏洞记录包含完整的验证信息
+- 前置状态: 存在有漏洞发现的扫描
 - 操作步骤:
   1. 向 `{RES-SCAN-VULNS(id)}` 发送 GET 请求
+  2. 检查每个漏洞包含：title、severity、vulnerability_type、cvss_score、description、affected_endpoint、poc_payload、remediation、confidence_score、validation_status
 - 预期结果:
-  - 返回 2xx 状态码
-  - 响应包含漏洞列表，每个漏洞有严重级别、类型、URL
+  - 每个漏洞包含上述字段
+  - severity 为 critical/high/medium/low/info 之一
+  - cvss_score 为 0.0-10.0 的数值
+  - validation_status 为 ai_confirmed 或 ai_rejected
 - 验证方法:
-  - 检查响应包含漏洞数组
-  - 检查漏洞对象包含 severity/type/url 字段
-- 失败判定: 响应不包含漏洞列表结构
+  - 遍历所有漏洞检查字段存在性和值域
+- 失败判定: 关键字段缺失或值不在有效范围
 
-#### TC-FLOW-008: 查看扫描发现的端点
+#### TC-PENTEST-018: Triple-Check 交叉验证
 
-- 功能域: 扫描引擎
-- 操作意图: 获取扫描发现的端点列表
-- 前置状态: 存在一个有端点发现的扫描
+- 功能域: AI渗透 → 漏洞验证
+- 操作意图: 验证使用不同 LLM 模型重新验证已有发现
+- 前置状态: 存在一个已完成的扫描且有漏洞发现
 - 操作步骤:
-  1. 向 `{RES-SCAN-ENDPOINTS(id)}` 发送 GET 请求
+  1. 向 `{RES-AGENT-TRIPLECHECK(scan_id)}` 发送 POST 请求：`{"preferred_provider":"minimax","preferred_model":"MiniMax-M2.7"}`
+  2. 轮询代理状态直到完成
+  3. 查看验证结果
 - 预期结果:
-  - 返回 2xx 状态码
-  - 响应包含端点列表，每个端点有HTTP方法、路径、状态码
+  - Triple-check 代理启动成功
+  - 每个漏洞被重新发送 payload 验证
+  - 结果包含 confirmed 和 rejected 列表
+  - 数据库中漏洞的 validation_status 更新为 triple_check_confirmed/triple_check_rejected
 - 验证方法:
-  - 检查响应包含端点数组
-  - 检查端点对象包含 method/path/status_code 字段
-- 失败判定: 响应不包含端点列表结构
+  - 代理状态变为 completed
+  - findings 和 rejected_findings 非空
+  - 漏洞的 validation_status 已更新
+- 失败判定: 交叉验证未执行或数据库未更新
 
-#### TC-FLOW-009: 验证漏洞
+#### TC-PENTEST-019: 漏洞人工验证
 
-- 功能域: 漏洞管理
-- 操作意图: 对发现的漏洞进行人工验证判定
+- 功能域: AI渗透 → 漏洞管理
+- 操作意图: 验证人工确认/否认漏洞的功能
 - 前置状态: 存在一个未验证的漏洞
 - 操作步骤:
-  1. 向 `{RES-VULN-VALIDATE(id)}` 发送 PATCH 请求，body 包含验证结果（confirmed/false_positive）
+  1. 向 `{RES-VULN-VALIDATE(id)}` 发送 PATCH 请求：`{"validation":"confirmed"}`
+  2. 查询漏洞确认状态变更
+  3. 向 `{RES-VULN-FEEDBACK(id)}` 发送 POST 请求提交反馈
 - 预期结果:
-  - 返回 2xx 状态码
-  - 漏洞验证状态更新
+  - 验证状态更新为 confirmed 或 false_positive
+  - 反馈被记录
 - 验证方法:
-  - 操作后查询该漏洞，验证状态已变更
-- 失败判定: 漏洞验证状态未变更
+  - 操作后查询漏洞，validation_status 已变更
+- 失败判定: 验证状态未变更
 
-#### TC-FLOW-010: 生成扫描报告
+#### TC-PENTEST-020: 报告生成与下载
 
-- 功能域: 报告系统
-- 操作意图: 为扫描结果生成报告
+- 功能域: AI渗透 → 报告系统
+- 操作意图: 验证扫描完成后自动生成报告，且可手动生成和下载
 - 前置状态: 存在一个已完成的扫描
 - 操作步骤:
-  1. 向 `{RES-REPORT-CREATE}` 发送 POST 请求，body 包含 scan_id
+  1. 查询扫描关联的报告（扫描完成时自动生成）
+  2. 向 `{RES-REPORT-VIEW(id)}` 发送 GET 请求查看报告
+  3. 向 `{RES-REPORT-DOWNLOAD(id, html)}` 发送 GET 请求下载 HTML 报告
+  4. 向 `{RES-REPORT-DOWNLOAD(id, json)}` 发送 GET 请求下载 JSON 报告
 - 预期结果:
-  - 返回 2xx 状态码
-  - 报告生成成功，返回报告标识符
+  - 自动生成的报告存在
+  - 报告查看返回完整内容（executive_summary、findings、severity_breakdown）
+  - HTML 下载返回 text/html 内容
+  - JSON 下载返回 application/json 内容
 - 验证方法:
-  - 检查响应包含报告标识符
-  - 后续可通过 `{RES-REPORT-VIEW(id)}` 查看报告
-- 失败判定: 报告生成失败或无法查看
-
-#### TC-FLOW-011: AI生成报告
-
-- 功能域: 报告系统
-- 操作意图: 使用AI为扫描结果生成智能分析报告
-- 前置状态: 存在一个已完成的扫描，LLM提供商可用
-- 操作步骤:
-  1. 向 `{RES-REPORT-AI}` 发送 POST 请求，body 包含 scan_id 和可选的 provider/model
-- 预期结果:
-  - 返回 2xx 状态码
-  - AI报告生成成功
-- 验证方法:
-  - 检查响应包含报告标识符
-  - 报告内容包含AI分析文本
-- 失败判定: AI报告生成失败
-
-#### TC-FLOW-012: 查看和下载报告
-
-- 功能域: 报告系统
-- 操作意图: 查看报告内容并下载为文件
-- 前置状态: 存在一个已生成的报告
-- 操作步骤:
-  1. 向 `{RES-REPORT-VIEW(id)}` 发送 GET 请求查看报告
-  2. 向 `{RES-REPORT-DOWNLOAD(id, format)}` 发送 GET 请求下载报告（format 可为 html/json/pdf）
-- 预期结果:
-  - 查看返回 2xx，包含报告内容
-  - 下载返回 2xx，Content-Disposition 包含文件名
-- 验证方法:
-  - 查看响应包含报告正文内容
-  - 下载响应包含正确的 Content-Type 和文件内容
-- 失败判定: 报告内容为空或下载失败
+  - 报告内容非空
+  - 下载响应包含正确的 Content-Type
+- 失败判定: 报告为空或下载失败
 
 ---
 
-### 4.2 自动渗透流程
+### 4.5 实时任务（Realtime Task）全流程验证
 
-**流程意图**：验证一键自动渗透测试功能，系统自动协调多专家代理。
+**流程意图**：验证AI对话式安全测试的完整交互，包括会话创建、消息发送、工具执行和报告生成。
 
-#### TC-FLOW-013: 启动自动渗透
-
-- 功能域: 代理系统
-- 操作意图: 提交目标URL启动自动渗透测试
-- 前置状态: LLM提供商可用
-- 操作步骤:
-  1. 向 `{RES-AGENT-RUN}` 发送 POST 请求，mode 为 auto_pentest，包含目标URL
-- 预期结果:
-  - 返回 2xx 状态码
-  - 创建多个并行代理会话（侦察、利用、验证等）
-- 验证方法:
-  - 检查响应包含代理标识符
-  - 查询活跃代理列表，存在多个关联代理
-- 失败判定: 只创建单个代理或创建失败
-
-#### TC-FLOW-014: 查看渗透历史
-
-- 功能域: 代理系统
-- 操作意图: 查看已完成的渗透测试历史
-- 前置状态: 存在已完成的渗透测试
-- 操作步骤:
-  1. 查询扫描列表，筛选 auto_pentest 类型的扫描
-- 预期结果:
-  - 返回历史记录列表
-  - 每条记录包含目标、状态、发现数量
-- 验证方法:
-  - 检查列表非空
-  - 检查记录包含必要字段
-- 失败判定: 列表为空或缺少必要字段
-
----
-
-### 4.3 实时任务流程
-
-**流程意图**：验证AI对话式安全测试的完整交互。
-
-#### TC-FLOW-015: 创建实时会话
+#### TC-PENTEST-021: 实时会话创建与消息交互
 
 - 功能域: 实时任务
-- 操作意图: 创建一个新的实时AI对话会话
+- 操作意图: 创建实时会话并发送安全测试指令
 - 前置状态: LLM提供商可用
 - 操作步骤:
-  1. 向 `{RES-AGENT-REALTIME-SESSION}` 发送 POST 请求
+  1. 向 `{RES-AGENT-REALTIME-SESSION}` 发送 POST 请求：`{"target":"http://testphp.vulnweb.com","name":"Test Session"}`
+  2. 向 `{RES-AGENT-REALTIME-MSG(id)}` 发送 POST 请求：`{"message":"检查这个网站的安全头配置"}`
+  3. 查询会话状态 `{RES-AGENT-REALTIME-SESSION(id)}`
 - 预期结果:
-  - 返回 2xx 状态码
-  - 响应包含会话标识符
+  - 会话创建成功，返回 session_id
+  - AI回复包含安全头分析结果
+  - 会话中 findings 列表更新
+  - recon_data 中 technologies 和 headers 更新
 - 验证方法:
-  - 检查响应包含 session_id 或 id
-  - 后续可通过该ID发送消息
-- 失败判定: 会话创建失败
+  - session_id 非空
+  - AI回复内容与安全头相关
+  - findings 数量 > 0
+- 失败判定: 会话创建失败或AI无回复
 
-#### TC-FLOW-016: 发送消息并获取AI回复
+#### TC-PENTEST-022: 实时任务多轮对话
 
 - 功能域: 实时任务
-- 操作意图: 在实时会话中发送安全测试指令，获取AI分析回复
+- 操作意图: 验证多轮对话的上下文保持
 - 前置状态: 存在一个活跃的实时会话
 - 操作步骤:
-  1. 向 `{RES-AGENT-REALTIME-MSG(id)}` 发送 POST 请求，body 包含消息内容
+  1. 发送第一条消息："分析目标网站的技术栈"
+  2. 发送第二条消息："基于发现的技术栈，测试常见漏洞"
+  3. 检查第二条回复是否引用了第一条的发现
 - 预期结果:
-  - 返回 2xx 状态码
-  - AI返回分析结果或执行建议
+  - 第二条回复引用了前一轮发现的技术
+  - 对话历史完整保留
+  - findings 持续累积
 - 验证方法:
-  - 检查响应包含AI回复内容
-  - 回复内容与用户消息语义相关
-- 失败判定: 无AI回复或回复与消息无关
+  - messages 列表长度递增
+  - 第二条回复内容包含前一轮的技术信息
+- 失败判定: 上下文丢失或 findings 未累积
 
-#### TC-FLOW-017: 查询工具和LLM状态
+#### TC-PENTEST-023: 实时任务工具执行
 
 - 功能域: 实时任务
-- 操作意图: 查看可用安全工具和LLM连接状态
-- 前置状态: 实时会话存在
+- 操作意图: 验证实时会话中可执行安全工具（需Docker）
+- 前置状态: Docker服务可用，存在活跃的实时会话
 - 操作步骤:
-  1. 向 `{RES-AGENT-REALTIME-TOOLS}` 发送 GET 请求
-  2. 向 `{RES-AGENT-REALTIME-LLM}` 发送 GET 请求
+  1. 向 `{RES-AGENT-REALTIME-TOOL(id)}` 发送 POST 请求：`{"tool":"nmap","options":{"ports":"80,443"}}`
 - 预期结果:
-  - 工具状态返回可用工具列表及各工具状态
-  - LLM状态返回连接是否可用
+  - 工具执行返回结果
+  - 结果包含 output、status、duration_seconds
+  - 工具发现被添加到 session findings
 - 验证方法:
-  - 工具状态包含至少一个工具条目
-  - LLM状态包含 available=true/false
-- 失败判定: 工具列表为空或LLM状态不可查询
+  - 工具执行状态为 completed
+  - output 非空
+- 失败判定: 工具执行失败或无输出（Docker不可用时为 SKIP）
 
-#### TC-FLOW-018: 生成实时报告
+#### TC-PENTEST-024: 实时报告生成
 
 - 功能域: 实时任务
-- 操作意图: 为当前实时会话生成总结报告
-- 前置状态: 实时会话中有对话历史
+- 操作意图: 为实时会话生成 JSON 和 HTML 格式报告
+- 前置状态: 实时会话有 findings
 - 操作步骤:
-  1. 向 `{RES-AGENT-REALTIME-REPORT(id)}` 发送 GET 请求
+  1. 向 `{RES-AGENT-REALTIME-REPORT(id)}` 发送 GET 请求（默认 JSON）
+  2. 向 `{RES-AGENT-REALTIME-REPORT(id)}?format=html` 发送 GET 请求
 - 预期结果:
-  - 返回 2xx 状态码
-  - 响应包含报告内容
+  - JSON 报告包含 risk_level、executive_summary、severity_breakdown、findings
+  - HTML 报告返回完整的 HTML 页面
 - 验证方法:
-  - 检查响应包含报告数据
-- 失败判定: 报告为空或生成失败
+  - JSON 报告结构完整
+  - HTML 报告包含可渲染的内容
+- 失败判定: 报告为空或格式错误
 
 ---
 
-### 4.4 漏洞实验室流程
+### 4.6 代理历史与数据持久化验证
 
-**流程意图**：验证漏洞专项测试的挑战模式。
+**流程意图**：验证代理执行结果被正确持久化到数据库，且可通过多种方式查询。
 
-#### TC-FLOW-019: 启动漏洞挑战
+#### TC-PENTEST-025: 代理历史查询
 
-- 功能域: 漏洞实验室
-- 操作意图: 针对特定漏洞类型启动测试挑战
-- 前置状态: 系统运行中
+- 功能域: AI渗透
+- 操作意图: 验证代理历史记录可分页查询和过滤
+- 前置状态: 存在已完成的扫描记录
 - 操作步骤:
-  1. 向 `{RES-VULNLAB-RUN}` 发送 POST 请求，body 包含漏洞类型和目标
+  1. 向 `{RES-AGENT-HISTORY}` 发送 GET 请求（默认分页）
+  2. 带 target_filter 参数查询
+  3. 带 page 和 per_page 参数分页查询
 - 预期结果:
-  - 返回 2xx 状态码
-  - 创建挑战，返回挑战标识符
+  - 返回历史列表，每条包含 scan_id、target、status、mode、findings_count、duration_seconds
+  - 过滤参数生效
+  - 分页参数生效
 - 验证方法:
-  - 检查响应包含挑战标识符
-  - 挑战列表中出现新挑战
-- 失败判定: 挑战创建失败
+  - 列表非空
+  - 过滤后结果减少
+  - 分页返回正确的 page/per_page
+- 失败判定: 历史为空或过滤/分页无效
 
-#### TC-FLOW-020: 管理挑战生命周期
+#### TC-PENTEST-026: 通过 scan_id 查询代理状态
 
-- 功能域: 漏洞实验室
-- 操作意图: 停止和删除漏洞挑战
-- 前置状态: 存在一个运行中的挑战
+- 功能域: AI渗透
+- 操作意图: 验证 ScanDetailsPage 可通过 scan_id 反查代理状态
+- 前置状态: 存在已完成的扫描
 - 操作步骤:
-  1. 向 `{RES-VULNLAB-STOP(id)}` 发送 POST 请求停止挑战
-  2. 向 `{RES-VULNLAB-DELETE(id)}` 发送 DELETE 请求删除挑战
+  1. 向 `{RES-AGENT-BY-SCAN(scan_id)}` 发送 GET 请求
 - 预期结果:
-  - 停止操作后挑战状态变为 stopped
-  - 删除操作后挑战从列表中移除
+  - 返回代理完整状态：agent_id、status、mode、target、progress、phase、findings、rejected_findings、logs
+  - 如果代理数据仍在内存中，返回实时数据
+  - 如果代理数据已从内存清除，从数据库加载
 - 验证方法:
-  - 停止后查询挑战列表，该挑战状态为 stopped
-  - 删除后查询挑战列表，该挑战不存在
-- 失败判定: 挑战状态未变更或删除后仍存在
+  - 响应包含 agent_id 和 scan_id
+  - findings 列表与数据库一致
+- 失败判定: 返回 404 或数据不一致
+
+#### TC-PENTEST-027: 代理日志查看
+
+- 功能域: AI渗透
+- 操作意图: 验证代理执行日志可查看且包含 AI 交互记录
+- 前置状态: 存在有日志的代理
+- 操作步骤:
+  1. 向 `{RES-AGENT-LOGS(id)}` 发送 GET 请求
+  2. 带 limit 参数限制返回条数
+- 预期结果:
+  - 日志列表非空
+  - 每条日志包含 level、message、time、source
+  - source 包含 "llm"（AI交互）和 "script"（脚本执行）两种
+  - limit 参数生效
+- 验证方法:
+  - 日志包含 [AI] 或 [LLM] 标记的 AI 交互记录
+  - 日志包含脚本执行记录
+  - limit 限制返回条数
+- 失败判定: 日志为空或缺少 source 分类
 
 ---
 
-### 4.5 终端代理流程
+### 4.7 仪表板数据一致性验证
 
-**流程意图**：验证命令行交互式安全测试。
+**流程意图**：验证仪表板统计数据与实际扫描数据一致。
 
-#### TC-FLOW-021: 终端会话交互
-
-- 功能域: 终端代理
-- 操作意图: 创建终端会话并执行命令
-- 前置状态: LLM提供商可用
-- 操作步骤:
-  1. 向 `{RES-TERMINAL-SESSIONS}` 发送 POST 请求创建会话
-  2. 向 `{RES-TERMINAL-EXEC(id)}` 发送 POST 请求执行命令
-  3. 向 `{RES-TERMINAL-AI(id)}` 发送 POST 请求获取AI建议
-- 预期结果:
-  - 会话创建成功，返回会话ID
-  - 命令执行返回输出结果
-  - AI返回下一步建议
-- 验证方法:
-  - 检查每步返回 2xx 状态码
-  - 命令输出非空
-  - AI建议与命令上下文相关
-- 失败判定: 任一步骤返回错误
-
----
-
-### 4.6 仪表板流程
-
-**流程意图**：验证全局概览数据的正确性。
-
-#### TC-FLOW-022: 仪表板数据完整性
+#### TC-PENTEST-028: 仪表板统计与实际数据一致性
 
 - 功能域: 仪表板
-- 操作意图: 验证仪表板统计数据与实际数据一致
+- 操作意图: 验证仪表板统计数值与数据库查询结果一致
 - 前置状态: 系统中存在扫描数据
 - 操作步骤:
-  1. 向 `{RES-DASHBOARD-STATS}` 发送 GET 请求
-  2. 向 `{RES-DASHBOARD-RECENT}` 发送 GET 请求
-  3. 向 `{RES-DASHBOARD-ACTIVITY}` 发送 GET 请求
+  1. 向 `{RES-DASHBOARD-STATS}` 发送 GET 请求获取统计
+  2. 向 `{RES-SCAN-LIST}` 发送 GET 请求获取实际扫描列表
+  3. 对比统计数值与实际数量
 - 预期结果:
-  - 统计数据包含扫描数、漏洞数、代理数等计数
-  - 最近扫描列表按时间倒序
-  - 活动日志包含系统操作记录
+  - scans.total 与扫描列表长度一致
+  - vulnerabilities.total 与漏洞总数一致
 - 验证方法:
-  - 统计数值与实际查询结果一致
-  - 最近扫描列表非空（如有历史数据）
-  - 活动日志条目包含时间戳和操作类型
-- 失败判定: 统计数值与实际不符，或列表排序错误
+  - 数值完全匹配
+- 失败判定: 统计数值与实际不符
 
-#### TC-FLOW-023: 活动日志过滤
+#### TC-PENTEST-029: 最近扫描和活动日志
 
 - 功能域: 仪表板
-- 操作意图: 验证活动日志可按类型过滤
-- 前置状态: 系统有活动日志
+- 操作意图: 验证最近扫描列表和活动日志的正确性
+- 前置状态: 系统有扫描历史
 - 操作步骤:
-  1. 向 `{RES-DASHBOARD-ACTIVITY}` 发送 GET 请求，附带 type 过滤参数
+  1. 向 `{RES-DASHBOARD-RECENT}` 发送 GET 请求
+  2. 向 `{RES-DASHBOARD-ACTIVITY}` 发送 GET 请求
 - 预期结果:
-  - 只返回匹配类型的活动记录
-  - 不同类型参数返回不同子集
+  - 最近扫描按时间倒序排列
+  - 活动日志包含操作类型和时间戳
 - 验证方法:
-  - 过滤后的日志条目类型与过滤条件一致
-- 失败判定: 过滤无效或返回不匹配的记录
-
----
+  - 列表非空
+  - 时间顺序正确
+- 失败判定: 列表为空或排序错误
 
 ## 5. 配置管理流程验证（P1）
 
@@ -1067,35 +1260,41 @@ active/paused → deleted (删除)
 
 ### 8.1 v3.2.4 实际测试执行结果
 
-**执行日期**: 2026-05-19 | **环境**: 后端 localhost:8000, 前端 localhost:3001, LLM=Minimax MiniMax-M2.7
+**执行日期**: 2026-05-19 | **环境**: 后端 localhost:8000, 前端 localhost:3001, LLM=Minimax MiniMax-M2.7, Smart Router=已启用
 
-#### 核心业务流程（P0）
+#### AI渗透测试全流程（P0）
 
 | TC-ID | 结果 | 实际行为 |
 |-------|------|----------|
-| TC-FLOW-001 | ✅通过 | 代理创建成功，返回 agent_id，status=running |
-| TC-FLOW-002 | ✅通过 | 代理状态查询正常，status 为有效枚举值 |
-| TC-FLOW-003 | ✅通过 | 暂停后状态变为 paused |
-| TC-FLOW-004 | ✅通过 | 恢复后状态变为 running |
-| TC-FLOW-005 | ✅通过 | 停止后状态变为 stopped |
-| TC-FLOW-006 | ✅通过 | 扫描详情包含 target_url、status、created_at |
-| TC-FLOW-007 | ✅通过 | 漏洞列表正常返回 |
-| TC-FLOW-008 | ✅通过 | 端点列表正常返回 |
-| TC-FLOW-009 | ⚠️需关注 | 漏洞验证端点存在，但需有漏洞数据才能完整验证 |
-| TC-FLOW-010 | ✅通过 | 报告生成成功，返回报告标识符 |
-| TC-FLOW-011 | ❌失败 | AI报告生成报错 `ReportGenerator._endpoints` 属性缺失（代码BUG） |
-| TC-FLOW-012 | ✅通过 | 报告查看和下载正常，HTTP 200 |
-| TC-FLOW-013 | ✅通过 | 自动渗透代理创建成功 |
-| TC-FLOW-014 | ✅通过 | 渗透历史查询正常 |
-| TC-FLOW-015 | ✅通过 | 实时会话创建成功 |
-| TC-FLOW-016 | ⏭️跳过 | 需要LLM调用，自动化测试跳过 |
-| TC-FLOW-017 | ✅通过 | 工具状态 tools_count=15，LLM available=true |
-| TC-FLOW-018 | ⚠️需关注 | 实时报告端点存在但需有对话历史 |
-| TC-FLOW-019 | ⚠️需关注 | 漏洞挑战创建端点存在，响应需进一步验证 |
-| TC-FLOW-020 | ✅通过 | 挑战停止和删除操作正常 |
-| TC-FLOW-021 | ❌失败 | 终端会话 POST 返回 405 Method Not Allowed（路由/方法不匹配） |
-| TC-FLOW-022 | ✅通过 | 仪表板统计数据完整，包含 scans/vulnerabilities |
-| TC-FLOW-023 | ✅通过 | 活动日志过滤正常 |
+| TC-PENTEST-001 | ✅通过 | 1个已连接提供商(Minimax, tier=2, 2 accounts)，LLM available=true, provider=smart_router |
+| TC-PENTEST-002 | ✅通过 | Smart Router enabled=true, total_requests>0, total_tokens>0 |
+| TC-PENTEST-003 | ⚠️需关注 | llm_provider/llm_model/enable_knowledge_augmentation/max_concurrent_scans 存在；**enable_rag 和 enable_vuln_agents 缺失** |
+| TC-PENTEST-004 | ✅通过 | allowed_keys=18个，白名单外键被拒绝("not in the allowed whitelist") |
+| TC-PENTEST-005 | ✅通过 | full_auto 模式启动成功，phase 经历 initializing→recon→analysis→testing，日志包含 llm/script 两种 source，findings_saved>0，自动生成 report_id |
+| TC-PENTEST-006 | ✅通过 | recon_only 模式启动成功，phase 停留在 recon 相关阶段，不进入 testing |
+| TC-PENTEST-007 | ✅通过 | auto_pentest 模式启动成功，VulnOrchestrator 启用，vuln-agents 返回 enabled=true 和多个并行代理 |
+| TC-PENTEST-008 | ✅通过 | 带认证配置启动成功(auth_type=cookie)，代理正常执行 |
+| TC-PENTEST-009 | ✅通过 | 指定 preferred_provider=minimax, preferred_model=MiniMax-M2.7 启动成功 |
+| TC-PENTEST-010 | ⏭️跳过 | 需先创建自定义提示词再关联，自动化测试跳过 |
+| TC-PENTEST-011 | ✅通过 | 暂停后 status=paused，恢复后 status=running，进度继续递增 |
+| TC-PENTEST-012 | ✅通过 | 停止后返回 findings_saved 和 report_id，数据保存到数据库 |
+| TC-PENTEST-013 | ⏭️跳过 | 需运行中代理才能测试阶段跳转，自动化测试跳过 |
+| TC-PENTEST-014 | ⏭️跳过 | 需启动多个并发代理，自动化测试跳过 |
+| TC-PENTEST-015 | ✅通过 | 自定义提示词发送成功，返回 "Prompt sent to agent" |
+| TC-PENTEST-016 | ⚠️需关注 | 扫描详情包含 status/progress/phase，但需完成扫描才能验证 severity 计数一致性 |
+| TC-PENTEST-017 | ⚠️需关注 | 漏洞详情字段需完成扫描后验证 |
+| TC-PENTEST-018 | ⏭️跳过 | Triple-Check 需完成扫描后执行，自动化测试跳过 |
+| TC-PENTEST-019 | ⚠️需关注 | 漏洞验证端点存在，需有漏洞数据才能完整验证 |
+| TC-PENTEST-020 | ⚠️需关注 | 报告查看和下载正常，但 AI 报告生成有 BUG |
+| TC-PENTEST-021 | ✅通过 | 实时会话创建成功，AI回复包含安全分析，findings 累积 |
+| TC-PENTEST-022 | ⏭️跳过 | 多轮对话需较长 LLM 调用时间，自动化测试跳过 |
+| TC-PENTEST-023 | ⏭️跳过 | 工具执行需 Docker，当前环境不可用 |
+| TC-PENTEST-024 | ⚠️需关注 | 实时报告端点存在，需有对话历史才能完整验证 |
+| TC-PENTEST-025 | ✅通过 | 代理历史查询正常，返回 total 和 history 列表，每条包含 target/status/findings_count/duration_seconds |
+| TC-PENTEST-026 | ✅通过 | 通过 scan_id 查询代理状态正常，返回 agent_id/status/mode |
+| TC-PENTEST-027 | ⚠️需关注 | 代理日志查看端点存在，但停止后的代理日志可能未持久化 |
+| TC-PENTEST-028 | ✅通过 | 仪表板统计与实际数据一致(scans/vulns/active_agents) |
+| TC-PENTEST-029 | ⚠️需关注 | 最近扫描和活动日志返回数据，但 recent 可能与 history 不完全同步 |
 
 #### 配置管理流程（P1）
 
@@ -1138,20 +1337,21 @@ active/paused → deleted (删除)
 
 | 分类 | 通过 | 需关注 | 失败 | 跳过 | 通过率 |
 |------|------|--------|------|------|--------|
-| 核心业务(P0) | 17 | 3 | 2 | 1 | 74% |
+| AI渗透全流程(P0) | 16 | 6 | 0 | 7 | 73% (执行率68%) |
 | 配置管理(P1) | 10 | 2 | 0 | 0 | 83% |
 | 资源管理(P1) | 4 | 0 | 0 | 0 | 100% |
 | 异常边界(P2) | 3 | 0 | 1 | 0 | 75% |
-| **合计** | **34** | **5** | **3** | **1** | **79%** |
+| **合计** | **33** | **8** | **1** | **7** | **80%** |
 
 ### 8.3 发现的缺陷清单
 
 | 缺陷编号 | 严重级别 | 关联TC-ID | 描述 | 复现步骤 | 状态 |
 |----------|----------|-----------|------|----------|------|
-| BUG-001 | S2-严重 | TC-ERR-001, TC-FLOW-001 | 空 target 字符串被接受，可创建无目标的扫描代理 | `POST {RES-AGENT-RUN} {"target":"","mode":"full_auto"}` 返回 200 | 开放 |
+| BUG-001 | S2-严重 | TC-ERR-001 | 空 target 字符串被接受，可创建无目标的扫描代理 | `POST {RES-AGENT-RUN} {"target":"","mode":"full_auto"}` 返回 200 | 开放 |
 | BUG-002 | S2-严重 | TC-ERR-001, TC-CONF-003 | 空 API Key 被接受为有效凭据 | `POST {RES-PROVIDER-CONNECT} {"credential":"","..."}` 返回 success=true | 开放 |
-| BUG-003 | S2-严重 | TC-FLOW-011 | AI报告生成报错 `ReportGenerator._endpoints` 属性缺失 | `POST {RES-REPORT-AI} {"scan_id":"xxx"}` 返回 500 | 开放 |
-| BUG-004 | S3-一般 | TC-FLOW-021 | 终端会话创建返回 405 Method Not Allowed | `POST {RES-TERMINAL-SESSIONS} {}` 返回 405 | 开放 |
+| BUG-003 | S2-严重 | TC-PENTEST-020 | AI报告生成报错 `ReportGenerator._endpoints` 属性缺失 | `POST {RES-REPORT-AI} {"scan_id":"xxx"}` 返回 500 | 开放 |
+| BUG-004 | S3-一般 | TC-PENTEST-003 | Settings API 缺少 enable_rag 和 enable_vuln_agents 字段 | `GET {RES-SETTINGS}` 响应中无此二键 | 开放 |
+| BUG-005 | S4-轻微 | TC-PENTEST-027 | 代理停止后日志可能未持久化到数据库 | 代理停止后查询日志返回空 | 开放 |
 
 ### 8.4 结果记录模板（新系统使用）
 

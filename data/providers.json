@@ -182,8 +182,8 @@
         "source": "env_var",
         "credential_type": "api_key",
         "created_at": "2026-05-19T01:38:56Z",
-        "last_used": "2026-05-19T07:05:38Z",
-        "tokens_used": 762475,
+        "last_used": "2026-05-19T12:34:28Z",
+        "tokens_used": 810868,
         "is_active": true,
         "expires_at": null,
         "model_override": null

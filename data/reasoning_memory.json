@@ -1,0 +1,31 @@
+{
+  "traces": [
+    {
+      "vuln_type": "cleartext_transmission",
+      "technology": "unknown",
+      "endpoint_pattern": "http://testphp.vulnweb.com",
+      "parameter": "",
+      "reasoning_steps": [
+        "Tested cleartext_transmission on http://testphp.vulnweb.com",
+        "Parameter: N/A",
+        "Payload: N/A",
+        "Evidence: No HTTPS endpoint available",
+        "Confidence: 0"
+      ],
+      "payload_used": "",
+      "evidence_summary": "No HTTPS endpoint available",
+      "confidence": 0.0,
+      "timestamp": 1779193404.8593047,
+      "scan_target": "http://testphp.vulnweb.com",
+      "trace_id": "c778ef3787"
+    }
+  ],
+  "failures": [],
+  "strategies": {},
+  "last_updated": 1779193459.8593817,
+  "stats": {
+    "total_traces": 1,
+    "total_failures": 0,
+    "technologies": []
+  }
+}
