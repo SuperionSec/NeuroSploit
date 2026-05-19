@@ -839,6 +839,281 @@ active/paused → deleted (删除)
   - 时间顺序正确
 - 失败判定: 列表为空或排序错误
 
+### 4.8 WebSocket 实时通信验证
+
+**流程意图**：验证扫描过程中的 WebSocket 实时推送功能，包括连接管理、事件推送、多客户端订阅和心跳保活。
+
+**WebSocket 端点**：`ws://{BASE_URL}/ws/scan/{scan_id}`
+
+**WebSocket 事件类型说明**（基于代码分析）：
+
+| 事件类型 | 触发时机 | 推送数据 |
+|---------|----------|----------|
+| `scan_started` | 扫描启动时 | scan_id |
+| `phase_change` | 阶段切换时(recon/testing/reporting) | scan_id, phase |
+| `progress_update` | 进度变化时 | scan_id, progress, message |
+| `endpoint_found` | 发现新端点时 | scan_id, endpoint |
+| `path_crawled` | 爬取路径时 | scan_id, path, status |
+| `url_discovered` | 发现新URL时 | scan_id, url |
+| `test_started` | 漏洞测试开始时 | scan_id, vulnerability_type, endpoint |
+| `test_completed` | 漏洞测试完成时 | scan_id, vulnerability_type, endpoint, is_vulnerable |
+| `vuln_found` | 发现新漏洞时 | scan_id, vulnerability |
+| `log_message` | 日志消息时 | scan_id, level, message |
+| `scan_completed` | 扫描完成时 | scan_id, summary |
+| `scan_stopped` | 扫描停止时 | scan_id, status, summary |
+| `scan_failed` | 扫描失败时 | scan_id, status, error, summary |
+| `stats_update` | 统计数据更新时 | scan_id, stats |
+| `agent_task` | Agent任务更新时 | scan_id, task |
+| `agent_task_started` | Agent任务开始时 | scan_id, task |
+| `agent_task_completed` | Agent任务完成时 | scan_id, task |
+| `report_generated` | 报告生成时 | scan_id, report |
+| `error` | 错误发生时 | scan_id, error |
+| `pong` | 心跳响应 | - |
+
+#### TC-WS-001: WebSocket 连接与订阅
+
+- 功能域: WebSocket
+- 操作意图: 建立 WebSocket 连接并订阅指定扫描的实时更新
+- 前置状态: 存在一个已启动的扫描
+- 操作步骤:
+  1. 启动一个扫描，获取 scan_id
+  2. 建立 WebSocket 连接到 `ws://{BASE_URL}/ws/scan/{scan_id}`
+  3. 接收初始连接确认（无消息，连接建立即成功）
+  4. 发送 `ping` 消息，验证 `pong` 响应
+- 预期结果:
+  - WebSocket 连接成功建立（HTTP 101 升级）
+  - ping 消息后收到 pong 响应
+  - 连接保持活跃
+- 验证方法:
+  - 连接建立返回 WebSocket 握手成功
+  - ping 后在超时间内收到包含 "pong" 的消息
+- 失败判定: 连接失败、WebSocket 握手未完成、pong 超时
+
+#### TC-WS-002: 扫描启动事件推送
+
+- 功能域: WebSocket
+- 操作意图: 验证扫描启动时推送 scan_started 事件
+- 前置状态: 已建立 WebSocket 连接
+- 操作步骤:
+  1. 建立 WebSocket 连接
+  2. 启动一个扫描
+  3. 在 WebSocket 连接中接收推送事件
+- 预期结果:
+  - 收到 `scan_started` 类型消息
+  - 消息包含 scan_id
+- 验证方法:
+  - 在扫描启动后 5 秒内收到 scan_started 事件
+- 失败判定: 未收到 scan_started 事件
+
+#### TC-WS-003: 阶段切换事件推送
+
+- 功能域: WebSocket
+- 操作意图: 验证扫描阶段切换时推送 phase_change 事件
+- 前置状态: 扫描正在运行（full_auto/recon_only 模式）
+- 操作步骤:
+  1. 建立 WebSocket 连接订阅扫描
+  2. 启动 full_auto 扫描
+  3. 等待阶段切换，观察推送事件
+- 预期结果:
+  - 收到 `phase_change` 类型消息
+  - phase 值为 recon → analysis → testing → reporting 之一
+  - 消息包含 scan_id 和 phase
+- 验证方法:
+  - phase_change 事件中 phase 为有效阶段名
+- 失败判定: 阶段切换时未收到事件或 phase 值异常
+
+#### TC-WS-004: 进度更新推送
+
+- 功能域: WebSocket
+- 操作意图: 验证扫描进度更新时推送 progress_update 事件
+- 前置状态: 扫描正在运行
+- 操作步骤:
+  1. 建立 WebSocket 连接
+  2. 启动扫描
+  3. 观察 progress_update 推送
+- 预期结果:
+  - 收到 `progress_update` 消息
+  - progress 值为 0-100 的整数
+  - message 描述当前进度
+  - progress 随时间递增
+- 验证方法:
+  - progress 值在有效范围 0-100
+  - 后续 progress >= 前面 progress
+- 失败判定: 进度不递增或超出范围
+
+#### TC-WS-005: 漏洞发现实时推送
+
+- 功能域: WebSocket
+- 操作意图: 验证发现新漏洞时实时推送 vuln_found 事件
+- 前置状态: 扫描正在 testing 阶段运行
+- 操作步骤:
+  1. 建立 WebSocket 连接
+  2. 启动 full_auto 扫描指向有漏洞的目标
+  3. 观察 vuln_found 事件
+- 预期结果:
+  - 发现漏洞时收到 `vuln_found` 消息
+  - vulnerability 包含 title/severity/vulnerability_type/endpoint/poc_payload
+- 验证方法:
+  - vuln_found 事件包含完整的漏洞信息
+  - severity 为 critical/high/medium/low/info 之一
+- 失败判定: 漏洞存在但未收到推送（延迟超过 10 秒）
+
+#### TC-WS-006: 日志流实时推送
+
+- 功能域: WebSocket
+- 操作意图: 验证扫描日志实时通过 WebSocket 推送
+- 前置状态: 扫描正在运行
+- 操作步骤:
+  1. 建立 WebSocket 连接
+  2. 启动扫描
+  3. 观察 log_message 推送
+- 预期结果:
+  - 收到 `log_message` 类型消息
+  - 每条日志包含 level/info/warning/error、message、scan_id
+  - 日志包含 [AI] 和 [LLM] 标记的 AI 交互记录
+- 验证方法:
+  - log_message 消息非空
+  - level 值在有效枚举内
+- 失败判定: 日志消息为空或延迟过长
+
+#### TC-WS-007: 扫描完成事件推送
+
+- 功能域: WebSocket
+- 操作意图: 验证扫描完成时推送 scan_completed 事件
+- 前置状态: 扫描即将完成（进度接近 100）
+- 操作步骤:
+  1. 建立 WebSocket 连接
+  2. 启动一个扫描
+  3. 等待扫描自然完成
+- 预期结果:
+  - 收到 `scan_completed` 类型消息
+  - summary 包含 total_vulnerabilities/critical/high/medium/low
+- 验证方法:
+  - scan_completed 事件在 progress=100 后 5 秒内到达
+  - summary 数据完整
+- 失败判定: 未收到 scan_completed 事件
+
+#### TC-WS-008: 扫描停止事件推送
+
+- 功能域: WebSocket
+- 操作意图: 验证手动停止扫描时推送 scan_stopped 事件
+- 前置状态: 扫描正在运行
+- 操作步骤:
+  1. 建立 WebSocket 连接
+  2. 启动扫描
+  3. 停止扫描（通过 REST API）
+  4. 观察 WebSocket 推送
+- 预期结果:
+  - 收到 `scan_stopped` 类型消息
+  - status="stopped"
+  - summary 包含已发现的漏洞统计
+- 验证方法:
+  - scan_stopped 事件在停止后 5 秒内到达
+  - summary 数据与停止时状态一致
+- 失败判定: 未收到 scan_stopped 事件
+
+#### TC-WS-009: 扫描失败事件推送
+
+- 功能域: WebSocket
+- 操作意图: 验证扫描异常失败时推送 scan_failed 事件
+- 前置状态: 扫描遇到错误
+- 操作步骤:
+  1. 建立 WebSocket 连接
+  2. 使用无效目标启动扫描触发失败
+  3. 观察 scan_failed 推送
+- 预期结果:
+  - 收到 `scan_failed` 类型消息
+  - 包含 error 错误描述
+  - status="failed"
+- 验证方法:
+  - scan_failed 事件包含可读的错误信息
+- 失败判定: 未收到 scan_failed 事件或错误信息不可读
+
+#### TC-WS-010: Agent 任务事件推送
+
+- 功能域: WebSocket
+- 操作意图: 验证 Agent 任务状态变化时推送 agent_task/agent_task_started/agent_task_completed 事件
+- 前置状态: Agent 任务正在执行
+- 操作步骤:
+  1. 建立 WebSocket 连接
+  2. 启动扫描（会创建 Agent 任务）
+  3. 观察 agent_task 相关推送
+- 预期结果:
+  - 收到 `agent_task_started` 事件
+  - 收到 `agent_task` 或 `agent_task_completed` 事件
+  - task 包含 id/type/status
+- 验证方法:
+  - agent_task 事件包含完整任务信息
+- 失败判定: Agent 任务执行但未收到任何事件
+
+#### TC-WS-011: 多客户端同时订阅
+
+- 功能域: WebSocket
+- 操作意图: 验证同一扫描可被多个 WebSocket 客户端同时订阅
+- 前置状态: 存在一个已启动的扫描
+- 操作步骤:
+  1. 建立 WebSocket 连接 1 订阅扫描 A
+  2. 建立 WebSocket 连接 2 订阅扫描 A
+  3. 启动一个操作触发事件
+  4. 验证两个连接都收到相同事件
+- 预期结果:
+  - 两个连接都成功建立
+  - 触发的事件同时推送到两个连接
+- 验证方法:
+  - 连接 1 和连接 2 收到完全相同的事件序列
+- 失败判定: 某一连接未收到事件或收到不同事件
+
+#### TC-WS-012: 连接断开与重连
+
+- 功能域: WebSocket
+- 操作意图: 验证连接断开后重新订阅的能力
+- 操作步骤:
+  1. 建立 WebSocket 连接
+  2. 断开连接（关闭 WebSocket）
+  3. 重新建立连接订阅同一扫描
+  4. 验证新连接正常工作
+- 预期结果:
+  - 重新连接成功
+  - 新连接可正常接收事件
+- 验证方法:
+  - 重连后 ping/pong 正常
+  - 新事件可正常推送
+- 失败判定: 重连失败或连接不稳定
+
+#### TC-WS-013: 并发扫描的多路复用
+
+- 功能域: WebSocket
+- 操作意图: 验证可同时通过不同 WebSocket 连接订阅多个扫描
+- 前置状态: 存在多个并发运行的扫描
+- 操作步骤:
+  1. 启动扫描 A 和扫描 B
+  2. 建立 WebSocket 连接 1 订阅扫描 A
+  3. 建立 WebSocket 连接 2 订阅扫描 B
+  4. 观察事件隔离性
+- 预期结果:
+  - 连接 1 只收到扫描 A 的事件
+  - 连接 2 只收到扫描 B 的事件
+  - 不出现事件串台
+- 验证方法:
+  - 每个连接的事件 scan_id 与订阅的 scan_id 一致
+- 失败判定: 收到其他扫描的事件（事件串台）
+
+#### TC-WS-014: 无效 scan_id 订阅
+
+- 功能域: WebSocket
+- 操作意图: 验证订阅不存在的 scan_id 时的行为
+- 操作步骤:
+  1. 建立 WebSocket 连接订阅不存在的 scan_id
+- 预期结果:
+  - WebSocket 连接仍可建立
+  - 无事件推送（因为扫描不存在）
+  - 连接保持但不阻塞
+- 验证方法:
+  - 连接建立成功但无事件
+- 失败判定: 连接被拒绝或服务器异常
+
+---
+
 ## 5. 配置管理流程验证（P1）
 
 ### 5.1 提供商管理流程
@@ -1323,6 +1598,27 @@ active/paused → deleted (删除)
 | TC-RES-003 | ✅通过 | 34个任务模板，区分预定义和自定义 |
 | TC-RES-004 | ✅通过 | 提示词 CRUD 全部正常 |
 
+#### WebSocket 实时通信（P0）
+
+| TC-ID | 结果 | 实际行为 |
+|-------|------|----------|
+| TC-WS-001 | ⏭️跳过 | WebSocket 连接需浏览器环境，自动化脚本使用 websockets 库验证 |
+| TC-WS-002 | ⏭️跳过 | scan_started 事件推送需实时连接 |
+| TC-WS-003 | ⏭️跳过 | phase_change 事件推送需实时连接 |
+| TC-WS-004 | ⏭️跳过 | progress_update 推送需实时连接 |
+| TC-WS-005 | ⏭️跳过 | vuln_found 实时推送需实时连接 |
+| TC-WS-006 | ⏭️跳过 | log_message 日志流推送需实时连接 |
+| TC-WS-007 | ⏭️跳过 | scan_completed 推送需等待扫描完成 |
+| TC-WS-008 | ⏭️跳过 | scan_stopped 推送需手动停止触发 |
+| TC-WS-009 | ⏭️跳过 | scan_failed 推送需触发失败场景 |
+| TC-WS-010 | ⏭️跳过 | agent_task 事件推送需实时连接 |
+| TC-WS-011 | ⏭️跳过 | 多客户端订阅需并发 WebSocket 连接 |
+| TC-WS-012 | ⏭️跳过 | 断开重连需 WebSocket 会话管理 |
+| TC-WS-013 | ⏭️跳过 | 并发扫描多路复用需多扫描并发 |
+| TC-WS-014 | ⏭️跳过 | 无效 scan_id 订阅需测试边界条件 |
+
+> **注意**: WebSocket 测试需使用支持 WebSocket 的客户端（如 Python websockets 库或浏览器开发者工具），不适合普通 HTTP 测试脚本。所有 14 个 WebSocket 测试用例均标记为待执行，建议在有界面环境下手动测试或使用 Python websockets 库自动化验证。
+
 #### 异常边界场景（P2）
 
 | TC-ID | 结果 | 实际行为 |
@@ -1338,10 +1634,11 @@ active/paused → deleted (删除)
 | 分类 | 通过 | 需关注 | 失败 | 跳过 | 通过率 |
 |------|------|--------|------|------|--------|
 | AI渗透全流程(P0) | 16 | 6 | 0 | 7 | 73% (执行率68%) |
+| **WebSocket实时通信(P0)** | 0 | 0 | 0 | **14** | 待执行 |
 | 配置管理(P1) | 10 | 2 | 0 | 0 | 83% |
 | 资源管理(P1) | 4 | 0 | 0 | 0 | 100% |
 | 异常边界(P2) | 3 | 0 | 1 | 0 | 75% |
-| **合计** | **33** | **8** | **1** | **7** | **80%** |
+| **合计** | **33** | **8** | **1** | **21** | **80%（核心功能待全面验证WebSocket）** |
 
 ### 8.3 发现的缺陷清单
 
