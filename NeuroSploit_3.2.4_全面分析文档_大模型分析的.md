@@ -2,18 +2,11 @@
 
 ## 目录
 1. [系统概览](#系统概览)
-2. [后端API接口](#后端api接口)
-3. [前端页面功能](#前端页面功能)
-4. [数据模型结构](#数据模型结构)
-5. [页面流转与导航](#页面流转与导航)
-6. [核心工作流程](#核心工作流程)
-7. [功能关联性分析](#功能关联性分析)
-8. [核心模块架构](#核心模块架构)
-9. [各页面布局结构分析](#各页面布局结构分析)
-10. [参数来源与关联性分析](#参数来源与关联性分析)
-11. [代码与文档一致性检查](#代码与文档一致性检查)
-12. [完整功能测试计划](#完整功能测试计划)
-13. [Providers与Settings大模型配置区别](#providers与settings大模型配置区别)
+2. [后端API接口](#后端api接口) — 18个API模块，80+端点
+3. [前端页面功能](#前端页面功能) — 18个页面完整覆盖
+4. [完整功能测试计划](#完整功能测试计划) — 75+测试用例
+5. [Providers与Settings大模型配置区别](#providers与settings大模型配置区别)
+6. [后端核心架构](#后端核心架构) — 10大子系统，60+模块
 
 ---
 
@@ -126,6 +119,165 @@ NeuroSploit v3.2.4 是一个 AI 驱动的渗透测试平台，具有以下核心
 
 ---
 
+### 7. 仪表板 (Dashboard API)
+**路径前缀**: `/api/v1/dashboard`
+
+| 方法 | 端点 | 功能描述 | 相关前端 |
+|------|------|----------|----------|
+| GET | `/stats` | 获取仪表板统计数据（扫描数、漏洞数、代理数等） | HomePage |
+| GET | `/recent` | 获取最近扫描记录 | HomePage |
+| GET | `/findings` | 获取最近发现结果 | HomePage |
+| GET | `/vulnerability-types` | 获取漏洞类型分布统计 | HomePage |
+| GET | `/scan-history` | 获取扫描历史趋势 | HomePage |
+| GET | `/agent-tasks` | 获取最近的代理任务 | HomePage |
+| GET | `/activity-feed` | 获取活动日志流 | HomePage |
+
+---
+
+### 8. 设置管理 (Settings API)
+**路径前缀**: `/api/v1/settings`
+
+| 方法 | 端点 | 功能描述 | 相关前端 |
+|------|------|----------|----------|
+| GET | `/` | 获取当前系统设置 | SettingsPage |
+| PUT | `/` | 更新系统设置 | SettingsPage |
+| POST | `/notifications/test/{channel}` | 测试通知渠道 | SettingsPage |
+| POST | `/clear-database` | 清空数据库 | SettingsPage |
+| GET | `/stats` | 获取数据库统计 | SettingsPage |
+| GET | `/tools` | 检测可用工具 | SettingsPage |
+| GET | `/models/{provider}` | 获取指定提供商的模型目录 | SettingsPage |
+
+---
+
+### 9. 沙箱管理 (Sandbox API)
+**路径前缀**: `/api/v1/sandbox`
+
+| 方法 | 端点 | 功能描述 | 相关前端 |
+|------|------|----------|----------|
+| GET | `/` | 列出所有沙箱容器 | SandboxDashboardPage |
+| GET | `/{scan_id}` | 获取沙箱容器详情 | SandboxDashboardPage |
+| DELETE | `/{scan_id}` | 销毁沙箱容器 | SandboxDashboardPage |
+| POST | `/cleanup` | 清理过期容器 | SandboxDashboardPage |
+| POST | `/cleanup-orphans` | 清理孤儿容器 | SandboxDashboardPage |
+
+---
+
+### 10. 知识库 (Knowledge API)
+**路径前缀**: `/api/v1/knowledge`
+
+| 方法 | 端点 | 功能描述 | 相关前端 |
+|------|------|----------|----------|
+| POST | `/upload` | 上传知识文档 (PDF/MD/TXT/HTML) | KnowledgePage |
+| GET | `/documents` | 列出所有知识文档 | KnowledgePage |
+| GET | `/documents/{doc_id}` | 获取文档详情和条目 | KnowledgePage |
+| DELETE | `/documents/{doc_id}` | 删除知识文档 | KnowledgePage |
+| GET | `/search` | 搜索知识库内容 | KnowledgePage |
+| GET | `/stats` | 获取知识库统计 | KnowledgePage |
+
+---
+
+### 11. MCP服务器 (MCP API)
+**路径前缀**: `/api/v1/mcp`
+
+| 方法 | 端点 | 功能描述 | 相关前端 |
+|------|------|----------|----------|
+| GET | `/servers` | 列出所有MCP服务器 | MCPManagementPage |
+| GET | `/servers/{name}` | 获取特定MCP服务器详情 | MCPManagementPage |
+| POST | `/servers` | 创建MCP服务器 | MCPManagementPage |
+| PUT | `/servers/{name}` | 更新MCP服务器配置 | MCPManagementPage |
+| DELETE | `/servers/{name}` | 删除MCP服务器 | MCPManagementPage |
+| POST | `/servers/{name}/toggle` | 切换服务器启用状态 | MCPManagementPage |
+| POST | `/servers/{name}/test` | 测试服务器连接 | MCPManagementPage |
+| GET | `/servers/{name}/tools` | 列出服务器提供的工具 | MCPManagementPage |
+
+---
+
+### 12. 调度任务 (Scheduler API)
+**路径前缀**: `/api/v1/scheduler`
+
+| 方法 | 端点 | 功能描述 | 相关前端 |
+|------|------|----------|----------|
+| GET | `/` | 列出所有调度任务 | SchedulerPage |
+| POST | `/` | 创建调度任务 | SchedulerPage |
+| DELETE | `/{job_id}` | 删除调度任务 | SchedulerPage |
+| POST | `/{job_id}/pause` | 暂停调度任务 | SchedulerPage |
+| POST | `/{job_id}/resume` | 恢复调度任务 | SchedulerPage |
+| GET | `/agent-roles` | 获取代理角色列表 | SchedulerPage |
+
+---
+
+### 13. 目标管理 (Targets API)
+**路径前缀**: `/api/v1/targets`
+
+| 方法 | 端点 | 功能描述 | 相关前端 |
+|------|------|----------|----------|
+| POST | `/validate` | 验证单个目标URL | NewScanPage |
+| POST | `/validate/bulk` | 批量验证目标URL | NewScanPage |
+| POST | `/upload` | 上传目标文件 | NewScanPage |
+| POST | `/parse-input` | 解析目标输入 | NewScanPage |
+
+---
+
+### 14. 漏洞信息 (Vulnerabilities API)
+**路径前缀**: `/api/v1/vulnerabilities`
+
+| 方法 | 端点 | 功能描述 | 相关前端 |
+|------|------|----------|----------|
+| GET | `/types` | 获取所有漏洞类型 | VulnLabPage |
+| GET | `/types/{category}` | 按类别获取漏洞类型 | VulnLabPage |
+| GET | `/types/{category}/{vuln_type}` | 获取漏洞类型详情 | VulnLabPage |
+| GET | `/{vuln_id}` | 获取特定漏洞详情 | ScanDetailsPage |
+
+---
+
+### 15. 提示词管理 (Prompts API)
+**路径前缀**: `/api/v1/prompts`
+
+| 方法 | 端点 | 功能描述 | 相关前端 |
+|------|------|----------|----------|
+| GET | `/presets` | 获取预设提示词列表 | NewScanPage |
+| GET | `/presets/{preset_id}` | 获取特定预设提示词 | NewScanPage |
+| POST | `/parse` | 解析提示词模板 | NewScanPage |
+| GET | `/` | 列出自定义提示词 | SettingsPage |
+| POST | `/` | 创建自定义提示词 | SettingsPage |
+| GET | `/{prompt_id}` | 获取特定提示词 | SettingsPage |
+| PUT | `/{prompt_id}` | 更新提示词 | SettingsPage |
+| DELETE | `/{prompt_id}` | 删除提示词 | SettingsPage |
+| POST | `/upload` | 上传提示词文件 | SettingsPage |
+
+---
+
+### 16. 完整AI测试 (Full IA API)
+**路径前缀**: `/api/v1/full-ia`
+
+| 方法 | 端点 | 功能描述 | 相关前端 |
+|------|------|----------|----------|
+| GET | `/prompt` | 获取完整AI渗透测试提示内容 | FullIATestingPage |
+
+---
+
+### 17. CLI代理 (CLI Agent API)
+**路径前缀**: `/api/v1/cli-agent`
+
+| 方法 | 端点 | 功能描述 | 相关前端 |
+|------|------|----------|----------|
+| GET | `/providers` | 获取CLI代理提供商信息 | TerminalAgentPage |
+| GET | `/methodologies` | 获取方法论列表 | TerminalAgentPage |
+
+---
+
+### 18. 代理任务 (Agent Tasks API)
+**路径前缀**: `/api/v1/agent-tasks`
+
+| 方法 | 端点 | 功能描述 | 相关前端 |
+|------|------|----------|----------|
+| GET | `/` | 列出代理任务 | TaskLibraryPage |
+| GET | `/summary` | 获取代理任务摘要 | TaskLibraryPage |
+| GET | `/{task_id}` | 获取特定代理任务 | TaskLibraryPage |
+| GET | `/scan/{scan_id}/timeline` | 获取扫描任务时间线 | ScanDetailsPage |
+
+---
+
 ## 前端页面功能
 
 ### HomePage (主页仪表板)
@@ -198,6 +350,227 @@ NeuroSploit v3.2.4 是一个 AI 驱动的渗透测试平台，具有以下核心
 | 查看报告按钮 | 跳转到报告查看页 | 路由导航 |
 | 下载按钮 | 下载各种格式的报告 | GET /api/v1/reports/{id}/download/{format} |
 | 删除报告按钮 | 删除报告 | DELETE /api/v1/reports/{id} |
+
+---
+
+### ScanDetailsPage (扫描详情页)
+**路径**: `/scans/:scanId`
+
+| 组件/按钮 | 功能描述 | 调用API |
+|----------|----------|--------|
+| 返回按钮 | 返回上一页 | 路由导航 |
+| 查看代理状态按钮 | 跳转到AgentStatusPage | 路由导航 /agent/:id |
+| 扫描信息卡片 | 显示目标URL、状态、进度条、创建时间 | GET /api/v1/scans/{id} |
+| 暂停按钮 | 暂停运行中的扫描 | POST /api/v1/scans/{id}/pause |
+| 恢复按钮 | 恢复暂停的扫描 | POST /api/v1/scans/{id}/resume |
+| 停止按钮 | 停止运行中的扫描 | POST /api/v1/scans/{id}/stop |
+| 删除按钮 | 删除扫描 | DELETE /api/v1/scans/{id} |
+| 统计卡片 | 显示端点数、漏洞数、Critical/High数量 | GET /api/v1/scans/{id} |
+| 端点选项卡 | 显示发现的端点列表 | GET /api/v1/scans/{id}/endpoints |
+| 端点测试按钮 | 对单个端点执行测试 | POST /api/v1/agent/run |
+| 漏洞选项卡 | 显示发现的漏洞列表 | GET /api/v1/scans/{id}/vulnerabilities |
+| 验证漏洞按钮 | 手动验证漏洞 | PATCH /api/v1/scans/vulnerabilities/{vid}/validate |
+| 标记误报按钮 | 标记漏洞为误报 | POST /api/v1/scans/vulnerabilities/{vid}/feedback |
+| 忽略漏洞按钮 | 忽略该漏洞 | POST /api/v1/scans/vulnerabilities/{vid}/feedback |
+| 报告选项卡 | 显示生成的报告列表 | GET /api/v1/reports?scan_id={id} |
+| 生成AI报告按钮 | AI生成报告 | POST /api/v1/reports/ai-generate |
+| 生成详细报告按钮 | 生成详细报告 | POST /api/v1/reports |
+
+---
+
+### AgentStatusPage (代理状态页)
+**路径**: `/agent/:agentId`
+
+| 组件/按钮 | 功能描述 | 调用API |
+|----------|----------|--------|
+| 返回按钮 | 返回上一页 | 路由导航 |
+| 查看扫描详情按钮 | 跳转到ScanDetailsPage | 路由导航 /scans/{id} |
+| 代理状态卡片 | 显示代理ID、状态、当前阶段 | GET /api/v1/agent/status/{id} |
+| 暂停按钮 | 暂停代理执行 | POST /api/v1/agent/pause/{id} |
+| 恢复按钮 | 恢复代理执行 | POST /api/v1/agent/resume/{id} |
+| 停止按钮 | 停止代理执行 | POST /api/v1/agent/stop/{id} |
+| 执行日志面板 | 实时显示代理执行日志 | GET /api/v1/agent/logs/{id} |
+| 发现结果面板 | 显示发现的漏洞和端点 | GET /api/v1/agent/findings/{id} |
+| 自定义提示词输入 | 发送自定义指令给AI代理 | POST /api/v1/agent/prompt/{id} |
+| 阶段跳转按钮 | 跳转到指定执行阶段 | POST /api/v1/agent/skip-to/{id}/{phase} |
+| 生成报告按钮 | 代理完成后生成报告 | POST /api/v1/reports |
+
+---
+
+### SettingsPage (设置页)
+**路径**: `/settings`
+
+| 组件/按钮 | 功能描述 | 调用API |
+|----------|----------|--------|
+| LLM提供商选择 | 选择默认LLM提供商 | GET/PUT /api/v1/settings |
+| LLM模型选择 | 选择默认模型 | GET /api/v1/settings/models/{provider} |
+| API Key输入 | 输入提供商API Key | PUT /api/v1/settings |
+| 最大输出Token | 设置全局最大输出token | PUT /api/v1/settings |
+| 启用模型路由开关 | 启用/禁用Smart Router | PUT /api/v1/settings |
+| 启用知识增强开关 | 启用/禁用RAG | PUT /api/v1/settings |
+| 启用浏览器验证开关 | 启用/禁用浏览器验证 | PUT /api/v1/settings |
+| 启用推理引擎开关 | 启用/禁用推理能力 | PUT /api/v1/settings |
+| 启用CVE猎手开关 | 启用/禁用CVE搜索 | PUT /api/v1/settings |
+| 启用多代理开关 | 启用/禁用并行代理 | PUT /api/v1/settings |
+| 启用研究员AI开关 | 启用/禁用研究员代理 | PUT /api/v1/settings |
+| 通知配置 | 配置Discord/Telegram/Twilio通知 | PUT /api/v1/settings |
+| 测试通知按钮 | 测试通知渠道 | POST /api/v1/settings/notifications/test/{channel} |
+| 工具检测 | 检测可用工具 | GET /api/v1/settings/tools |
+| 数据库统计 | 显示数据库统计信息 | GET /api/v1/settings/stats |
+| 清空数据库按钮 | 清空所有数据 | POST /api/v1/settings/clear-database |
+| 自适应学习统计 | 显示学习统计和阈值 | GET /api/v1/scans/vulnerabilities/learning/stats |
+
+---
+
+### ProvidersPage (提供商管理页)
+**路径**: `/providers`
+
+| 组件/按钮 | 功能描述 | 调用API |
+|----------|----------|--------|
+| 提供商列表 | 显示所有LLM提供商和账户 | GET /api/v1/providers |
+| 配额状态卡片 | 显示各提供商的配额使用情况 | GET /api/v1/providers/status |
+| 检测CLI令牌按钮 | 自动检测本地CLI工具令牌 | POST /api/v1/providers/detect-all |
+| 添加API Key按钮 | 手动添加API Key | POST /api/v1/providers/{id}/connect |
+| 测试连接按钮 | 测试单个账户连接 | POST /api/v1/providers/test/{pid}/{aid} |
+| 启用/禁用提供商 | 切换提供商启用状态 | POST /api/v1/providers/{id}/toggle |
+| 删除账户按钮 | 删除提供商账户 | DELETE /api/v1/providers/{pid}/accounts/{aid} |
+| 环境变量编辑器 | 直接编辑.env配置 | PUT /api/v1/settings |
+| 可用模型列表 | 查看提供商支持的模型 | GET /api/v1/providers/available-models |
+
+---
+
+### ReportViewPage (报告查看页)
+**路径**: `/reports/:reportId`
+
+| 组件/按钮 | 功能描述 | 调用API |
+|----------|----------|--------|
+| 返回按钮 | 返回报告列表页 | 路由导航 /reports |
+| 报告ID显示 | 显示当前报告ID | URL参数 |
+| 刷新按钮 | 刷新报告内容 | 重新加载 iframe |
+| 全屏按钮 | 切换全屏模式 | 本地状态切换 |
+| HTML下载按钮 | 下载HTML格式报告 | GET /api/v1/reports/{id}/download/html |
+| JSON下载按钮 | 下载JSON格式报告 | GET /api/v1/reports/{id}/download/json |
+| 新标签页打开 | 在新窗口查看报告 | GET /api/v1/reports/{id}/view |
+| 报告iframe | 内嵌显示HTML报告 | GET /api/v1/reports/{id}/view |
+
+---
+
+### FullIATestingPage (完整AI渗透测试页)
+**路径**: `/full-ia`
+
+| 组件/按钮 | 功能描述 | 调用API |
+|----------|----------|--------|
+| 目标URL输入 | 输入渗透测试目标 | - |
+| 操作模式选择 | 选择AI渗透模式 | - |
+| 开始测试按钮 | 启动完整AI渗透测试 | POST /api/v1/agent/run |
+| 停止按钮 | 停止运行中的测试 | POST /api/v1/agent/stop/{id} |
+| 阶段进度条 | 显示4阶段进度 (Recon→Testing→PostExploit→Report) | GET /api/v1/agent/status/{id} |
+| 执行日志 | 实时显示LLM决策和工具执行日志 | GET /api/v1/agent/logs/{id} |
+| 发现结果列表 | 显示发现的漏洞和端点 | GET /api/v1/agent/findings/{id} |
+| 漏洞严重级别饼图 | 显示漏洞分布 | 本地计算 |
+| 日志过滤 | 按类型过滤日志 (All/LLM/AI/Errors) | 本地过滤 |
+| 工具执行详情 | 显示Kali工具执行结果 | GET /api/v1/agent/status/{id} |
+| 生成报告按钮 | 测试完成后生成报告 | POST /api/v1/reports |
+| 查看报告按钮 | 跳转查看报告 | 路由导航 |
+
+---
+
+### TaskLibraryPage (任务库页)
+**路径**: `/tasks`
+
+| 组件/按钮 | 功能描述 | 调用API |
+|----------|----------|--------|
+| 任务列表 | 显示所有预定义任务 | GET /api/v1/agent/tasks |
+| 分类过滤 | 按类别筛选 (Full Auto/Recon/Vuln/Custom/Reporting) | 本地过滤 |
+| 搜索框 | 搜索任务名称 | 本地搜索 |
+| 使用任务按钮 | 将任务用于新扫描 | 路由导航 /scan/new |
+| 创建自定义任务 | 创建新的自定义任务 | POST /api/v1/agent/tasks |
+| 删除任务按钮 | 删除自定义任务 | DELETE /api/v1/agent/tasks/{id} |
+| 任务详情展开 | 查看任务描述和步骤 | 本地展开 |
+
+---
+
+### RealtimeTaskPage (实时任务页)
+**路径**: `/realtime`
+
+| 组件/按钮 | 功能描述 | 调用API |
+|----------|----------|--------|
+| 创建会话按钮 | 创建新的实时任务会话 | POST /api/v1/agent/realtime/session |
+| 会话列表 | 显示所有实时会话 | GET /api/v1/agent/realtime/sessions/list |
+| 聊天输入框 | 发送消息给AI代理 | POST /api/v1/agent/realtime/{id}/message |
+| 消息列表 | 显示AI和用户的对话历史 | WebSocket 实时推送 |
+| 发现结果面板 | 显示实时发现的漏洞 | GET /api/v1/agent/findings/{id} |
+| 删除会话按钮 | 删除实时会话 | DELETE /api/v1/agent/realtime/{id} |
+| LLM状态指示器 | 显示LLM连接状态 | GET /api/v1/agent/realtime/llm-status |
+| 工具列表 | 显示可用工具 | GET /api/v1/agent/realtime/tools/list |
+| 执行工具按钮 | 执行指定工具 | POST /api/v1/agent/realtime/{id}/execute-tool |
+| Docker状态提示 | 显示Docker是否可用 | 本地检测 |
+
+---
+
+### SandboxDashboardPage (沙箱仪表板页)
+**路径**: `/sandboxes`
+
+| 组件/按钮 | 功能描述 | 调用API |
+|----------|----------|--------|
+| 容器列表 | 显示所有Kali沙箱容器 | GET /api/v1/sandbox/ |
+| 容器状态 | 显示运行中/已停止容器数量 | GET /api/v1/sandbox/ |
+| 健康检查 | 显示容器健康状态 | GET /api/v1/sandbox/{scan_id} |
+| 销毁容器按钮 | 销毁指定沙箱容器 | DELETE /api/v1/sandbox/{scan_id} |
+| 清理过期按钮 | 清理过期容器 | POST /api/v1/sandbox/cleanup |
+| 清理孤儿按钮 | 清理孤儿容器 | POST /api/v1/sandbox/cleanup-orphans |
+| 资源使用饼图 | 显示CPU/内存使用分布 | 本地计算 |
+| 容器详情展开 | 显示容器详细信息和工具列表 | GET /api/v1/sandbox/{scan_id} |
+
+---
+
+### KnowledgePage (知识库管理页)
+**路径**: `/knowledge`
+
+| 组件/按钮 | 功能描述 | 调用API |
+|----------|----------|--------|
+| 文档上传 | 上传PDF/MD/TXT/HTML文件 | POST /api/v1/knowledge/upload |
+| 文档列表 | 显示所有知识文档 | GET /api/v1/knowledge/documents |
+| 文档详情 | 查看文档详细内容和条目 | GET /api/v1/knowledge/documents/{id} |
+| 删除文档 | 删除知识文档 | DELETE /api/v1/knowledge/documents/{id} |
+| 搜索知识 | 搜索知识库内容 | GET /api/v1/knowledge/search |
+| 统计卡片 | 显示文档数、条目数、覆盖漏洞类型数 | GET /api/v1/knowledge/stats |
+| 文件类型过滤 | 按文件类型筛选文档 | 本地过滤 |
+| 漏洞类型标签 | 显示文档关联的漏洞类型 | GET /api/v1/knowledge/documents/{id} |
+
+---
+
+### MCPManagementPage (MCP服务器管理页)
+**路径**: `/mcp`
+
+| 组件/按钮 | 功能描述 | 调用API |
+|----------|----------|--------|
+| 服务器列表 | 显示所有MCP服务器 | GET /api/v1/mcp/servers |
+| 创建服务器 | 添加新的MCP服务器 | POST /api/v1/mcp/servers |
+| 编辑服务器 | 修改服务器配置 | PUT /api/v1/mcp/servers/{name} |
+| 删除服务器 | 删除MCP服务器 | DELETE /api/v1/mcp/servers/{name} |
+| 启用/禁用切换 | 切换服务器启用状态 | POST /api/v1/mcp/servers/{name}/toggle |
+| 测试连接 | 测试服务器连接是否正常 | POST /api/v1/mcp/servers/{name}/test |
+| 工具列表 | 显示服务器提供的工具 | GET /api/v1/mcp/servers/{name}/tools |
+| 传输类型选择 | 选择stdio或sse传输方式 | - |
+| 环境变量配置 | 配置服务器环境变量 | - |
+
+---
+
+### SchedulerPage (调度任务管理页)
+**路径**: `/scheduler`
+
+| 组件/按钮 | 功能描述 | 调用API |
+|----------|----------|--------|
+| 调度任务列表 | 显示所有定时任务 | GET /api/v1/scheduler/ |
+| 创建调度 | 创建新的定时扫描任务 | POST /api/v1/scheduler/ |
+| 删除调度 | 删除调度任务 | DELETE /api/v1/scheduler/{job_id} |
+| 暂停调度 | 暂停调度任务 | POST /api/v1/scheduler/{job_id}/pause |
+| 恢复调度 | 恢复暂停的调度任务 | POST /api/v1/scheduler/{job_id}/resume |
+| 代理角色选择 | 选择扫描代理角色 | GET /api/v1/scheduler/agent-roles |
+| Cron表达式输入 | 设置调度时间表达式 | - |
+| 目标URL输入 | 设置扫描目标 | - |
+| 删除确认弹窗 | 确认删除操作 | - |
 
 ---
 
@@ -699,11 +1072,335 @@ Providers 页面和 Settings 页面虽然都涉及大模型配置，但它们的
 
 ---
 
+## 后端核心架构
+
+### 架构总览
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        NeuroSploit v3.2.4 后端架构                    │
+├─────────────────────────────────────────────────────────────────────┤
+│  API Layer (FastAPI)                                                │
+│  ┌──────┬──────┬──────┬──────┬──────┬──────┬──────┬──────┐         │
+│  │agent │scans │report│vuln  │term  │mcp   │sched │...18 │         │
+│  │      │      │s     │lab   │inal  │      │uler  │modules│         │
+│  └──┬───┴──┬───┴──┬───┴──┬───┴──┬───┴──┬───┴──┬───┴──────┘         │
+├─────┼──────┼──────┼──────┼──────┼──────┼───────────────────────────┤
+│     │      Core Layer                                                │
+│     ▼      ▼      ▼      ▼      ▼                                   │
+│  ┌──────────────────────────────────────────┐                       │
+│  │         Agent System (10 modules)         │                       │
+│  │  AgentBase → SpecialistAgents             │                       │
+│  │  AIPentestAgent → AgentOrchestrator       │                       │
+│  │  VulnOrchestrator → VulnTypeAgent         │                       │
+│  │  ResearcherAgent → AgentMemory/Tasks      │                       │
+│  └──────────────────┬───────────────────────┘                       │
+│                     │                                                │
+│  ┌──────────────────┼───────────────────────┐                       │
+│  │    Smart Router   │   RAG Engine          │                       │
+│  │  (4 modules)     │   (5 modules)         │                       │
+│  │  Router→Registry │   Engine→Processor    │                       │
+│  │  →ProviderAcct   │   →Chunker→Embedder   │                       │
+│  └──────────────────┼───────────────────────┘                       │
+│                     │                                                │
+│  ┌──────────────────┼───────────────────────┐                       │
+│  │   VulnEngine     │   Validation Pipeline  │                       │
+│  │  (8 modules)    │   (6 modules)          │                       │
+│  │  Engine→Registry│   NegativeControl      │                       │
+│  │  →Generator     │   ProofOfExecution     │                       │
+│  │  →Executor      │   ConfidenceScorer     │                       │
+│  │  →Reporter      │   ValidationJudge      │                       │
+│  └──────────────────┼───────────────────────┘                       │
+│                     │                                                │
+│  ┌──────────────────┼───────────────────────┐                       │
+│  │  Request Engine  │   AI Reasoning        │                       │
+│  │  (5 modules)    │   (7 modules)          │                       │
+│  │  RequestEngine  │   ReasoningEngine      │                       │
+│  │  WAFDetector    │   TokenBudget          │                       │
+│  │  StrategyAdapter│   CVEHunter            │                       │
+│  │  ChainEngine    │   DeepRecon            │                       │
+│  │  AuthManager    │   BannerAnalyzer       │                       │
+│  └──────────────────┼───────────────────────┘                       │
+│                     │                                                │
+│  ┌──────────────────┼───────────────────────┐                       │
+│  │  Report Engine   │   Sandbox/CLI         │                       │
+│  │  (2 modules)    │   (4 modules)          │                       │
+│  │  ReportGenerator│   ToolExecutor         │                       │
+│  │  ReportEngine   │   CLIAgentRunner       │                       │
+│  │                  │   CLIOutputParser      │                       │
+│  │                  │   CLIInstructionsBldr  │                       │
+│  └──────────────────┴───────────────────────┘                       │
+│                                                                     │
+│  ┌──────────────────────────────────────────┐                       │
+│  │         Supporting Modules (15)           │                       │
+│  │  CheckpointManager  NotificationManager   │                       │
+│  │  KnowledgeProcessor TaskLibrary           │                       │
+│  │  ExecutionHistory   MethodologyLoader     │                       │
+│  │  PayloadMutator     POCGenerator          │                       │
+│  │  POCValidator        ExploitGenerator     │                       │
+│  │  XSSValidator       XSSContextAnalyzer    │                       │
+│  │  SiteAnalyzer       RequestRepeater       │                       │
+│  │  PromptEngine (parser+builder+manager)    │                       │
+│  └──────────────────────────────────────────┘                       │
+├─────────────────────────────────────────────────────────────────────┤
+│  Data Layer                                                         │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐             │
+│  │ SQLAlchemy   │  │ SQLite       │  │ File Storage │             │
+│  │ (Async ORM)  │  │ (Default DB) │  │ (Reports/KB) │             │
+│  └──────────────┘  └──────────────┘  └──────────────┘             │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 1. Agent 系统 (10 modules)
+
+Agent 系统是 NeuroSploit 的核心，负责协调 AI 代理执行渗透测试任务。
+
+| 模块文件 | 主要类 | 核心职责 | 依赖模块 |
+|----------|--------|----------|----------|
+| [agent_base.py](file:///workspace/backend/core/agent_base.py) | AgentResult, SpecialistAgent | 定义专家代理基类和结果数据结构，提供执行、取消、手递手等通用功能 | 无 |
+| [autonomous_agent.py](file:///workspace/backend/core/autonomous_agent.py) | AutonomousAgent | 自主代理，驱动完整的自动化渗透测试流程 | agent_base, smart_router, rag |
+| [ai_pentest_agent.py](file:///workspace/backend/core/ai_pentest_agent.py) | AIPentestAgent | AI驱动的渗透测试代理，使用LLM推理进行漏洞检测和PoC生成 | llm_manager, request_engine |
+| [agent_orchestrator.py](file:///workspace/backend/core/agent_orchestrator.py) | AgentOrchestrator | 协调多个专家代理的执行流程，管理手递手路由和共享内存 | specialist_agents |
+| [specialist_agents.py](file:///workspace/backend/core/specialist_agents.py) | ReconAgent, ExploitAgent, ValidatorAgent, CVEHunterAgent, ReportAgent | 实现具体的专家代理：侦察、利用、验证、CVE搜索和报告 | deep_recon, banner_analyzer, cve_hunter, payload_mutator, param_analyzer, endpoint_classifier, exploit_generator, poc_validator |
+| [vuln_orchestrator.py](file:///workspace/backend/core/vuln_orchestrator.py) | VulnOrchestrator | 为每个漏洞类型并行协调专家代理 | vuln_type_agent, agent_base |
+| [vuln_type_agent.py](file:///workspace/backend/core/vuln_type_agent.py) | VulnTypeAgent | 单一漏洞类型测试的专家代理 | agent_base |
+| [researcher_agent.py](file:///workspace/backend/core/researcher_agent.py) | ResearcherAgent | AI驱动的0日漏洞研究员，使用Kali沙箱执行工具 | kali_sandbox, tool_registry, sandbox_manager |
+| [agent_memory.py](file:///workspace/backend/core/agent_memory.py) | AgentMemory | 代理内存管理：测试组合、基线响应、端点指纹和发现存储 | 无 |
+| [agent_tasks.py](file:///workspace/backend/core/agent_tasks.py) | AgentTask, AgentTaskManager | 代理任务管理器，支持优先队列和并发执行 | 无 |
+
+**Agent 执行流程**:
+```
+用户启动扫描
+    │
+    ▼
+AutonomousAgent / AIPentestAgent
+    │
+    ├── AgentOrchestrator (多专家协调)
+    │   ├── ReconAgent (侦察)
+    │   ├── ExploitAgent (利用)
+    │   ├── ValidatorAgent (验证)
+    │   ├── CVEHunterAgent (CVE搜索)
+    │   └── ReportAgent (报告)
+    │
+    └── VulnOrchestrator (并行漏洞测试)
+        ├── VulnTypeAgent (XSS)
+        ├── VulnTypeAgent (SQLi)
+        ├── VulnTypeAgent (SSRF)
+        └── ... (每种漏洞类型一个)
+```
+
+---
+
+### 2. VulnEngine 系统 (8 modules)
+
+漏洞引擎负责管理和执行具体的漏洞检测逻辑。
+
+| 模块文件 | 主要类 | 核心职责 | 依赖模块 |
+|----------|--------|----------|----------|
+| [vuln_engine/engine.py](file:///workspace/backend/core/vuln_engine/engine.py) | VulnEngine | 漏洞引擎核心：接收目标和漏洞类型，构建并执行检测任务，生成报告 | smart_router, rag |
+| [vuln_engine/registry.py](file:///workspace/backend/core/vuln_engine/registry.py) | VulnRegistry | 漏洞类型注册表，管理所有支持的漏洞类型和对应的检测器 | 无 |
+| [vuln_engine/generator.py](file:///workspace/backend/core/vuln_engine/generator.py) | PayloadGenerator | 攻击载荷生成器，根据漏洞类型生成测试载荷 | 无 |
+| [vuln_engine/executor.py](file:///workspace/backend/core/vuln_engine/executor.py) | VulnExecutor | 漏洞检测执行器，发送请求并收集响应 | request_engine |
+| [vuln_engine/analyzer.py](file:///workspace/backend/core/vuln_engine/analyzer.py) | ResponseAnalyzer | 响应分析器，判断是否存在漏洞 | 无 |
+| [vuln_engine/reporter.py](file:///workspace/backend/core/vuln_engine/reporter.py) | VulnReporter | 漏洞报告器，汇总检测结果 | 无 |
+| [vuln_engine/mutator.py](file:///workspace/backend/core/vuln_engine/mutator.py) | PayloadMutator | 载荷变异器，绕过WAF和过滤器 | waf_detector |
+| [vuln_engine/context.py](file:///workspace/backend/core/vuln_engine/context.py) | VulnContext | 漏洞检测上下文，管理检测状态和参数 | 无 |
+
+---
+
+### 3. Smart Router 系统 (4 modules)
+
+智能路由系统管理多个 LLM 提供商，实现负载均衡和故障转移。
+
+| 模块文件 | 主要类 | 核心职责 | 依赖模块 |
+|----------|--------|----------|----------|
+| [smart_router/router.py](file:///workspace/backend/core/smart_router/router.py) | SmartRouter | 智能路由引擎：多提供商选择、负载均衡、故障转移、配额追踪 | provider_registry |
+| [smart_router/provider_registry.py](file:///workspace/backend/core/smart_router/provider_registry.py) | ProviderRegistry | 提供商注册表：管理提供商配置、账户、CLI令牌检测 | 无 |
+| [smart_router/provider_account.py](file:///workspace/backend/core/smart_router/provider_account.py) | ProviderAccount | 提供商账户：API Key管理、配额追踪、过期检测 | 无 |
+| [smart_router/credential_store.py](file:///workspace/backend/core/smart_router/credential_store.py) | CredentialStore | 凭据存储：安全存储和管理API Key | 无 |
+
+**Smart Router 请求流程**:
+```
+LLM 请求 → SmartRouter.route()
+    │
+    ├── 1. 检查 preferred_provider
+    ├── 2. 按 Tier 排序 (1→2→3)
+    ├── 3. 轮询选择可用账户
+    ├── 4. 构建请求 (OpenAI/Anthropic/Gemini 格式)
+    ├── 5. 发送请求 (aiohttp + trust_env)
+    ├── 6. 解析响应 (过滤 <think\> 标签)
+    ├── 7. 失败 → 故障转移到下一个
+    └── 8. 记录 token 使用和配额
+```
+
+---
+
+### 4. RAG 系统 (5 modules)
+
+检索增强生成系统，为AI代理提供专业知识支持。
+
+| 模块文件 | 主要类 | 核心职责 | 依赖模块 |
+|----------|--------|----------|----------|
+| [rag/engine.py](file:///workspace/backend/core/rag/engine.py) | RAGEngine | RAG引擎核心：整合外部知识库，为检测引擎提供上下文感知信息 | knowledge_processor |
+| [rag/processor.py](file:///workspace/backend/core/rag/processor.py) | KnowledgeProcessor | 知识处理器：处理和索引知识文档 | 无 |
+| [rag/chunker.py](file:///workspace/backend/core/rag/chunker.py) | DocumentChunker | 文档分块器：将文档分割为适合检索的块 | 无 |
+| [rag/embedder.py](file:///workspace/backend/core/rag/embedder.py) | Embedder | 嵌入器：生成文本向量嵌入 | smart_router |
+| [rag/retriever.py](file:///workspace/backend/core/rag/retriever.py) | Retriever | 检索器：基于向量相似度检索相关知识 | embedder |
+
+---
+
+### 5. 验证管线 (6 modules)
+
+验证管线确保漏洞检测结果的准确性和可靠性。
+
+| 模块文件 | 主要类 | 核心职责 | 依赖模块 |
+|----------|--------|----------|----------|
+| [negative_control.py](file:///workspace/backend/core/negative_control.py) | NegativeControl | 负面控制：过滤误报，防止扫描行为过于激进或无效 | 无 |
+| [proof_of_execution.py](file:///workspace/backend/core/proof_of_execution.py) | ProofOfExecution | 执行证明：确保操作步骤可验证和可追踪，提供审计链 | 无 |
+| [confidence_scorer.py](file:///workspace/backend/core/confidence_scorer.py) | ConfidenceScorer | 置信度评分：计算检测结果的置信度分数，优化检测准确性 | 无 |
+| [validation_judge.py](file:///workspace/backend/core/validation_judge.py) | ValidationJudge | 验证判断：通过人工反馈和推理对检测结果进行最终确认 | 无 |
+| [access_control_learner.py](file:///workspace/backend/core/access_control_learner.py) | AccessControlLearner | 访问控制学习：学习访问控制策略，优化权限管理 | 无 |
+| [adaptive_learner.py](file:///workspace/backend/core/adaptive_learner.py) | AdaptiveLearner | 自适应学习：持续优化系统策略和性能 | 无 |
+
+**验证管线流程**:
+```
+漏洞检测结果
+    │
+    ▼
+NegativeControl (过滤误报)
+    │
+    ▼
+ConfidenceScorer (计算置信度)
+    │
+    ▼
+ProofOfExecution (生成执行证明)
+    │
+    ▼
+ValidationJudge (最终判断)
+    │
+    ├── AdaptiveLearner (学习反馈)
+    └── AccessControlLearner (学习访问控制)
+```
+
+---
+
+### 6. 请求引擎 (5 modules)
+
+请求引擎负责发送HTTP请求，处理WAF检测和策略适配。
+
+| 模块文件 | 主要类 | 核心职责 | 依赖模块 |
+|----------|--------|----------|----------|
+| [request_engine.py](file:///workspace/backend/core/request_engine.py) | RequestEngine | 请求引擎：发起和管理HTTP请求，执行目标访问和数据提取 | 无 |
+| [waf_detector.py](file:///workspace/backend/core/waf_detector.py) | WAFDetector | WAF检测：识别Web应用防火墙，提供绕过策略 | request_engine |
+| [strategy_adapter.py](file:///workspace/backend/core/strategy_adapter.py) | StrategyAdapter | 策略适配：动态调整扫描策略，优化任务分配 | waf_detector |
+| [chain_engine.py](file:///workspace/backend/core/chain_engine.py) | ChainEngine | 攻击链引擎：分析漏洞关联性，构建攻击链 | 无 |
+| [auth_manager.py](file:///workspace/backend/core/auth_manager.py) | AuthManager | 认证管理：管理认证状态和会话，支持多用户上下文 | 无 |
+
+---
+
+### 7. AI 推理 (7 modules)
+
+AI推理模块提供高级分析能力，支持智能决策。
+
+| 模块文件 | 主要类 | 核心职责 | 依赖模块 |
+|----------|--------|----------|----------|
+| [reasoning_engine.py](file:///workspace/backend/core/reasoning_engine.py) | ReasoningEngine | 推理引擎：实现高级推理能力，对安全场景进行深入分析 | smart_router |
+| [token_budget.py](file:///workspace/backend/core/token_budget.py) | TokenBudget | Token预算：管理和控制AI服务中的token使用量 | 无 |
+| [endpoint_classifier.py](file:///workspace/backend/core/endpoint_classifier.py) | EndpointClassifier | 端点分类：识别并分类目标端点的属性和类型 | 无 |
+| [cve_hunter.py](file:///workspace/backend/core/cve_hunter.py) | CVEHunter | CVE猎手：扫描并识别目标系统中已知的CVE漏洞 | 无 |
+| [deep_recon.py](file:///workspace/backend/core/deep_recon.py) | DeepRecon | 深度侦察：收集目标系统的详细信息 | request_engine |
+| [banner_analyzer.py](file:///workspace/backend/core/banner_analyzer.py) | BannerAnalyzer | Banner分析：分析目标系统的banner信息，识别版本和服务 | 无 |
+| [param_analyzer.py](file:///workspace/backend/core/param_analyzer.py) | ParamAnalyzer | 参数分析：分析请求参数，识别安全风险和注入点 | 无 |
+
+---
+
+### 8. 报告引擎 (2 modules)
+
+| 模块文件 | 主要类 | 核心职责 | 依赖模块 |
+|----------|--------|----------|----------|
+| [report_generator.py](file:///workspace/backend/core/report_generator.py) | ReportGenerator | 报告生成器：将扫描发现转换为结构化报告 | 无 |
+| [report_engine/generator.py](file:///workspace/backend/core/report_engine/generator.py) | ReportEngine | 报告引擎：处理漏洞分析、历史回溯和审计追踪 | report_generator |
+
+---
+
+### 9. 沙箱/CLI 系统 (4 modules)
+
+| 模块文件 | 主要类 | 核心职责 | 依赖模块 |
+|----------|--------|----------|----------|
+| [tool_executor.py](file:///workspace/backend/core/tool_executor.py) | ToolExecutor | 工具执行器：执行外部工具和插件，扩展扫描能力 | 无 |
+| [cli_agent_runner.py](file:///workspace/backend/core/cli_agent_runner.py) | CLIAgentRunner | CLI代理运行器：管理命令行代理的执行和交互 | tool_executor |
+| [cli_output_parser.py](file:///workspace/backend/core/cli_output_parser.py) | CLIOutputParser | CLI输出解析器：解析CLI输出，提取结构化数据 | 无 |
+| [cli_instructions_builder.py](file:///workspace/backend/core/cli_instructions_builder.py) | CLIInstructionsBuilder | CLI指令构建器：构建CLI指令，用于自动化执行 | 无 |
+
+---
+
+### 10. 其他支撑模块 (15 modules)
+
+| 模块文件 | 主要类 | 核心职责 |
+|----------|--------|----------|
+| [checkpoint_manager.py](file:///workspace/backend/core/checkpoint_manager.py) | CheckpointManager | 管理扫描进度检查点，支持断点续传和状态恢复 |
+| [notification_manager.py](file:///workspace/backend/core/notification_manager.py) | NotificationManager | 处理通知消息（Discord/Telegram/Twilio），支持任务完成和异常告警 |
+| [knowledge_processor.py](file:///workspace/backend/core/knowledge_processor.py) | KnowledgeProcessor | 处理和存储知识库信息，为系统提供智能决策支持 |
+| [task_library.py](file:///workspace/backend/core/task_library.py) | TaskLibrary | 管理扫描任务模板和调度策略，确保任务的可复用性 |
+| [execution_history.py](file:///workspace/backend/core/execution_history.py) | ExecutionHistory | 记录执行历史，用于追踪、审计和回溯 |
+| [methodology_loader.py](file:///workspace/backend/core/methodology_loader.py) | MethodologyLoader | 加载和应用不同的检测方法论，注入到代理提示词中 |
+| [payload_mutator.py](file:///workspace/backend/core/payload_mutator.py) | PayloadMutator | 变异和生成攻击载荷，增强扫描的覆盖率 |
+| [poc_generator.py](file:///workspace/backend/core/poc_generator.py) | POCGenerator | 生成攻击的PoC（Proof of Concept），验证漏洞存在 |
+| [poc_validator.py](file:///workspace/backend/core/poc_validator.py) | POCValidator | 验证生成的PoC是否有效，确保漏洞利用的准确性 |
+| [exploit_generator.py](file:///workspace/backend/core/exploit_generator.py) | ExploitGenerator | 生成具体的漏洞利用代码，支持自动化利用 |
+| [xss_validator.py](file:///workspace/backend/core/xss_validator.py) | XSSValidator | 验证和测试XSS漏洞，确保扫描的有效性 |
+| [xss_context_analyzer.py](file:///workspace/backend/core/xss_context_analyzer.py) | XSSContextAnalyzer | 分析XSS漏洞的上下文环境，优化检测和利用策略 |
+| [site_analyzer.py](file:///workspace/backend/core/site_analyzer.py) | SiteAnalyzer | 分析网站结构和内容，提取关键信息 |
+| [request_repeater.py](file:///workspace/backend/core/request_repeater.py) | RequestRepeater | 重复执行请求，模拟异常行为，增强检测鲁棒性 |
+| [prompt_engine/](file:///workspace/backend/core/prompt_engine/) | PromptParser, PromptBuilder, PromptManager | 提示词引擎：解析、构建和管理LLM提示词 |
+
+---
+
+### 数据层架构
+
+| 组件 | 技术 | 用途 |
+|------|------|------|
+| ORM | SQLAlchemy (Async) | 异步数据库操作 |
+| 默认数据库 | SQLite (aiosqlite) | 零配置本地存储 |
+| 可选数据库 | PostgreSQL | 生产环境部署 |
+| 文件存储 | 本地文件系统 | 报告、知识文档、上传文件 |
+| 数据目录 | `/workspace/data/` | 数据库、providers.json、知识库 |
+
+**数据模型关系**:
+```
+Scan (扫描)
+  ├── 1:N → Target (目标URL)
+  ├── 1:N → Endpoint (发现的端点)
+  ├── 1:N → Vulnerability (发现的漏洞)
+  │           └── 1:N → VulnerabilityTest (漏洞测试记录)
+  └── 1:N → Report (生成的报告)
+
+AgentTask (代理任务)
+  └── N:1 → Scan (关联扫描)
+
+VulnLabChallenge (漏洞实验室挑战)
+  └── 1:1 → AgentInstance (可选关联)
+
+Prompt (自定义提示词)
+  └── 独立模型
+
+MCP Server (MCP服务器配置)
+  └── 独立模型
+
+Scheduler Job (调度任务)
+  └── 独立模型
+```
+
+---
+
 ## 总结
 
 NeuroSploit v3.2.4 是一个功能完整的 AI 驱动渗透测试平台，包含：
-- **17+ 个主要页面** 提供完整的用户界面
-- **16+ 个 API 模块** 处理所有后端功能
+- **18 个主要页面** 提供完整的用户界面
+- **18 个 API 模块** (80+ 端点) 处理所有后端功能
+- **60+ 个核心模块** 组成完整的后端架构
 - **50+ 种漏洞类型** 内置检测支持
 - **4 种操作模式** 满足不同测试需求
 - **Kali Linux 沙箱** 提供安全隔离执行
@@ -713,3 +1410,4 @@ NeuroSploit v3.2.4 是一个功能完整的 AI 驱动渗透测试平台，包含
 - **详细页面布局分析** 提供 UI/UX 结构参考
 - **完整参数关联性** 明确数据流与模型关联
 - **完整功能测试计划** 覆盖所有系统功能
+- **后端核心架构** 10大子系统详细分析
