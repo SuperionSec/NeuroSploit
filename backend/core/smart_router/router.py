@@ -251,7 +251,7 @@ class SmartRouter:
 
         import aiohttp
 
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(trust_env=True) as session:
             async with session.post(
                 url,
                 headers=headers,
@@ -423,6 +423,8 @@ class SmartRouter:
     def _parse_openai_response(self, data: Dict) -> Tuple[str, int]:
         choices = data.get("choices", [])
         text = choices[0]["message"]["content"] if choices else ""
+        import re
+        text = re.sub(r'<think\b[^>]*>.*?</think\s*>', '', text, flags=re.DOTALL).strip()
         usage = data.get("usage", {})
         tokens = usage.get("total_tokens", 0)
         return text, tokens
@@ -573,13 +575,13 @@ class SmartRouter:
                 account=account,
                 prompt="Say 'OK' and nothing else.",
                 system="",
-                max_tokens=10,
+                max_tokens=256,
                 model=account.model_override or provider.default_model,
                 temperature=0,
             )
             return True, f"Connected. Response: {text[:50]}"
         except Exception as e:
-            return False, str(e)
+            return False, f"{type(e).__name__}: {str(e)}"
 
     def get_status(self) -> Dict:
         """Get router statistics."""
