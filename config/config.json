@@ -29,7 +29,11 @@
                 "hydra"
             ],
             "description": "Performs comprehensive penetration tests across various domains.",
-            "methodology": ["OWASP-WSTG", "PTES", "OWASP-Top10-2021"],
+            "methodology": [
+                "OWASP-WSTG",
+                "PTES",
+                "OWASP-Top10-2021"
+            ],
             "default_prompt": "auto_pentest",
             "vuln_coverage": 100,
             "ai_prompts": true
@@ -43,7 +47,10 @@
                 "sqlmap"
             ],
             "description": "Focuses on web application vulnerabilities with 100 vuln types.",
-            "methodology": ["OWASP-WSTG", "OWASP-Top10-2021"],
+            "methodology": [
+                "OWASP-WSTG",
+                "OWASP-Top10-2021"
+            ],
             "default_prompt": "auto_pentest",
             "vuln_coverage": 100,
             "ai_prompts": true
@@ -67,8 +74,20 @@
         "neurosploit_tools": {
             "transport": "stdio",
             "command": "python3",
-            "args": ["-m", "core.mcp_server"],
+            "args": [
+                "-m",
+                "core.mcp_server"
+            ],
             "description": "NeuroSploit pentest tools: screenshots, payload delivery, DNS, port scan, tech detect, subdomain enum, findings, AI prompts, Nuclei scanner, Naabu port scanner, sandbox execution"
+        },
+        "Test MCP": {
+            "transport": "stdio",
+            "description": "",
+            "enabled": true,
+            "command": "echo",
+            "args": [
+                "hello"
+            ]
         }
     },
     "sandbox": {
@@ -89,10 +108,28 @@
             "cpu_limit": 2.0
         },
         "tools": [
-            "nuclei", "naabu", "nmap", "httpx", "subfinder", "katana",
-            "dnsx", "ffuf", "gobuster", "dalfox", "nikto", "sqlmap",
-            "whatweb", "curl", "dig", "whois", "masscan", "dirsearch",
-            "wfuzz", "arjun", "wafw00f", "waybackurls"
+            "nuclei",
+            "naabu",
+            "nmap",
+            "httpx",
+            "subfinder",
+            "katana",
+            "dnsx",
+            "ffuf",
+            "gobuster",
+            "dalfox",
+            "nikto",
+            "sqlmap",
+            "whatweb",
+            "curl",
+            "dig",
+            "whois",
+            "masscan",
+            "dirsearch",
+            "wfuzz",
+            "arjun",
+            "wafw00f",
+            "waybackurls"
         ],
         "nuclei": {
             "rate_limit": 150,
