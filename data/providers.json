@@ -203,7 +203,7 @@
       }
     },
     "env_key": "MINIMAX_API_KEY",
-    "enabled": false
+    "enabled": true
   },
   "together": {
     "id": "together",
