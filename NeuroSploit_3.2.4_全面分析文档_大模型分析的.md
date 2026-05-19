@@ -13,6 +13,7 @@
 10. [参数来源与关联性分析](#参数来源与关联性分析)
 11. [代码与文档一致性检查](#代码与文档一致性检查)
 12. [完整功能测试计划](#完整功能测试计划)
+13. [Providers与Settings大模型配置区别](#providers与settings大模型配置区别)
 
 ---
 
@@ -585,6 +586,116 @@ curl -X POST http://localhost:8000/api/v1/providers/detect-all
 2. **所有 API 端点正常**: 后端 API 响应正常
 3. **数据为空**: 扫描列表、报告列表为空 (正常初始状态)
 4. **提供商已配置**: 系统预置了 10+ 个 LLM 提供商配置
+
+---
+
+## Providers与Settings大模型配置区别
+
+### 概述
+
+Providers 页面和 Settings 页面虽然都涉及大模型配置，但它们的**定位、作用层级和配置方式**完全不同。Settings 是"基础/默认"的单提供商模式，Providers 是"高级/多提供商"的 Smart Router 路由模式。
+
+---
+
+### Settings 页面 — 基础/默认配置
+
+**定位**: 系统全局的**默认 LLM 配置**，是"传统"的单提供商模式。
+
+**文件**: [frontend/src/pages/SettingsPage.tsx](file:///workspace/frontend/src/pages/SettingsPage.tsx)
+
+| 配置项 | 说明 |
+|--------|------|
+| `llm_provider` | 选择**唯一的默认提供商** (claude/openai/gemini/openrouter/together/fireworks/ollama/lmstudio) |
+| `llm_model` | 选择默认模型 |
+| API Key 输入 | 为选中的提供商**直接输入 API Key**，保存到 `.env` 文件 |
+| `max_output_tokens` | 全局最大输出 token 限制 |
+| `enable_model_routing` | 启用/禁用模型路由功能 |
+
+**关键特征**:
+- **单提供商模式**: 一次只用一个 LLM 提供商
+- **API Key 存储在 `.env` 文件**: 如 `ANTHROPIC_API_KEY=sk-ant-...`
+- **通过 `PUT /api/v1/settings` 保存**: 修改后需要重启服务
+- **不启用 Smart Router 时生效**: 这是 `ENABLE_SMART_ROUTER=false` 时的默认行为
+- **代码位置**: [backend/config.py](file:///workspace/backend/config.py#L33-L41) 中的 `DEFAULT_LLM_PROVIDER` 和 `DEFAULT_LLM_MODEL`
+
+---
+
+### Providers 页面 — Smart Router 多提供商管理
+
+**定位**: Smart Router 的**多提供商、多账户管理**，是"高级"的多提供商路由模式。
+
+**文件**: [frontend/src/pages/ProvidersPage.tsx](file:///workspace/frontend/src/pages/ProvidersPage.tsx)
+
+| 配置项 | 说明 |
+|--------|------|
+| OAuth 提供商 | Claude Code、Codex CLI、Gemini CLI、Cursor、Copilot 等 (通过 CLI 令牌检测) |
+| API Key 提供商 | Anthropic、OpenAI、Gemini、OpenRouter、GLM、Kimi 等 (手动添加) |
+| 多账户管理 | 同一提供商可以有**多个账户** (不同 API Key 或令牌) |
+| CLI 令牌检测 | 自动从本地 CLI 工具检测 OAuth 令牌 |
+| 账户测试 | 测试每个账户的连接是否正常 |
+| 启用/禁用提供商 | 可以单独启用或禁用某个提供商 |
+| Tier 分级 | Tier 1 (付费)、Tier 2 (廉价)、Tier 3 (免费/本地) |
+| 环境变量编辑器 | 直接编辑 `.env` 文件中的配置 |
+
+**关键特征**:
+- **多提供商模式**: 可以同时配置多个提供商，Smart Router 自动选择
+- **多账户支持**: 同一提供商可以添加多个 API Key，支持负载均衡
+- **故障转移**: 当一个提供商/账户失败时，自动切换到下一个
+- **轮询负载均衡**: 多个账户之间轮询分配请求
+- **需要启用 Smart Router**: 必须设置 `ENABLE_SMART_ROUTER=true`
+- **代码位置**: [backend/core/smart_router/router.py](file:///workspace/backend/core/smart_router/router.py#L50-L68)
+
+---
+
+### 核心区别对比
+
+| 维度 | Settings 页面 | Providers 页面 |
+|------|--------------|----------------|
+| **模式** | 单提供商模式 | 多提供商路由模式 |
+| **Smart Router** | 不需要 | 必须启用 |
+| **提供商数量** | 1 个默认提供商 | 可同时配置 10+ 个提供商 |
+| **账户数量** | 每个提供商 1 个 Key | 每个提供商可多个账户 |
+| **故障转移** | ❌ 无 | ✅ 自动切换 |
+| **负载均衡** | ❌ 无 | ✅ 轮询 |
+| **CLI 令牌** | ❌ 不支持 | ✅ 自动检测 |
+| **API Key 存储** | `.env` 文件 | 内存 + `.env` 文件 |
+| **Tier 优先级** | ❌ 无 | ✅ Tier 1→2→3 |
+| **配额追踪** | ❌ 无 | ✅ 自动追踪 token 使用 |
+| **账户过期检测** | ❌ 无 | ✅ 令牌过期倒计时 |
+| **连接测试** | ❌ 无 | ✅ 测试单个账户连接 |
+| **适用场景** | 简单使用、快速配置 | 生产环境、高可用 |
+
+---
+
+### 两者协作的请求路由流程
+
+```
+用户发起 LLM 请求
+    │
+    ├── ENABLE_SMART_ROUTER=false ?
+    │   └── 使用 Settings 中的 DEFAULT_LLM_PROVIDER + DEFAULT_LLM_MODEL
+    │       直接调用该提供商的 API
+    │
+    └── ENABLE_SMART_ROUTER=true ?
+        └── Smart Router 接管
+            ├── 1. 检查是否有 preferred_provider 指定
+            ├── 2. 按 Tier 优先级排序所有已连接的提供商
+            ├── 3. 在每个提供商内轮询选择可用账户
+            ├── 4. 调用选中的提供商/账户
+            ├── 5. 失败时自动故障转移到下一个
+            └── 6. 记录 token 使用和配额
+```
+
+---
+
+### 配置建议
+
+| 使用场景 | 推荐配置 | 操作步骤 |
+|----------|----------|----------|
+| 个人使用、只有一个 API Key | Settings 页面 | 1. 选择提供商 2. 输入 API Key 3. 保存 |
+| 团队使用、需要高可用 | Providers 页面 | 1. 设置 `ENABLE_SMART_ROUTER=true` 2. 添加多个提供商 3. 检测 CLI 令牌 |
+| 使用本地模型 (Ollama/LM Studio) | Settings 页面 | 1. 选择 Ollama/LM Studio 2. 输入 Base URL 3. 保存 |
+| 混合使用 (云端+本地) | Providers 页面 | 1. 启用 Smart Router 2. 添加云端提供商 3. 添加本地提供商 4. Tier 自动排序 |
 
 ---
 
