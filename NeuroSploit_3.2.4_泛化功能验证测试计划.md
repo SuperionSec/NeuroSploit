@@ -22,115 +22,115 @@
 
 以下表格定义了每个功能资源到实际路由的映射。**移植时只需修改此表**，测试用例通过功能资源名引用路由。
 
-| 功能资源ID | 功能描述 | HTTP方法 | 原始路由（v3.2.4） | 新系统路由（待填写） |
-|-----------|----------|----------|-------------------|-------------------|
-| RES-HEALTH | 健康检查 | GET | `/health` | |
-| RES-DASHBOARD-STATS | 仪表板统计 | GET | `${API_PREFIX}/dashboard/stats` | |
-| RES-DASHBOARD-RECENT | 最近扫描 | GET | `${API_PREFIX}/dashboard/recent` | |
-| RES-DASHBOARD-ACTIVITY | 活动日志 | GET | `${API_PREFIX}/dashboard/activity-feed` | |
-| RES-SCAN-LIST | 扫描列表 | GET | `${API_PREFIX}/scans` | |
-| RES-SCAN-DETAIL | 扫描详情 | GET | `${API_PREFIX}/scans/{id}` | |
-| RES-SCAN-VULNS | 扫描漏洞 | GET | `${API_PREFIX}/scans/{id}/vulnerabilities` | |
-| RES-SCAN-ENDPOINTS | 扫描端点 | GET | `${API_PREFIX}/scans/{id}/endpoints` | |
-| RES-SCAN-TASKS | 扫描任务 | GET | `${API_PREFIX}/scans/{id}/tasks` | |
-| RES-SCAN-LOGS | 扫描日志 | GET | `${API_PREFIX}/scans/{id}/logs` | |
-| RES-SCAN-CREATE | 创建扫描 | POST | `${API_PREFIX}/scans` | |
-| RES-SCAN-DELETE | 删除扫描 | DELETE | `${API_PREFIX}/scans/{id}` | |
-| RES-AGENT-RUN | 启动代理 | POST | `${API_PREFIX}/agent/run` | |
-| RES-AGENT-STATUS | 代理状态 | GET | `${API_PREFIX}/agent/status/{id}` | |
-| RES-AGENT-ACTIVE | 活跃代理 | GET | `${API_PREFIX}/agent/active` | |
-| RES-AGENT-PAUSE | 暂停代理 | POST | `${API_PREFIX}/agent/pause/{id}` | |
-| RES-AGENT-RESUME | 恢复代理 | POST | `${API_PREFIX}/agent/resume/{id}` | |
-| RES-AGENT-STOP | 停止代理 | POST | `${API_PREFIX}/agent/stop/{id}` | |
-| RES-AGENT-PROMPT | 发送提示词 | POST | `${API_PREFIX}/agent/prompt/{id}` | |
-| RES-AGENT-TASKS | 代理任务模板 | GET | `${API_PREFIX}/agent/tasks` | |
-| RES-AGENT-REALTIME-SESSION | 实时会话创建 | POST | `${API_PREFIX}/agent/realtime/session` | |
-| RES-AGENT-REALTIME-MSG | 实时消息发送 | POST | `${API_PREFIX}/agent/realtime/{id}/message` | |
-| RES-AGENT-REALTIME-TOOL | 实时工具执行 | POST | `${API_PREFIX}/agent/realtime/{id}/execute-tool` | |
-| RES-AGENT-REALTIME-TOOLS | 工具状态 | GET | `${API_PREFIX}/agent/realtime/tools/status` | |
-| RES-AGENT-REALTIME-LLM | LLM状态 | GET | `${API_PREFIX}/agent/realtime/llm-status` | |
-| RES-AGENT-REALTIME-REPORT | 实时报告 | GET | `${API_PREFIX}/agent/realtime/{id}/report` | |
-| RES-PROVIDER-LIST | 提供商列表 | GET | `${API_PREFIX}/providers` | |
-| RES-PROVIDER-STATUS | 提供商状态 | GET | `${API_PREFIX}/providers/status` | |
-| RES-PROVIDER-CONNECT | 连接提供商 | POST | `${API_PREFIX}/providers/{id}/connect` | |
-| RES-PROVIDER-TEST | 测试连接 | POST | `${API_PREFIX}/providers/test/{pid}/{aid}` | |
-| RES-PROVIDER-TOGGLE | 启用禁用 | POST | `${API_PREFIX}/providers/{id}/toggle` | |
-| RES-PROVIDER-DETECT | 检测CLI令牌 | POST | `${API_PREFIX}/providers/{id}/detect` | |
-| RES-PROVIDER-DETECT-ALL | 检测所有CLI | POST | `${API_PREFIX}/providers/detect-all` | |
-| RES-PROVIDER-ACCT-DEL | 删除账户 | DELETE | `${API_PREFIX}/providers/{pid}/accounts/{aid}` | |
-| RES-PROVIDER-ENV | 环境变量 | GET/POST | `${API_PREFIX}/providers/env` | |
-| RES-PROVIDER-MODELS | 可用模型 | GET | `${API_PREFIX}/providers/available-models` | |
-| RES-SETTINGS | 系统设置 | GET/PUT | `${API_PREFIX}/settings` | |
-| RES-SETTINGS-TOOLS | 工具检测 | GET | `${API_PREFIX}/settings/tools` | |
-| RES-SETTINGS-NOTIFY-TEST | 通知测试 | POST | `${API_PREFIX}/settings/notifications/test/{channel}` | |
-| RES-REPORT-LIST | 报告列表 | GET | `${API_PREFIX}/reports` | |
-| RES-REPORT-VIEW | 报告查看 | GET | `${API_PREFIX}/reports/{id}/view` | |
-| RES-REPORT-DOWNLOAD | 报告下载 | GET | `${API_PREFIX}/reports/{id}/download/{format}` | |
-| RES-REPORT-CREATE | 报告生成 | POST | `${API_PREFIX}/reports` | |
-| RES-REPORT-AI | AI报告生成 | POST | `${API_PREFIX}/reports/ai-generate` | |
-| RES-REPORT-DELETE | 删除报告 | DELETE | `${API_PREFIX}/reports/{id}` | |
-| RES-VULN-LIST | 漏洞列表 | GET | `${API_PREFIX}/scans/{id}/vulnerabilities` | |
-| RES-VULN-VALIDATE | 漏洞验证 | PATCH | `${API_PREFIX}/vulnerabilities/{id}/validate` | |
-| RES-VULN-FEEDBACK | 漏洞反馈 | POST | `${API_PREFIX}/vulnerabilities/{id}/feedback` | |
-| RES-VULNLAB-CATEGORIES | 漏洞实验室分类 | GET | `${API_PREFIX}/vuln-lab/categories` | |
-| RES-VULNLAB-RUN | 启动挑战 | POST | `${API_PREFIX}/vuln-lab/run` | |
-| RES-VULNLAB-CHALLENGES | 挑战列表 | GET | `${API_PREFIX}/vuln-lab/challenges` | |
-| RES-VULNLAB-STOP | 停止挑战 | POST | `${API_PREFIX}/vuln-lab/challenges/{id}/stop` | |
-| RES-VULNLAB-DELETE | 删除挑战 | DELETE | `${API_PREFIX}/vuln-lab/challenges/{id}` | |
-| RES-TERMINAL-SESSIONS | 终端会话 | GET/POST | `${API_PREFIX}/terminal/sessions` | |
-| RES-TERMINAL-EXEC | 终端执行 | POST | `${API_PREFIX}/terminal/sessions/{id}/execute` | |
-| RES-TERMINAL-AI | AI建议 | POST | `${API_PREFIX}/terminal/sessions/{id}/ai-suggest` | |
-| RES-SANDBOX-LIST | 沙箱列表 | GET | `${API_PREFIX}/sandbox/` | |
-| RES-SANDBOX-DETAIL | 沙箱详情 | GET | `${API_PREFIX}/sandbox/{id}` | |
-| RES-SANDBOX-DESTROY | 销毁沙箱 | DELETE | `${API_PREFIX}/sandbox/{id}` | |
-| RES-SANDBOX-CLEANUP | 清理沙箱 | POST | `${API_PREFIX}/sandbox/cleanup` | |
-| RES-KNOWLEDGE-STATS | 知识库统计 | GET | `${API_PREFIX}/knowledge/stats` | |
-| RES-KNOWLEDGE-DOCS | 知识库文档 | GET | `${API_PREFIX}/knowledge/documents` | |
-| RES-KNOWLEDGE-UPLOAD | 知识库上传 | POST | `${API_PREFIX}/knowledge/upload` | |
-| RES-KNOWLEDGE-DELETE | 删除文档 | DELETE | `${API_PREFIX}/knowledge/documents/{id}` | |
-| RES-MCP-SERVERS | MCP服务器 | GET/POST | `${API_PREFIX}/mcp/servers` | |
-| RES-MCP-START | 启动MCP | POST | `${API_PREFIX}/mcp/servers/{id}/start` | |
-| RES-MCP-STOP | 停止MCP | POST | `${API_PREFIX}/mcp/servers/{id}/stop` | |
-| RES-MCP-TOOLS | MCP工具 | GET | `${API_PREFIX}/mcp/servers/{id}/tools` | |
-| RES-MCP-DELETE | 删除MCP | DELETE | `${API_PREFIX}/mcp/servers/{id}` | |
-| RES-SCHEDULER-LIST | 调度列表 | GET | `${API_PREFIX}/scheduler/` | |
-| RES-SCHEDULER-CREATE | 创建调度 | POST | `${API_PREFIX}/scheduler/` | |
-| RES-SCHEDULER-PAUSE | 暂停调度 | POST | `${API_PREFIX}/scheduler/{id}/pause` | |
-| RES-SCHEDULER-RESUME | 恢复调度 | POST | `${API_PREFIX}/scheduler/{id}/resume` | |
-| RES-SCHEDULER-DELETE | 删除调度 | DELETE | `${API_PREFIX}/scheduler/{id}` | |
-| RES-TARGET-VALIDATE | 目标验证 | POST | `${API_PREFIX}/targets/validate` | |
-| RES-TARGET-VALIDATE-BULK | 批量验证 | POST | `${API_PREFIX}/targets/validate/bulk` | |
-| RES-TARGET-UPLOAD | 目标上传 | POST | `${API_PREFIX}/targets/upload` | |
-| RES-PROMPT-LIST | 提示词列表 | GET | `${API_PREFIX}/prompts` | |
-| RES-PROMPT-CREATE | 创建提示词 | POST | `${API_PREFIX}/prompts` | |
-| RES-PROMPT-UPDATE | 更新提示词 | PUT | `${API_PREFIX}/prompts/{id}` | |
-| RES-PROMPT-DELETE | 删除提示词 | DELETE | `${API_PREFIX}/prompts/{id}` | |
-| RES-FULLIA-START | Full IA启动 | POST | `${API_PREFIX}/full-ia/start` | |
-| RES-FULLIA-STATUS | Full IA状态 | GET | `${API_PREFIX}/full-ia/status/{id}` | |
-| RES-FULLIA-STOP | Full IA停止 | POST | `${API_PREFIX}/full-ia/stop/{id}` | |
+| 功能资源ID | 功能描述 | HTTP方法 | 通用路由模板 | v3.2.4 完整路由 |
+|-----------|----------|----------|-------------|----------------|
+| RES-HEALTH | 健康检查 | GET | `/health` | `http://localhost:8000/health` |
+| RES-DASHBOARD-STATS | 仪表板统计 | GET | `${API_PREFIX}/dashboard/stats` | `http://localhost:8000/api/v1/dashboard/stats` |
+| RES-DASHBOARD-RECENT | 最近扫描 | GET | `${API_PREFIX}/dashboard/recent` | `http://localhost:8000/api/v1/dashboard/recent` |
+| RES-DASHBOARD-ACTIVITY | 活动日志 | GET | `${API_PREFIX}/dashboard/activity-feed` | `http://localhost:8000/api/v1/dashboard/activity-feed` |
+| RES-SCAN-LIST | 扫描列表 | GET | `${API_PREFIX}/scans` | `http://localhost:8000/api/v1/scans` |
+| RES-SCAN-DETAIL | 扫描详情 | GET | `${API_PREFIX}/scans/{id}` | `http://localhost:8000/api/v1/scans/{id}` |
+| RES-SCAN-VULNS | 扫描漏洞 | GET | `${API_PREFIX}/scans/{id}/vulnerabilities` | `http://localhost:8000/api/v1/scans/{id}/vulnerabilities` |
+| RES-SCAN-ENDPOINTS | 扫描端点 | GET | `${API_PREFIX}/scans/{id}/endpoints` | `http://localhost:8000/api/v1/scans/{id}/endpoints` |
+| RES-SCAN-TASKS | 扫描任务 | GET | `${API_PREFIX}/scans/{id}/tasks` | `http://localhost:8000/api/v1/scans/{id}/tasks` |
+| RES-SCAN-LOGS | 扫描日志 | GET | `${API_PREFIX}/scans/{id}/logs` | `http://localhost:8000/api/v1/scans/{id}/logs` |
+| RES-SCAN-CREATE | 创建扫描 | POST | `${API_PREFIX}/scans` | `http://localhost:8000/api/v1/scans` |
+| RES-SCAN-DELETE | 删除扫描 | DELETE | `${API_PREFIX}/scans/{id}` | `http://localhost:8000/api/v1/scans/{id}` |
+| RES-AGENT-RUN | 启动代理 | POST | `${API_PREFIX}/agent/run` | `http://localhost:8000/api/v1/agent/run` |
+| RES-AGENT-STATUS | 代理状态 | GET | `${API_PREFIX}/agent/status/{id}` | `http://localhost:8000/api/v1/agent/status/{id}` |
+| RES-AGENT-ACTIVE | 活跃代理 | GET | `${API_PREFIX}/agent/active` | `http://localhost:8000/api/v1/agent/active` |
+| RES-AGENT-PAUSE | 暂停代理 | POST | `${API_PREFIX}/agent/pause/{id}` | `http://localhost:8000/api/v1/agent/pause/{id}` |
+| RES-AGENT-RESUME | 恢复代理 | POST | `${API_PREFIX}/agent/resume/{id}` | `http://localhost:8000/api/v1/agent/resume/{id}` |
+| RES-AGENT-STOP | 停止代理 | POST | `${API_PREFIX}/agent/stop/{id}` | `http://localhost:8000/api/v1/agent/stop/{id}` |
+| RES-AGENT-PROMPT | 发送提示词 | POST | `${API_PREFIX}/agent/prompt/{id}` | `http://localhost:8000/api/v1/agent/prompt/{id}` |
+| RES-AGENT-TASKS | 代理任务模板 | GET | `${API_PREFIX}/agent/tasks` | `http://localhost:8000/api/v1/agent/tasks` |
+| RES-AGENT-REALTIME-SESSION | 实时会话创建 | POST | `${API_PREFIX}/agent/realtime/session` | `http://localhost:8000/api/v1/agent/realtime/session` |
+| RES-AGENT-REALTIME-MSG | 实时消息发送 | POST | `${API_PREFIX}/agent/realtime/{id}/message` | `http://localhost:8000/api/v1/agent/realtime/{id}/message` |
+| RES-AGENT-REALTIME-TOOL | 实时工具执行 | POST | `${API_PREFIX}/agent/realtime/{id}/execute-tool` | `http://localhost:8000/api/v1/agent/realtime/{id}/execute-tool` |
+| RES-AGENT-REALTIME-TOOLS | 工具状态 | GET | `${API_PREFIX}/agent/realtime/tools/status` | `http://localhost:8000/api/v1/agent/realtime/tools/status` |
+| RES-AGENT-REALTIME-LLM | LLM状态 | GET | `${API_PREFIX}/agent/realtime/llm-status` | `http://localhost:8000/api/v1/agent/realtime/llm-status` |
+| RES-AGENT-REALTIME-REPORT | 实时报告 | GET | `${API_PREFIX}/agent/realtime/{id}/report` | `http://localhost:8000/api/v1/agent/realtime/{id}/report` |
+| RES-PROVIDER-LIST | 提供商列表 | GET | `${API_PREFIX}/providers` | `http://localhost:8000/api/v1/providers` |
+| RES-PROVIDER-STATUS | 提供商状态 | GET | `${API_PREFIX}/providers/status` | `http://localhost:8000/api/v1/providers/status` |
+| RES-PROVIDER-CONNECT | 连接提供商 | POST | `${API_PREFIX}/providers/{id}/connect` | `http://localhost:8000/api/v1/providers/{id}/connect` |
+| RES-PROVIDER-TEST | 测试连接 | POST | `${API_PREFIX}/providers/test/{pid}/{aid}` | `http://localhost:8000/api/v1/providers/test/{pid}/{aid}` |
+| RES-PROVIDER-TOGGLE | 启用禁用 | POST | `${API_PREFIX}/providers/{id}/toggle` | `http://localhost:8000/api/v1/providers/{id}/toggle` |
+| RES-PROVIDER-DETECT | 检测CLI令牌 | POST | `${API_PREFIX}/providers/{id}/detect` | `http://localhost:8000/api/v1/providers/{id}/detect` |
+| RES-PROVIDER-DETECT-ALL | 检测所有CLI | POST | `${API_PREFIX}/providers/detect-all` | `http://localhost:8000/api/v1/providers/detect-all` |
+| RES-PROVIDER-ACCT-DEL | 删除账户 | DELETE | `${API_PREFIX}/providers/{pid}/accounts/{aid}` | `http://localhost:8000/api/v1/providers/{pid}/accounts/{aid}` |
+| RES-PROVIDER-ENV | 环境变量 | GET/POST | `${API_PREFIX}/providers/env` | `http://localhost:8000/api/v1/providers/env` |
+| RES-PROVIDER-MODELS | 可用模型 | GET | `${API_PREFIX}/providers/available-models` | `http://localhost:8000/api/v1/providers/available-models` |
+| RES-SETTINGS | 系统设置 | GET/PUT | `${API_PREFIX}/settings` | `http://localhost:8000/api/v1/settings` |
+| RES-SETTINGS-TOOLS | 工具检测 | GET | `${API_PREFIX}/settings/tools` | `http://localhost:8000/api/v1/settings/tools` |
+| RES-SETTINGS-NOTIFY-TEST | 通知测试 | POST | `${API_PREFIX}/settings/notifications/test/{channel}` | `http://localhost:8000/api/v1/settings/notifications/test/{channel}` |
+| RES-REPORT-LIST | 报告列表 | GET | `${API_PREFIX}/reports` | `http://localhost:8000/api/v1/reports` |
+| RES-REPORT-VIEW | 报告查看 | GET | `${API_PREFIX}/reports/{id}/view` | `http://localhost:8000/api/v1/reports/{id}/view` |
+| RES-REPORT-DOWNLOAD | 报告下载 | GET | `${API_PREFIX}/reports/{id}/download/{format}` | `http://localhost:8000/api/v1/reports/{id}/download/{format}` |
+| RES-REPORT-CREATE | 报告生成 | POST | `${API_PREFIX}/reports` | `http://localhost:8000/api/v1/reports` |
+| RES-REPORT-AI | AI报告生成 | POST | `${API_PREFIX}/reports/ai-generate` | `http://localhost:8000/api/v1/reports/ai-generate` |
+| RES-REPORT-DELETE | 删除报告 | DELETE | `${API_PREFIX}/reports/{id}` | `http://localhost:8000/api/v1/reports/{id}` |
+| RES-VULN-LIST | 漏洞列表 | GET | `${API_PREFIX}/scans/{id}/vulnerabilities` | `http://localhost:8000/api/v1/scans/{id}/vulnerabilities` |
+| RES-VULN-VALIDATE | 漏洞验证 | PATCH | `${API_PREFIX}/vulnerabilities/{id}/validate` | `http://localhost:8000/api/v1/vulnerabilities/{id}/validate` |
+| RES-VULN-FEEDBACK | 漏洞反馈 | POST | `${API_PREFIX}/vulnerabilities/{id}/feedback` | `http://localhost:8000/api/v1/vulnerabilities/{id}/feedback` |
+| RES-VULNLAB-CATEGORIES | 漏洞实验室分类 | GET | `${API_PREFIX}/vuln-lab/categories` | `http://localhost:8000/api/v1/vuln-lab/categories` |
+| RES-VULNLAB-RUN | 启动挑战 | POST | `${API_PREFIX}/vuln-lab/run` | `http://localhost:8000/api/v1/vuln-lab/run` |
+| RES-VULNLAB-CHALLENGES | 挑战列表 | GET | `${API_PREFIX}/vuln-lab/challenges` | `http://localhost:8000/api/v1/vuln-lab/challenges` |
+| RES-VULNLAB-STOP | 停止挑战 | POST | `${API_PREFIX}/vuln-lab/challenges/{id}/stop` | `http://localhost:8000/api/v1/vuln-lab/challenges/{id}/stop` |
+| RES-VULNLAB-DELETE | 删除挑战 | DELETE | `${API_PREFIX}/vuln-lab/challenges/{id}` | `http://localhost:8000/api/v1/vuln-lab/challenges/{id}` |
+| RES-TERMINAL-SESSIONS | 终端会话 | GET/POST | `${API_PREFIX}/terminal/sessions` | `http://localhost:8000/api/v1/terminal/sessions` |
+| RES-TERMINAL-EXEC | 终端执行 | POST | `${API_PREFIX}/terminal/sessions/{id}/execute` | `http://localhost:8000/api/v1/terminal/sessions/{id}/execute` |
+| RES-TERMINAL-AI | AI建议 | POST | `${API_PREFIX}/terminal/sessions/{id}/ai-suggest` | `http://localhost:8000/api/v1/terminal/sessions/{id}/ai-suggest` |
+| RES-SANDBOX-LIST | 沙箱列表 | GET | `${API_PREFIX}/sandbox/` | `http://localhost:8000/api/v1/sandbox/` |
+| RES-SANDBOX-DETAIL | 沙箱详情 | GET | `${API_PREFIX}/sandbox/{id}` | `http://localhost:8000/api/v1/sandbox/{id}` |
+| RES-SANDBOX-DESTROY | 销毁沙箱 | DELETE | `${API_PREFIX}/sandbox/{id}` | `http://localhost:8000/api/v1/sandbox/{id}` |
+| RES-SANDBOX-CLEANUP | 清理沙箱 | POST | `${API_PREFIX}/sandbox/cleanup` | `http://localhost:8000/api/v1/sandbox/cleanup` |
+| RES-KNOWLEDGE-STATS | 知识库统计 | GET | `${API_PREFIX}/knowledge/stats` | `http://localhost:8000/api/v1/knowledge/stats` |
+| RES-KNOWLEDGE-DOCS | 知识库文档 | GET | `${API_PREFIX}/knowledge/documents` | `http://localhost:8000/api/v1/knowledge/documents` |
+| RES-KNOWLEDGE-UPLOAD | 知识库上传 | POST | `${API_PREFIX}/knowledge/upload` | `http://localhost:8000/api/v1/knowledge/upload` |
+| RES-KNOWLEDGE-DELETE | 删除文档 | DELETE | `${API_PREFIX}/knowledge/documents/{id}` | `http://localhost:8000/api/v1/knowledge/documents/{id}` |
+| RES-MCP-SERVERS | MCP服务器 | GET/POST | `${API_PREFIX}/mcp/servers` | `http://localhost:8000/api/v1/mcp/servers` |
+| RES-MCP-START | 启动MCP | POST | `${API_PREFIX}/mcp/servers/{id}/start` | `http://localhost:8000/api/v1/mcp/servers/{id}/start` |
+| RES-MCP-STOP | 停止MCP | POST | `${API_PREFIX}/mcp/servers/{id}/stop` | `http://localhost:8000/api/v1/mcp/servers/{id}/stop` |
+| RES-MCP-TOOLS | MCP工具 | GET | `${API_PREFIX}/mcp/servers/{id}/tools` | `http://localhost:8000/api/v1/mcp/servers/{id}/tools` |
+| RES-MCP-DELETE | 删除MCP | DELETE | `${API_PREFIX}/mcp/servers/{id}` | `http://localhost:8000/api/v1/mcp/servers/{id}` |
+| RES-SCHEDULER-LIST | 调度列表 | GET | `${API_PREFIX}/scheduler/` | `http://localhost:8000/api/v1/scheduler/` |
+| RES-SCHEDULER-CREATE | 创建调度 | POST | `${API_PREFIX}/scheduler/` | `http://localhost:8000/api/v1/scheduler/` |
+| RES-SCHEDULER-PAUSE | 暂停调度 | POST | `${API_PREFIX}/scheduler/{id}/pause` | `http://localhost:8000/api/v1/scheduler/{id}/pause` |
+| RES-SCHEDULER-RESUME | 恢复调度 | POST | `${API_PREFIX}/scheduler/{id}/resume` | `http://localhost:8000/api/v1/scheduler/{id}/resume` |
+| RES-SCHEDULER-DELETE | 删除调度 | DELETE | `${API_PREFIX}/scheduler/{id}` | `http://localhost:8000/api/v1/scheduler/{id}` |
+| RES-TARGET-VALIDATE | 目标验证 | POST | `${API_PREFIX}/targets/validate` | `http://localhost:8000/api/v1/targets/validate` |
+| RES-TARGET-VALIDATE-BULK | 批量验证 | POST | `${API_PREFIX}/targets/validate/bulk` | `http://localhost:8000/api/v1/targets/validate/bulk` |
+| RES-TARGET-UPLOAD | 目标上传 | POST | `${API_PREFIX}/targets/upload` | `http://localhost:8000/api/v1/targets/upload` |
+| RES-PROMPT-LIST | 提示词列表 | GET | `${API_PREFIX}/prompts` | `http://localhost:8000/api/v1/prompts` |
+| RES-PROMPT-CREATE | 创建提示词 | POST | `${API_PREFIX}/prompts` | `http://localhost:8000/api/v1/prompts` |
+| RES-PROMPT-UPDATE | 更新提示词 | PUT | `${API_PREFIX}/prompts/{id}` | `http://localhost:8000/api/v1/prompts/{id}` |
+| RES-PROMPT-DELETE | 删除提示词 | DELETE | `${API_PREFIX}/prompts/{id}` | `http://localhost:8000/api/v1/prompts/{id}` |
+| RES-FULLIA-START | Full IA启动 | POST | `${API_PREFIX}/full-ia/start` | `http://localhost:8000/api/v1/full-ia/start` |
+| RES-FULLIA-STATUS | Full IA状态 | GET | `${API_PREFIX}/full-ia/status/{id}` | `http://localhost:8000/api/v1/full-ia/status/{id}` |
+| RES-FULLIA-STOP | Full IA停止 | POST | `${API_PREFIX}/full-ia/stop/{id}` | `http://localhost:8000/api/v1/full-ia/stop/{id}` |
 
 ### 1.3 前端页面路由映射
 
-| 页面功能ID | 功能描述 | 原始路径（v3.2.4） | 新系统路径（待填写） |
-|-----------|----------|-------------------|-------------------|
-| PAGE-HOME | 首页仪表板 | `/` | |
-| PAGE-NEW-SCAN | 新建扫描 | `/scan/new` | |
-| PAGE-AUTO-PENTEST | 自动渗透 | `/auto-pentest` | |
-| PAGE-SCAN-DETAIL | 扫描详情 | `/scan/{id}` | |
-| PAGE-AGENT-STATUS | 代理状态 | `/agent/{id}` | |
-| PAGE-VULN-LAB | 漏洞实验室 | `/vuln-lab` | |
-| PAGE-TERMINAL | 终端代理 | `/terminal` | |
-| PAGE-PROVIDERS | 提供商管理 | `/providers` | |
-| PAGE-SETTINGS | 系统设置 | `/settings` | |
-| PAGE-FULL-IA | Full IA测试 | `/full-ia` | |
-| PAGE-MCP | MCP管理 | `/mcp` | |
-| PAGE-SCHEDULER | 调度器 | `/scheduler` | |
-| PAGE-KNOWLEDGE | 知识库 | `/knowledge` | |
-| PAGE-REALTIME | 实时任务 | `/realtime` | |
-| PAGE-SANDBOX | 沙箱管理 | `/sandboxes` | |
-| PAGE-TASKS | 任务库 | `/tasks` | |
-| PAGE-REPORTS | 报告列表 | `/reports` | |
-| PAGE-REPORT-VIEW | 报告查看 | `/reports/{id}` | |
+| 页面功能ID | 功能描述 | 通用路径模板 | v3.2.4 完整URL |
+|-----------|----------|-------------|----------------|
+| PAGE-HOME | 首页仪表板 | `/` | `http://localhost:3001/` |
+| PAGE-NEW-SCAN | 新建扫描 | `/scan/new` | `http://localhost:3001/scan/new` |
+| PAGE-AUTO-PENTEST | 自动渗透 | `/auto-pentest` | `http://localhost:3001/auto-pentest` |
+| PAGE-SCAN-DETAIL | 扫描详情 | `/scan/{id}` | `http://localhost:3001/scan/{id}` |
+| PAGE-AGENT-STATUS | 代理状态 | `/agent/{id}` | `http://localhost:3001/agent/{id}` |
+| PAGE-VULN-LAB | 漏洞实验室 | `/vuln-lab` | `http://localhost:3001/vuln-lab` |
+| PAGE-TERMINAL | 终端代理 | `/terminal` | `http://localhost:3001/terminal` |
+| PAGE-PROVIDERS | 提供商管理 | `/providers` | `http://localhost:3001/providers` |
+| PAGE-SETTINGS | 系统设置 | `/settings` | `http://localhost:3001/settings` |
+| PAGE-FULL-IA | Full IA测试 | `/full-ia` | `http://localhost:3001/full-ia` |
+| PAGE-MCP | MCP管理 | `/mcp` | `http://localhost:3001/mcp` |
+| PAGE-SCHEDULER | 调度器 | `/scheduler` | `http://localhost:3001/scheduler` |
+| PAGE-KNOWLEDGE | 知识库 | `/knowledge` | `http://localhost:3001/knowledge` |
+| PAGE-REALTIME | 实时任务 | `/realtime` | `http://localhost:3001/realtime` |
+| PAGE-SANDBOX | 沙箱管理 | `/sandboxes` | `http://localhost:3001/sandboxes` |
+| PAGE-TASKS | 任务库 | `/tasks` | `http://localhost:3001/tasks` |
+| PAGE-REPORTS | 报告列表 | `/reports` | `http://localhost:3001/reports` |
+| PAGE-REPORT-VIEW | 报告查看 | `/reports/{id}` | `http://localhost:3001/reports/{id}` |
 
 ---
 
