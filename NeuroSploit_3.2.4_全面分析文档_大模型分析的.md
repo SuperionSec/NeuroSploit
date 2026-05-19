@@ -421,6 +421,57 @@ AI 代理模块是平台最大的 API 模块，提供 33 个端点，覆盖代�
 - 配额状态: provider_id, total_tokens, used_tokens, remaining_tokens, account_count
 - 环境变量: key-value pairs from .env file
 
+#### 提供商完整配置清单
+
+以下为 `data/providers.json` 中定义的所有 19 个 LLM 提供商的完整配置信息：
+
+| ID | 名称 | 认证类型 | API格式 | Base URL | Tier | 默认模型 | 环境变量Key |
+|----|------|----------|---------|----------|------|----------|------------|
+| claude_code | Claude Code | oauth | anthropic | https://api.anthropic.com | 1 | claude-sonnet-4-5-20250929 | - |
+| codex_cli | OpenAI Codex CLI | oauth | openai_compat | https://api.openai.com/v1 | 1 | gpt-4o | - |
+| gemini_cli | Gemini CLI | oauth | gemini_code_assist | https://cloudcode-pa.googleapis.com | 1 | gemini-2.5-flash | - |
+| cursor | Cursor | oauth | openai_compat | https://api2.cursor.sh/v1 | 1 | cursor-fast | - |
+| copilot | GitHub Copilot | oauth | openai_compat | https://api.githubcopilot.com | 1 | gpt-4o | - |
+| iflow | iFlow AI | oauth | openai_compat | https://api.iflow.ai/v1 | 1 | kimi-k2 | - |
+| qwen_code | Qwen Code | oauth | openai_compat | https://chat.qwen.ai/api/v1 | 1 | qwen3-coder | - |
+| kiro | Kiro AI | oauth | anthropic | https://api.anthropic.com | 1 | claude-sonnet-4-5-20250929 | - |
+| anthropic | Anthropic | api_key | anthropic | https://api.anthropic.com | 1 | claude-sonnet-4-5-20250929 | ANTHROPIC_API_KEY |
+| openai | OpenAI | api_key | openai_compat | https://api.openai.com/v1 | 1 | gpt-4o | OPENAI_API_KEY |
+| gemini | Gemini | api_key | gemini | https://generativelanguage.googleapis.com/v1beta | 1 | gemini-2.5-flash | GEMINI_API_KEY |
+| openrouter | OpenRouter | api_key | openai_compat | https://openrouter.ai/api/v1 | 1 | anthropic/claude-sonnet-4-5 | OPENROUTER_API_KEY |
+| glm | GLM (Zhipu AI) | api_key | openai_compat | https://open.bigmodel.cn/api/paas/v4 | 2 | glm-4-flash | GLM_API_KEY |
+| kimi | Kimi (Moonshot) | api_key | openai_compat | https://api.moonshot.cn/v1 | 2 | moonshot-v1-8k | KIMI_API_KEY |
+| minimax | Minimax | api_key | openai_compat | https://api.minimaxi.com/v1 | 2 | MiniMax-M2.7 | MINIMAX_API_KEY |
+| together | Together AI | api_key | openai_compat | https://api.together.xyz/v1 | 2 | meta-llama/Llama-3-70b-chat-hf | TOGETHER_API_KEY |
+| fireworks | Fireworks AI | api_key | openai_compat | https://api.fireworks.ai/inference/v1 | 2 | accounts/fireworks/models/llama-v3p1-70b-instruct | FIREWORKS_API_KEY |
+| ollama | Ollama | api_key | ollama | http://localhost:11434 | 3 | llama3 | OLLAMA_API_KEY |
+| lmstudio | LM Studio | api_key | openai_compat | http://localhost:1234/v1 | 3 | local-model | LMSTUDIO_API_KEY |
+
+**Tier 分级说明**：
+
+| Tier | 含义 | 说明 |
+|------|------|------|
+| Tier 1 | 高级 | 顶级商业 LLM 提供商，质量最高，成本最高 |
+| Tier 2 | 经济 | 性价比高的提供商，Smart Router 在 Tier 1 配额耗尽时自动降级到 Tier 2 |
+| Tier 3 | 免费/本地 | 本地部署的 LLM（Ollama、LM Studio），零成本但质量较低 |
+
+**认证类型说明**：
+
+| auth_type | 含义 | 配置方式 |
+|-----------|------|----------|
+| oauth | CLI 令牌自动检测 | 通过 TokenExtractor 从本地 CLI 工具自动提取 OAuth 令牌，无需手动配置 |
+| api_key | 手动输入 API Key | 在 ProvidersPage 的 ConfigModal 中手动输入 API Key，或通过 .env 环境变量自动加载 |
+
+**API 格式说明**：
+
+| api_format | 说明 | 兼容提供商 |
+|------------|------|-----------|
+| anthropic | Anthropic 原生 API 格式 | claude_code, kiro, anthropic |
+| openai_compat | OpenAI 兼容 API 格式（/v1/chat/completions） | codex_cli, cursor, copilot, iflow, qwen_code, openai, openrouter, glm, kimi, minimax, together, fireworks, lmstudio |
+| gemini | Google Gemini 原生 API 格式 | gemini |
+| gemini_code_assist | Gemini Code Assist 特殊格式 | gemini_cli |
+| ollama | Ollama 本地 API 格式 | ollama |
+
 ## 2.7 Dashboard API — 仪表板数据
 
 **路径前缀**: `/api/v1/dashboard`
@@ -910,6 +961,180 @@ NeuroSploit v3.2.4 前端共包含 18 个页面，覆盖从扫描创建、代理
 ---
 
 ### Page 8: ProvidersPage (/providers)
+
+#### 页面概览
+
+ProvidersPage 是 Smart Router 的核心管理页面，负责 19 个 LLM 提供商的多账户管理、CLI 令牌检测、连接测试和环境变量编辑。页面按 auth_type 分为两大区域：OAuth Providers（8个，CLI 令牌检测）和 API Key Providers（11个，手动输入密钥）。
+
+#### 页面状态指示
+
+| 状态 | 条件 | 显示效果 |
+|------|------|----------|
+| Smart Router 启用 | `ENABLE_SMART_ROUTER=true` | 标题下方显示 "Smart Router active -- X/19 providers connected" |
+| Smart Router 禁用 | `ENABLE_SMART_ROUTER=false` | 显示黄色警告横幅，提示设置 `ENABLE_SMART_ROUTER=true` |
+| 提供商已连接 | `connected=true && enabled=true` | 卡片边框绿色（border-green-500/30），显示 ✓ 图标 |
+| 提供商已禁用 | `enabled=false` | 卡片边框红色（border-red-500/20），显示 ✗ 图标，整体透明度60% |
+| 提供商未连接 | `connected=false && enabled=true` | 卡片边框默认暗色（border-dark-700） |
+
+#### 统计概览卡片（4个）
+
+| 卡片 | 图标 | 数据来源 | 含义 |
+|------|------|----------|------|
+| Providers | Plug (蓝色) | `providers.length` | 已注册的提供商总数 |
+| Connected | CheckCircle (绿色) | `connectedCount` | 已连接账户的提供商数量 |
+| Accounts | Shield (紫色) | `totalAccounts` | 所有提供商的账户总数 |
+| Total Tokens | Zap (主色) | `totalTokensUsed` | 所有账户累计使用的 Token 总数 |
+
+#### ProviderCard 组件详情
+
+每个提供商以卡片形式展示，卡片布局为 4 列网格（lg:grid-cols-4）。
+
+**视觉标识映射：**
+
+| 提供商 ID | 颜色 (PROVIDER_COLORS) | 首字母 (PROVIDER_INITIALS) |
+|-----------|----------------------|--------------------------|
+| claude_code | bg-orange-500 | CC |
+| codex_cli | bg-green-500 | CX |
+| gemini_cli | bg-blue-400 | GC |
+| cursor | bg-purple-500 | CU |
+| copilot | bg-gray-500 | CP |
+| iflow | bg-cyan-400 | iF |
+| qwen_code | bg-indigo-500 | QC |
+| kiro | bg-yellow-500 | KI |
+| anthropic | bg-orange-600 | AN |
+| openai | bg-emerald-600 | OA |
+| gemini | bg-blue-500 | GM |
+| openrouter | bg-violet-500 | OR |
+| glm | bg-red-500 | GL |
+| kimi | bg-pink-500 | KM |
+| minimax | bg-amber-500 | MM |
+| together | bg-teal-500 | TG |
+| fireworks | bg-rose-500 | FW |
+| ollama | bg-gray-600 | OL |
+| lmstudio | bg-slate-500 | LS |
+
+**Tier 标签映射：**
+
+| Tier | 标签 (TIER_LABELS) | 颜色 (TIER_COLORS) | 含义 |
+|------|-------------------|-------------------|------|
+| 1 | Tier 1 | text-yellow-400 bg-yellow-400/10 | 高级/付费订阅 |
+| 2 | Tier 2 - Budget | text-blue-400 bg-blue-400/10 | 经济型 |
+| 3 | Tier 3 - Free | text-green-400 bg-green-400/10 | 免费/本地 |
+
+**ProviderCard 显示字段：**
+
+| 区域 | 字段 | 样式 | 说明 |
+|------|------|------|------|
+| 左上 | 颜色图标 + 首字母 | 12×12 圆角方块，hover 时放大5% | 点击打开 ConfigModal |
+| 右上 | Tier 标签 | 10px 圆角胶囊 | 显示 Tier 等级 |
+| 右上 | ON/OFF 开关 | 绿色/灰色切换按钮 | 切换提供商启用状态 |
+| 中部 | 提供商名称 | 白色粗体 | 如 "Anthropic"、"OpenAI" |
+| 中部 | 连接状态图标 | 绿色 ✓ 或红色 ✗ | 已连接/已禁用 |
+| 中部 | 默认模型 | 12px 等宽字体，暗色 | 如 "claude-sonnet-4-5-20250929" |
+| 底部 | 活跃账户数 | "{active}/{total} active" | 如 "2/3 active" |
+| 底部 | Token 使用量 | Zap 图标 + 数字 | 仅 totalTokens > 0 时显示 |
+
+#### ConfigModal 组件详情
+
+点击 ProviderCard 后弹出配置模态框，最大宽度 max-w-lg，最大高度 85vh。
+
+**模态框头部：**
+
+| 元素 | 内容 | 说明 |
+|------|------|------|
+| 左侧图标 | 提供商颜色 + 首字母 | 与 ProviderCard 一致 |
+| 提供商名称 | 如 "Anthropic" | 白色粗体 |
+| API 格式/模型 | "{api_format} / {default_model}" | 12px 等宽字体，如 "openai_compat / gpt-4o" |
+| 活跃账户数 | "{active}/{total} active" | 右上角 |
+| 关闭按钮 | X 图标 | 右上角 |
+
+**操作按钮区域：**
+
+| 按钮 | 条件 | 功能 | API |
+|------|------|------|-----|
+| Detect CLI Token | 仅 OAuth 提供商显示 | 从本地 CLI 工具检测令牌 | POST /api/v1/providers/{id}/detect |
+
+**添加凭据表单：**
+
+| 字段 | 类型 | 占位符 | 说明 |
+|------|------|--------|------|
+| Label | text | "Label (optional)" | 账户标签，如 "Minimax-M2.7" |
+| API Key / OAuth Token | password | OAuth→"OAuth Token", API Key→"API Key" | 密钥输入框 |
+| Add 按钮 | button | - | 点击添加账户，需 Key 非空 |
+
+**账户列表：**
+
+每个账户显示以下信息：
+
+| 字段 | 显示方式 | 说明 |
+|------|----------|------|
+| label | 文本 | 账户标签，如 "Anthropic (env)"、"API Key" |
+| source 标签 | 彩色胶囊 | CLI=蓝色(cli_detect)、ENV=绿色(env_var)、Manual=暗色(manual) |
+| credential_type | 隐含于 source 标签 | api_key 或 oauth，与 auth_type 对应 |
+| is_active | 红色 "Inactive" 标签 | 仅非活跃时显示 |
+| tokens_used | Zap 图标 + 数字 | 如 "1,234 tokens" |
+| last_used | Clock 图标 + 相对时间 | 如 "5m ago"、"2h ago"、"3d ago" |
+| expires_at | Clock/XCircle 图标 + 倒计时 | 如 "45m left"(黄色)、"2h left"(绿色)、"Expired"(红色) |
+| Test 按钮 | TestTube 图标 | 测试连接，点击后显示加载动画 |
+| Delete 按钮 | Trash2 图标 | 删除账户 |
+
+**测试结果反馈：**
+
+| 结果 | 样式 | 内容 |
+|------|------|------|
+| 成功 | 绿色背景 + ✓ 图标 | 如 "Connection test passed" |
+| 失败 | 红色背景 + ✗ 图标 | 如 "No token found"、"API error: ..." |
+
+#### 环境变量编辑器
+
+点击 "Show API Key & Config Manager" 按钮展开/收起环境变量编辑面板。
+
+**ALLOWED_ENV_KEYS 白名单（18个键）：**
+
+| 分类 | 键名 | 说明 |
+|------|------|------|
+| API Keys (7) | ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, GOOGLE_API_KEY, OPENROUTER_API_KEY, TOGETHER_API_KEY, FIREWORKS_API_KEY | 云端提供商密钥 |
+| Local Hosts (2) | OLLAMA_HOST, LMSTUDIO_HOST | 本地模型服务地址 |
+| Feature Flags (5) | ENABLE_SMART_ROUTER, ENABLE_REASONING, ENABLE_CVE_HUNT, ENABLE_MULTI_AGENT, ENABLE_RESEARCHER_AI | 功能开关 |
+| Other (4) | NVD_API_KEY, GITHUB_TOKEN, TOKEN_BUDGET | 安全数据源和预算 |
+
+**编辑器功能：**
+
+| 功能 | 说明 |
+|------|------|
+| 搜索过滤 | 输入关键词过滤键名（不区分大小写） |
+| 密钥遮罩 | 包含 KEY/TOKEN/SECRET 的键值显示为密码输入框 |
+| 修改高亮 | 修改但未保存的键显示蓝色边框高亮 |
+| 单键保存 | 每个键独立保存按钮，仅修改后可点击 |
+| 持久化 | 保存后同时更新运行时环境变量和 .env 文件 |
+| API Key 脱敏 | GET 请求返回的 API Key 仅显示前8位和后4位（如 "sk-cp-7a...csAd"） |
+
+#### 页面交互流程
+
+```
+页面加载
+  ├── fetchProviders() → GET /api/v1/providers
+  ├── fetchStatus() → GET /api/v1/providers/status
+  └── 渲染 OAuth Providers 网格 + API Key Providers 网格
+
+用户操作: 点击 ProviderCard
+  └── 打开 ConfigModal
+      ├── OAuth 提供商 → "Detect CLI Token" 按钮
+      ├── API Key 提供商 → "Add Credential" 表单
+      └── 账户列表 → Test / Delete 操作
+
+用户操作: Detect All CLIs
+  └── POST /api/v1/providers/detect-all
+      ├── detected_count > 0 → 刷新提供商列表 + Toast 提示
+      └── detected_count = 0 → Toast "No new CLI tokens detected"
+
+用户操作: 环境变量编辑
+  └── 展开编辑器 → fetchEnvVars() → GET /api/v1/providers/env
+      ├── 修改值 → 高亮显示
+      └── 保存 → POST /api/v1/providers/env → 更新 .env 文件
+```
+
+#### 组件/按钮与API对照表
 
 | 组件/按钮 | 功能描述 | 调用API |
 |----------|----------|--------|
@@ -1793,6 +2018,70 @@ Providers 页面和 Settings 页面虽然都涉及大模型配置，但它们的
 | **连接测试** | ❌ 无 | ✅ 测试单个账户连接 |
 | **环境变量编辑器** | ❌ 无 | ✅ 直接编辑.env |
 | **适用场景** | 简单使用、快速配置 | 生产环境、高可用 |
+
+---
+
+### Provider 配置来源详解
+
+Provider 的配置信息来自三个层级，按优先级从高到低：
+
+| 层级 | 来源 | 存储位置 | 持久性 | 说明 |
+|------|------|----------|--------|------|
+| 1 | 环境变量自动加载 | `.env` 文件 + `os.environ` | 持久 | 启动时 `_seed_env_credentials()` 自动读取 `env_key` 对应的环境变量，创建 source=env_var 的账户 |
+| 2 | CLI 令牌检测 | 本地 CLI 配置文件 | 会话级 | `_restore_cli_credentials()` 在启动时重新提取 CLI 令牌；凭据仅保存在内存中，不落盘 |
+| 3 | providers.json 硬编码 | `data/providers.json` | 持久 | `_seed_defaults()` 注册 19 个提供商的元数据（name/auth_type/api_format/base_url/tier/default_model/env_key） |
+
+**配置加载流程：**
+
+```
+ProviderRegistry.__init__()
+  ├── _seed_defaults()        → 从 DEFAULT_PROVIDERS 列表注册 19 个提供商元数据
+  ├── _load()                 → 从 data/providers.json 加载已保存的账户元数据
+  ├── _seed_env_credentials() → 检查每个提供商的 env_key，若环境变量有值则自动创建 env_var 账户
+  └── _restore_cli_credentials() → 重新提取 CLI 令牌（TokenExtractor.detect()），恢复 cli_detect 账户
+```
+
+**账户来源类型：**
+
+| source 值 | 含义 | 创建方式 | 凭据存储 |
+|-----------|------|----------|----------|
+| `env_var` | 环境变量自动加载 | 启动时检测 `env_key` 对应环境变量 | 内存（从 `.env` 重新读取） |
+| `cli_detect` | CLI 令牌检测 | 点击 "Detect CLI Token" 或启动时自动恢复 | 内存（从 CLI 配置文件重新提取） |
+| `manual` | 手动添加 | 用户在 ConfigModal 中输入 API Key | 内存（不落盘，重启后需重新添加） |
+
+**19 个提供商完整配置清单：**
+
+| ID | 名称 | 认证类型 | API格式 | Base URL | Tier | 默认模型 | 环境变量键 |
+|----|------|----------|---------|----------|------|----------|-----------|
+| claude_code | Claude Code | oauth | anthropic | https://api.anthropic.com | 1 | claude-sonnet-4-5-20250929 | - |
+| codex_cli | OpenAI Codex CLI | oauth | openai_compat | https://api.openai.com/v1 | 1 | gpt-4o | - |
+| gemini_cli | Gemini CLI | oauth | gemini_code_assist | https://cloudcode-pa.googleapis.com | 1 | gemini-2.5-flash | - |
+| cursor | Cursor | oauth | openai_compat | https://api2.cursor.sh/v1 | 1 | cursor-fast | - |
+| copilot | GitHub Copilot | oauth | openai_compat | https://api.githubcopilot.com | 1 | gpt-4o | - |
+| iflow | iFlow AI | oauth | openai_compat | https://api.iflow.ai/v1 | 1 | kimi-k2 | - |
+| qwen_code | Qwen Code | oauth | openai_compat | https://chat.qwen.ai/api/v1 | 1 | qwen3-coder | - |
+| kiro | Kiro AI | oauth | anthropic | https://api.anthropic.com | 1 | claude-sonnet-4-5-20250929 | - |
+| anthropic | Anthropic | api_key | anthropic | https://api.anthropic.com | 1 | claude-sonnet-4-5-20250929 | ANTHROPIC_API_KEY |
+| openai | OpenAI | api_key | openai_compat | https://api.openai.com/v1 | 1 | gpt-4o | OPENAI_API_KEY |
+| gemini | Gemini | api_key | gemini | https://generativelanguage.googleapis.com/v1beta | 1 | gemini-2.5-flash | GEMINI_API_KEY |
+| openrouter | OpenRouter | api_key | openai_compat | https://openrouter.ai/api/v1 | 1 | anthropic/claude-sonnet-4-5 | OPENROUTER_API_KEY |
+| glm | GLM (Zhipu AI) | api_key | openai_compat | https://open.bigmodel.cn/api/paas/v4 | 2 | glm-4-flash | GLM_API_KEY |
+| kimi | Kimi (Moonshot) | api_key | openai_compat | https://api.moonshot.cn/v1 | 2 | moonshot-v1-8k | KIMI_API_KEY |
+| minimax | Minimax | api_key | openai_compat | https://api.minimaxi.com/v1 | 2 | MiniMax-M2.7 | MINIMAX_API_KEY |
+| together | Together AI | api_key | openai_compat | https://api.together.xyz/v1 | 2 | meta-llama/Llama-3-70b-chat-hf | TOGETHER_API_KEY |
+| fireworks | Fireworks AI | api_key | openai_compat | https://api.fireworks.ai/inference/v1 | 2 | accounts/fireworks/models/llama-v3p1-70b-instruct | FIREWORKS_API_KEY |
+| ollama | Ollama | api_key | ollama | http://localhost:11434 | 3 | llama3 | OLLAMA_API_KEY |
+| lmstudio | LM Studio | api_key | openai_compat | http://localhost:1234/v1 | 3 | local-model | LMSTUDIO_API_KEY |
+
+**API 格式说明：**
+
+| api_format | 含义 | 请求方式 | 适用提供商 |
+|-----------|------|----------|-----------|
+| anthropic | Anthropic 原生 API | 使用 anthropic SDK，x-api-key 头 | claude_code, kiro, anthropic |
+| openai_compat | OpenAI 兼容 API | 使用 aiohttp，Authorization: Bearer 头 | codex_cli, cursor, copilot, iflow, qwen_code, openai, openrouter, glm, kimi, minimax, together, fireworks, lmstudio |
+| gemini | Gemini 原生 API | 使用 Google AI SDK，key 查询参数 | gemini |
+| gemini_code_assist | Gemini Code Assist | 特殊的 Gemini 代码辅助协议 | gemini_cli |
+| ollama | Ollama 本地 API | 无认证，HTTP 请求 | ollama |
 
 ---
 
@@ -3024,40 +3313,41 @@ VulnLabChallenge               — 独立表 (scan_id为普通字段，无FK)
 
 以下为 `backend/config.py` 中 `Settings` 类的完整配置项：
 
-| 配置项 | 环境变量 | 类型 | 默认值 | 说明 |
-|--------|---------|------|--------|------|
-| APP_NAME | - | str | "NeuroSploit v3" | 应用名称 |
-| APP_VERSION | - | str | "3.0.0" | 版本号 |
-| DEBUG | DEBUG | bool | True | 调试模式 |
-| HOST | HOST | str | "0.0.0.0" | 监听地址 |
-| PORT | PORT | int | 8000 | 监听端口 |
-| DATABASE_URL | DATABASE_URL | str | "sqlite+aiosqlite:///./data/neurosploit.db" | 数据库URL |
-| ANTHROPIC_API_KEY | ANTHROPIC_API_KEY | Optional[str] | None | Anthropic API Key |
-| OPENAI_API_KEY | OPENAI_API_KEY | Optional[str] | None | OpenAI API Key |
-| OPENROUTER_API_KEY | OPENROUTER_API_KEY | Optional[str] | None | OpenRouter API Key |
-| GEMINI_API_KEY | GEMINI_API_KEY | Optional[str] | None | Gemini API Key |
-| TOGETHER_API_KEY | TOGETHER_API_KEY | Optional[str] | None | Together API Key |
-| FIREWORKS_API_KEY | FIREWORKS_API_KEY | Optional[str] | None | Fireworks API Key |
-| DEFAULT_LLM_PROVIDER | DEFAULT_LLM_PROVIDER | str | "claude" | 默认LLM提供商 |
-| DEFAULT_LLM_MODEL | DEFAULT_LLM_MODEL | str | "claude-sonnet-4-20250514" | 默认LLM模型 |
-| MAX_OUTPUT_TOKENS | MAX_OUTPUT_TOKENS | Optional[int] | None | 最大输出Token |
-| ENABLE_MODEL_ROUTING | ENABLE_MODEL_ROUTING | bool | False | 模型路由 |
-| ENABLE_KNOWLEDGE_AUGMENTATION | ENABLE_KNOWLEDGE_AUGMENTATION | bool | False | 知识增强 |
-| ENABLE_BROWSER_VALIDATION | ENABLE_BROWSER_VALIDATION | bool | False | 浏览器验证 |
-| ENABLE_VULN_AGENTS | ENABLE_VULN_AGENTS | bool | False | 漏洞Agent |
-| VULN_AGENT_CONCURRENCY | VULN_AGENT_CONCURRENCY | int | 10 | 漏洞Agent并发数 |
-| ENABLE_SMART_ROUTER | ENABLE_SMART_ROUTER | bool | False | 智能路由 |
-| ENABLE_RAG | ENABLE_RAG | bool | True | RAG系统 |
-| RAG_BACKEND | RAG_BACKEND | str | "auto" | RAG后端(auto/chromadb/tfidf/bm25) |
-| METHODOLOGY_FILE | METHODOLOGY_FILE | Optional[str] | None | 方法论文件路径 |
-| ENABLE_CLI_AGENT | ENABLE_CLI_AGENT | bool | False | CLI Agent |
-| CLI_AGENT_MAX_RUNTIME | CLI_AGENT_MAX_RUNTIME | int | 1800 | CLI Agent最大运行时间(秒) |
-| CLI_AGENT_DEFAULT_PROVIDER | CLI_AGENT_DEFAULT_PROVIDER | str | "claude_code" | CLI Agent默认提供商 |
-| CODEX_API_KEY | CODEX_API_KEY | Optional[str] | None | Codex API Key |
-| MAX_CONCURRENT_SCANS | MAX_CONCURRENT_SCANS | int | 5 | 最大并发扫描数 |
-| DEFAULT_TIMEOUT | DEFAULT_TIMEOUT | int | 30 | 默认超时(秒) |
-| MAX_REQUESTS_PER_SECOND | MAX_REQUESTS_PER_SECOND | int | 10 | 最大请求/秒 |
-| CORS_ORIGINS | - | list | ["http://localhost:3000","http://127.0.0.1:3000"] | CORS允许源 |
+| 配置项 | 环境变量 | 类型 | 默认值 | 说明 | 详细作用与配置建议 |
+|--------|---------|------|--------|------|-------------------|
+| APP_NAME | - | str | "NeuroSploit v3" | 应用名称 | 显示在API文档标题和启动日志中，一般无需修改 |
+| APP_VERSION | - | str | "3.0.0" | 版本号 | 显示在API文档和健康检查端点中，跟随发布版本 |
+| DEBUG | DEBUG | bool | True | 调试模式 | 启用后：1) SQLAlchemy echo=True 打印所有SQL；2) uvicorn reload=True 热重载；3) 更详细的错误堆栈。**生产环境必须设为false** |
+| HOST | HOST | str | "0.0.0.0" | 监听地址 | 0.0.0.0 监听所有网卡；127.0.0.1 仅本地访问。Docker部署时保持0.0.0.0 |
+| PORT | PORT | int | 8000 | 监听端口 | 后端API服务端口，前端通过此端口访问API。修改后需同步更新前端代理配置 |
+| DATABASE_URL | DATABASE_URL | str | "sqlite+aiosqlite:///./data/neurosploit.db" | 数据库URL | 默认使用SQLite，无需额外配置。支持切换到PostgreSQL：`postgresql+asyncpg://user:pass@host/db`。数据存储在 data/ 目录下 |
+| ANTHROPIC_API_KEY | ANTHROPIC_API_KEY | Optional[str] | None | Anthropic API Key | Claude系列模型的API密钥。在 https://console.anthropic.com/ 获取。配置后anthropic提供商自动可用，支持claude-sonnet-4-5等模型 |
+| OPENAI_API_KEY | OPENAI_API_KEY | Optional[str] | None | OpenAI API Key | GPT系列模型的API密钥。在 https://platform.openai.com/api-keys 获取。配置后openai提供商自动可用，支持gpt-4o等模型 |
+| OPENROUTER_API_KEY | OPENROUTER_API_KEY | Optional[str] | None | OpenRouter API Key | OpenRouter聚合平台的API密钥。在 https://openrouter.ai/keys 获取。可访问100+模型，包括claude/gpt/gemini等，按实际使用计费 |
+| GEMINI_API_KEY | GEMINI_API_KEY | Optional[str] | None | Gemini API Key | Google Gemini模型的API密钥。在 https://aistudio.google.com/apikey 获取。配置后gemini提供商自动可用 |
+| TOGETHER_API_KEY | TOGETHER_API_KEY | Optional[str] | None | Together API Key | Together AI开源模型平台的API密钥。在 https://api.together.xyz/ 获取。提供Llama/Mistral等开源模型，Tier 2经济选择 |
+| FIREWORKS_API_KEY | FIREWORKS_API_KEY | Optional[str] | None | Fireworks API Key | Fireworks AI推理平台的API密钥。在 https://app.fireworks.ai/ 获取。提供快速开源模型推理，Tier 2经济选择 |
+| MINIMAX_API_KEY | MINIMAX_API_KEY | Optional[str] | None | Minimax API Key | MiniMax大模型API密钥。在 https://platform.minimaxi.com/ 获取。支持MiniMax-M2.7推理模型，响应含\<think\>标签需过滤 |
+| DEFAULT_LLM_PROVIDER | DEFAULT_LLM_PROVIDER | str | "claude" | 默认LLM提供商 | 未启用Smart Router时使用的默认提供商。可选值：claude/openai/gemini/openrouter/together/fireworks/ollama/lmstudio |
+| DEFAULT_LLM_MODEL | DEFAULT_LLM_MODEL | str | "claude-sonnet-4-20250514" | 默认LLM模型 | 未指定模型时使用的默认模型。需与DEFAULT_LLM_PROVIDER匹配。注释掉则使用提供商的default_model |
+| MAX_OUTPUT_TOKENS | MAX_OUTPUT_TOKENS | Optional[int] | None | 最大输出Token | 限制每次LLM响应的最大token数。建议值：4096~64000。None表示不限制（使用模型默认值）。渗透测试建议64000以获得完整分析 |
+| ENABLE_MODEL_ROUTING | ENABLE_MODEL_ROUTING | bool | False | 模型路由 | 旧版模型路由开关，**已被ENABLE_SMART_ROUTER取代**。启用Smart Router时此选项无效 |
+| ENABLE_KNOWLEDGE_AUGMENTATION | ENABLE_KNOWLEDGE_AUGMENTATION | bool | False | 知识增强 | 启用后代理测试时使用RAG检索相关知识增强提示词。需同时启用ENABLE_RAG=true。影响autonomous_agent中的get_testing_context/get_verification_context调用 |
+| ENABLE_BROWSER_VALIDATION | ENABLE_BROWSER_VALIDATION | bool | False | 浏览器验证 | 启用后使用无头浏览器验证XSS等客户端漏洞。需要安装Playwright。影响autonomous_agent中的_capture_finding_screenshot调用 |
+| ENABLE_VULN_AGENTS | ENABLE_VULN_AGENTS | bool | False | 漏洞Agent | 启用后使用VulnOrchestrator按漏洞类型并行测试。每个漏洞类型启动独立代理，由VULN_AGENT_CONCURRENCY控制并发数 |
+| VULN_AGENT_CONCURRENCY | VULN_AGENT_CONCURRENCY | int | 10 | 漏洞Agent并发数 | VulnOrchestrator中信号量的最大并发数。值越大测试越快但LLM API调用越密集。建议5~20 |
+| ENABLE_SMART_ROUTER | ENABLE_SMART_ROUTER | bool | False | 智能路由 | 启用后使用Smart Router进行多提供商负载均衡和故障转移。按Tier优先级选择提供商，自动检测CLI令牌，支持OAuth刷新。**强烈建议启用** |
+| ENABLE_RAG | ENABLE_RAG | bool | True | RAG系统 | 启用检索增强生成，为AI代理提供知识库上下文。默认使用BM25后端（零依赖）。与ENABLE_KNOWLEDGE_AUGMENTATION配合使用 |
+| RAG_BACKEND | RAG_BACKEND | str | "auto" | RAG后端 | auto=自动选择最佳后端；bm25=零依赖默认；tfidf=需scikit-learn；chromadb=需chromadb+sentence-transformers（最佳语义检索） |
+| METHODOLOGY_FILE | METHODOLOGY_FILE | Optional[str] | None | 方法论文件路径 | 指定一个.md文件路径，其内容会被注入到所有LLM调用的系统提示中。用于加载自定义渗透测试方法论，如OSSTMM/OWASP等 |
+| ENABLE_CLI_AGENT | ENABLE_CLI_AGENT | bool | False | CLI Agent | 启用后允许代理在Kali沙箱中执行CLI安全工具（nmap/nuclei/sqlmap等）。需要Docker运行时支持 |
+| CLI_AGENT_MAX_RUNTIME | CLI_AGENT_MAX_RUNTIME | int | 1800 | CLI Agent最大运行时间(秒) | 单次CLI工具执行的最大时间，超时自动终止。默认30分钟。复杂目标可增大到3600 |
+| CLI_AGENT_DEFAULT_PROVIDER | CLI_AGENT_DEFAULT_PROVIDER | str | "claude_code" | CLI Agent默认提供商 | CLI代理模式使用的LLM提供商。优先使用OAuth类提供商（claude_code/codex_cli/gemini_cli）避免API Key消耗 |
+| CODEX_API_KEY | CODEX_API_KEY | Optional[str] | None | Codex API Key | OpenAI Codex服务的API密钥，用于代码生成和分析场景 |
+| MAX_CONCURRENT_SCANS | MAX_CONCURRENT_SCANS | int | 5 | 最大并发扫描数 | 同时运行的最大扫描任务数。超过限制的新扫描会排队等待。建议根据LLM API配额调整 |
+| DEFAULT_TIMEOUT | DEFAULT_TIMEOUT | int | 30 | 默认超时(秒) | HTTP请求的默认超时时间。影响所有对目标站点的请求。慢速目标可增大到60 |
+| MAX_REQUESTS_PER_SECOND | MAX_REQUESTS_PER_SECOND | int | 10 | 最大请求/秒 | 对目标站点的请求速率限制。避免触发目标WAF/IDS。激进模式可增大到50 |
+| CORS_ORIGINS | - | list | ["http://localhost:3000","http://127.0.0.1:3000"] | CORS允许源 | 前端跨域请求的允许源列表。Docker部署或使用非标准端口时需添加对应URL。开发环境可设为["*"] |
 
 ## 8.2 .env文件配置
 
@@ -3161,22 +3451,94 @@ PORT=8000
 DEBUG=false
 ```
 
-**配置分类说明**：
+**配置分类详细说明**：
 
-| 分类 | 活跃变量 | 注释变量 | 说明 |
-|------|----------|----------|------|
-| LLM API Keys | 6个(空值) + MINIMAX_API_KEY | - | 至少需配置一个API Key |
-| Local LLM | - | OLLAMA_BASE_URL, LMSTUDIO_BASE_URL | 本地LLM连接地址 |
-| LLM Configuration | ENABLE_MODEL_ROUTING | MAX_OUTPUT_TOKENS, DEFAULT_LLM_MODEL | LLM行为配置 |
-| Feature Flags | ENABLE_KNOWLEDGE_AUGMENTATION, ENABLE_BROWSER_VALIDATION | - | 功能开关 |
-| Agent Autonomy | ENABLE_REASONING, ENABLE_CVE_HUNT, ENABLE_MULTI_AGENT, ENABLE_RESEARCHER_AI | TOKEN_BUDGET, NVD_API_KEY, GITHUB_TOKEN, ENABLE_CLI_AGENT, CLI_AGENT_MAX_RUNTIME, CLI_AGENT_DEFAULT_PROVIDER, KALI_SANDBOX_IMAGE | 代理自主性配置 |
-| Smart Router | ENABLE_SMART_ROUTER | - | 智能路由开关 |
-| RAG System | ENABLE_RAG, RAG_BACKEND | - | RAG系统配置 |
-| Methodology File | - | METHODOLOGY_FILE | 外部方法论文件 |
-| Vuln Type Agents | ENABLE_VULN_AGENTS | - | 漏洞类型代理 |
-| Notifications | - | 全部8个 | 通知渠道配置 |
-| Database | DATABASE_URL | - | 数据库连接 |
-| Server | HOST, PORT, DEBUG | - | 服务器配置 |
+### LLM API Keys（至少配置一个）
+| 变量 | 作用 | 获取方式 | 何时启用 |
+|------|------|----------|----------|
+| ANTHROPIC_API_KEY | Anthropic Claude系列模型密钥 | https://console.anthropic.com/ | 需要使用Claude模型时必填 |
+| OPENAI_API_KEY | OpenAI GPT系列模型密钥 | https://platform.openai.com/api-keys | 需要使用GPT模型时必填 |
+| GEMINI_API_KEY | Google Gemini模型密钥 | https://aistudio.google.com/apikey | 需要使用Gemini模型时必填 |
+| OPENROUTER_API_KEY | OpenRouter聚合平台密钥 | https://openrouter.ai/keys | 需要访问多模型时推荐 |
+| TOGETHER_API_KEY | Together AI开源模型密钥 | https://api.together.xyz/ | 需要经济型开源模型时 |
+| FIREWORKS_API_KEY | Fireworks推理平台密钥 | https://app.fireworks.ai/ | 需要快速开源推理时 |
+| MINIMAX_API_KEY | MiniMax大模型密钥 | https://platform.minimaxi.com/ | 需要国产模型时 |
+
+### 本地LLM（无需API Key）
+| 变量 | 作用 | 默认值 | 何时启用 |
+|------|------|--------|----------|
+| OLLAMA_BASE_URL | Ollama本地LLM服务地址 | http://localhost:11434 | 安装了Ollama并下载模型后启用，Tier 3免费选择 |
+| LMSTUDIO_BASE_URL | LM Studio本地LLM服务地址 | http://localhost:1234 | 安装了LM Studio并加载模型后启用，Tier 3免费选择 |
+
+### LLM行为配置
+| 变量 | 作用 | 建议值 | 何时启用 |
+|------|------|--------|----------|
+| MAX_OUTPUT_TOKENS | 限制LLM单次响应最大token | 渗透测试64000，日常4096 | 需要控制成本或限制输出长度时取消注释 |
+| DEFAULT_LLM_MODEL | 覆盖默认LLM模型 | 根据提供商选择 | 需要使用非默认模型时取消注释 |
+| ENABLE_MODEL_ROUTING | 旧版模型路由 | false | **已被ENABLE_SMART_ROUTER取代**，不建议启用 |
+
+### 功能开关
+| 变量 | 作用 | 影响模块 | 何时启用 |
+|------|------|----------|----------|
+| ENABLE_KNOWLEDGE_AUGMENTATION | 知识增强 | autonomous_agent的RAG上下文注入 | 需要RAG增强测试提示时启用，需同时启用RAG |
+| ENABLE_BROWSER_VALIDATION | 浏览器验证 | autonomous_agent的截图和XSS验证 | 需要浏览器级漏洞验证时启用，需安装Playwright |
+
+### 代理自主性配置
+| 变量 | 作用 | 影响模块 | 何时启用 |
+|------|------|----------|----------|
+| ENABLE_REASONING | 推理引擎 | autonomous_agent的ReasoningEngine | 需要AI深度推理时保持启用 |
+| ENABLE_CVE_HUNT | CVE猎手 | autonomous_agent的CVEHunter | 需要自动搜索已知CVE时保持启用 |
+| ENABLE_MULTI_AGENT | 多代理模式 | AgentOrchestrator的5代理并行 | 需要Recon+Exploit+Validator等多代理协作时启用 |
+| ENABLE_RESEARCHER_AI | 研究员AI | ResearcherAgent | 需要AI驱动的0日漏洞研究时保持启用 |
+| TOKEN_BUDGET | Token预算 | TokenBudget限制总LLM消耗 | 需要控制API成本时取消注释，默认100000 |
+| NVD_API_KEY | NVD API密钥 | CVEHunter的NVD查询 | 需要加速CVE查询时取消注释，在https://nvd.nist.gov/developers/api-keys获取 |
+| GITHUB_TOKEN | GitHub令牌 | CVEHunter的GitHub Advisory查询 | 需要加速GitHub漏洞查询时取消注释 |
+| ENABLE_CLI_AGENT | CLI代理 | CLIAgentRunner | 需要代理执行Kali命令行工具时取消注释 |
+| CLI_AGENT_MAX_RUNTIME | CLI最大运行时间 | CLIAgentRunner超时控制 | 复杂目标需要更长工具执行时间时取消注释调整 |
+| CLI_AGENT_DEFAULT_PROVIDER | CLI默认提供商 | CLIAgentRunner的LLM选择 | 需要指定CLI代理使用的LLM时取消注释 |
+| KALI_SANDBOX_IMAGE | Kali沙箱镜像 | ContainerPool的Docker镜像 | 使用自定义Kali镜像时取消注释 |
+
+### 智能路由
+| 变量 | 作用 | 影响模块 | 何时启用 |
+|------|------|----------|----------|
+| ENABLE_SMART_ROUTER | 智能路由开关 | SmartRouter的多提供商负载均衡 | **强烈建议启用**，支持OAuth令牌检测、自动故障转移、Tier优先级路由 |
+
+### RAG系统
+| 变量 | 作用 | 影响模块 | 何时启用 |
+|------|------|----------|----------|
+| ENABLE_RAG | RAG开关 | RAGEngine的知识检索 | 默认启用，为AI代理提供漏洞知识上下文 |
+| RAG_BACKEND | RAG后端选择 | VectorStore的实现方式 | auto=自动选择；bm25=零依赖；tfidf=需scikit-learn；chromadb=最佳语义检索 |
+
+### 方法论文件
+| 变量 | 作用 | 影响模块 | 何时启用 |
+|------|------|----------|----------|
+| METHODOLOGY_FILE | 方法论文件路径 | 所有LLM调用的系统提示注入 | 有自定义渗透测试方法论.md文件时取消注释 |
+
+### 漏洞类型代理
+| 变量 | 作用 | 影响模块 | 何时启用 |
+|------|------|----------|----------|
+| ENABLE_VULN_AGENTS | 漏洞代理开关 | VulnOrchestrator的按类型并行测试 | 需要针对每种漏洞类型启动独立代理时启用，并发数由VULN_AGENT_CONCURRENCY控制 |
+
+### 通知系统
+| 变量 | 作用 | 影响模块 | 何时启用 |
+|------|------|----------|----------|
+| ENABLE_NOTIFICATIONS | 通知开关 | NotificationManager | 需要扫描完成/发现漏洞时自动通知时启用 |
+| NOTIFICATION_SEVERITY_FILTER | 通知严重级别过滤 | NotificationManager | 控制哪些级别的漏洞触发通知，如"critical,high"仅通知严重和高危 |
+| DISCORD_WEBHOOK_URL | Discord Webhook | NotificationManager的Discord渠道 | 需要Discord通知时配置，在Discord频道设置→整合→Webhook创建 |
+| TELEGRAM_BOT_TOKEN | Telegram Bot令牌 | NotificationManager的Telegram渠道 | 需要Telegram通知时配置，通过@BotFather创建Bot获取 |
+| TELEGRAM_CHAT_ID | Telegram聊天ID | NotificationManager的Telegram渠道 | 需要Telegram通知时配置，通过@userinfobot获取 |
+| TWILIO_ACCOUNT_SID | Twilio账户SID | NotificationManager的WhatsApp渠道 | 需要WhatsApp通知时配置，在https://www.twilio.com/获取 |
+| TWILIO_AUTH_TOKEN | Twilio认证令牌 | NotificationManager的WhatsApp渠道 | 需要WhatsApp通知时配置 |
+| TWILIO_FROM_NUMBER | Twilio发送号码 | NotificationManager的WhatsApp渠道 | 需要WhatsApp通知时配置，需为Twilio号码 |
+| TWILIO_TO_NUMBER | Twilio接收号码 | NotificationManager的WhatsApp渠道 | 需要WhatsApp通知时配置 |
+
+### 数据库与服务器
+| 变量 | 作用 | 影响模块 | 何时启用 |
+|------|------|----------|----------|
+| DATABASE_URL | 数据库连接字符串 | SQLAlchemy AsyncEngine | 默认SQLite无需修改；需PostgreSQL时切换连接字符串 |
+| HOST | 服务器监听地址 | uvicorn | Docker部署保持0.0.0.0；仅本地访问用127.0.0.1 |
+| PORT | 服务器端口 | uvicorn | 默认8000；修改后需同步更新前端代理和CORS配置 |
+| DEBUG | 调试模式 | SQLAlchemy echo + uvicorn reload | 开发时true；**生产环境必须false** |
 
 ## 8.3 Docker部署
 
