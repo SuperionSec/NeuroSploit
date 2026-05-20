@@ -11,9 +11,163 @@
       "summary": "This document provides an introduction to Kali Linux as a penetration testing platform and covers fundamental Linux concepts. It discusses the differences between vulnerability assessments and penetration tests, emphasizes legal considerations including written authorization requirements, and introduces netcat as an essential networking tool for security testing.",
       "vuln_types": [],
       "knowledge_entries": []
+    },
+    {
+      "id": "a86d636c-6a1",
+      "filename": "NeuroSploit_3.2.4_\u5168\u9762\u5206\u6790\u6587\u6863_\u5927\u6a21\u578b\u5206\u6790\u7684.md",
+      "title": "NeuroSploit v3.2.4 \u5168\u9762\u5206\u6790\u6587\u6863",
+      "source_type": "md",
+      "uploaded_at": "2026-05-20T03:24:55.328027",
+      "processed": true,
+      "file_size_bytes": 178494,
+      "summary": "# NeuroSploit v3.2.4 \u5168\u9762\u5206\u6790\u6587\u6863\n\n## \u76ee\u5f55\n\n1. [\u7cfb\u7edf\u6982\u89c8](#1-\u7cfb\u7edf\u6982\u89c8)\n2. [\u540e\u7aefAPI\u63a5\u53e3](#2-\u540e\u7aefapi\u63a5\u53e3)\n3. [\u524d\u7aef\u9875\u9762\u529f\u80fd](#3-\u524d\u7aef\u9875\u9762\u529f\u80fd)\n4. [\u5b8c\u6574\u529f\u80fd\u6d4b\u8bd5\u8ba1\u5212](#4-\u5b8c\u6574\u529f\u80fd\u6d4b\u8bd5\u8ba1\u5212)\n5. [Providers\u4e0eSettings\u5927\u6a21\u578b\u914d\u7f6e\u533a\u522b](#5-providers\u4e0esettings\u5927\u6a21\u578b\u914d\u7f6e\u533a\u522b)\n6. [\u540e\u7aef\u6838\u5fc3\u67b6\u6784](#6-\u540e\u7aef\u6838\u5fc3\u67b6\u6784)\n7. [\u6570\u636e\u6a21\u578b\u8be6\u89e3](#7-\u6570\u636e\u6a21\u578b\u8be6\u89e3)\n8. [\u914d\u7f6e\u4e0e\u90e8\u7f72](#8-\u914d\u7f6e\u4e0e\u90e8\u7f72)\n\n---\n\n# 1. \u7cfb\u7edf\u6982\u89c8\n\n## 1.1 \u7cfb\u7edf\u7b80\u4ecb\n\nNeuroSploit",
+      "vuln_types": [
+        "xss",
+        "sqli",
+        "ssrf",
+        "idor",
+        "rce",
+        "lfi",
+        "rfi",
+        "csrf",
+        "xxe",
+        "ssti",
+        "open_redirect",
+        "deserialization",
+        "graphql",
+        "nosql",
+        "jwt",
+        "cors",
+        "crlf",
+        "bola",
+        "bfla",
+        "websocket",
+        "clickjacking"
+      ],
+      "knowledge_entries": [
+        {
+          "vuln_type": "xss",
+          "methodology": "CLI-compatible provider objects\n- \u65b9\u6cd5\u8bba\u5217\u8868: list of methodology objects with name, description, phases\n\n## 2.18 Agent Tasks API \u2014 \u4ee3\u7406\u4efb\u52a1\n\n**\u8def\u5f84\u524d\u7f00**: `/api/v1/agent-tasks`\n\n\u4ee3\u7406\u4efb\u52a1\u6a21\u5757\u63d0\u4f9b\u4ee3\u7406\u4efb\u52a1\u7684\u67e5\u8be2\u548c\u626b\u63cf\u65f6\u95f4\u7ebf\u63a5\u53e3\u3002\n\n| \u65b9\u6cd5 | \u7aef\u70b9 | \u529f\u80fd\u63cf\u8ff0 | \u76f8\u5173\u524d\u7aef |\n|------|------|----------|----------|\n| GET | / | \u5217\u51fa\u4ee3\u7406\u4efb\u52a1 | TaskLibraryPage |\n| GET | /summary | \u83b7\u53d6\u4ee3\u7406\u4efb\u52a1\u6458\u8981 | TaskLibraryPage |\n| GET | /{task_id} | \u83b7\u53d6\u7279\u5b9a\u4ee3\u7406\u4efb\u52a1 | TaskLibraryPage |\n| GET | /scan/{scan_id}/timeline | \u83b7\u53d6\u626b\u63cf\u4efb\u52a1\u65f6\u95f4\u7ebf | ScanDetailsPage |\n\n**\u5173\u952e\u6570\u636e\u6a21\u578b**:\n\n- \u4efb\u52a1\u5217\u8868: list of task objects with id, name, category, status, created_at\n- \u4efb\u52a1\u6458\u8981: total_tasks, by_category, by_status\n- \u4efb\u52a1\u8be6\u60c5: id, name, description, category, steps, prompt_template, is_custom\n- \u65f6\u95f4\u7ebf: list of timeline events with timestamp, phase, action, result\n\n## 2.19 \u7279\u6b8a\u7aef\u70b9\n\n\u9664\u4e0a\u8ff0 18 \u4e2a API \u6a21\u5757\u5916\uff0c\u7cfb\u7edf\u8fd8\u63d0\u4f9b\u4ee5\u4e0b\u7279\u6b8a\u7aef\u70b9\uff1a\n\n| \u65b9\u6cd5 | \u7aef\u70b9 | \u529f\u80fd\u63cf\u8ff0 |\n|------|------|----------|\n| GET | /api/health | \u5065\u5eb7",
+          "payloads": [],
+          "key_insights": "",
+          "bypass_techniques": [
+            "and_injection, auth_bypass, ssrf, ssti \u7b49 |\n| high | xss, csrf, idor, bola, bfla \u7b49 |\n\n| \u65b9\u6cd5\u7b7e\u540d | \u8bf4\u660e |\n|----------|------|\n| `async run(self, vuln_types, test_targets, prioritized_types) -> Dict` | \u6309\u4f18\u5148\u7ea7\u6279\u6b21",
+            "\u2502    \u2502\n\u2502  \u2502  WAFDetector             \u2502  TokenBudget                     \u2502    \u2502\n\u2502  \u2502  StrategyAdapter         \u2502  CVEHunter                       \u2502    \u2502\n\u2502  \u2502  ChainEngine             \u2502  DeepRecon/Banner",
+            "tification_severity_filter` | \u901a\u77e5\u4e25\u91cd\u7ea7\u522b\u8fc7\u6ee4 |\n\n**\u5173\u952e\u7279\u5f81**:\n- **\u5355\u63d0\u4f9b\u5546\u6a21\u5f0f**: \u4e00\u6b21\u53ea\u7528\u4e00\u4e2a LLM \u63d0\u4f9b\u5546\n- **API Key \u5b58\u50a8\u5728 `.env` \u6587\u4ef6**: \u5982 `ANTHROPIC_API_KEY=sk-ant-...`\n- **\u901a\u8fc7 `PUT /api/v1/settings` \u4fdd\u5b58**: \u4fee\u6539\u540e\u9700\u8981\u91cd\u542f\u670d\u52a1\n- **\u4e0d\u542f\u7528 Sma"
+          ]
+        },
+        {
+          "vuln_type": "sqli",
+          "methodology": "CLI-compatible provider objects\n- \u65b9\u6cd5\u8bba\u5217\u8868: list of methodology objects with name, description, phases\n\n## 2.18 Agent Tasks API \u2014 \u4ee3\u7406\u4efb\u52a1\n\n**\u8def\u5f84\u524d\u7f00**: `/api/v1/agent-tasks`\n\n\u4ee3\u7406\u4efb\u52a1\u6a21\u5757\u63d0\u4f9b\u4ee3\u7406\u4efb\u52a1\u7684\u67e5\u8be2\u548c\u626b\u63cf\u65f6\u95f4\u7ebf\u63a5\u53e3\u3002\n\n| \u65b9\u6cd5 | \u7aef\u70b9 | \u529f\u80fd\u63cf\u8ff0 | \u76f8\u5173\u524d\u7aef |\n|------|------|----------|----------|\n| GET | / | \u5217\u51fa\u4ee3\u7406\u4efb\u52a1 | TaskLibraryPage |\n| GET | /summary | \u83b7\u53d6\u4ee3\u7406\u4efb\u52a1\u6458\u8981 | TaskLibraryPage |\n| GET | /{task_id} | \u83b7\u53d6\u7279\u5b9a\u4ee3\u7406\u4efb\u52a1 | TaskLibraryPage |\n| GET | /scan/{scan_id}/timeline | \u83b7\u53d6\u626b\u63cf\u4efb\u52a1\u65f6\u95f4\u7ebf | ScanDetailsPage |\n\n**\u5173\u952e\u6570\u636e\u6a21\u578b**:\n\n- \u4efb\u52a1\u5217\u8868: list of task objects with id, name, category, status, created_at\n- \u4efb\u52a1\u6458\u8981: total_tasks, by_category, by_status\n- \u4efb\u52a1\u8be6\u60c5: id, name, description, category, steps, prompt_template, is_custom\n- \u65f6\u95f4\u7ebf: list of timeline events with timestamp, phase, action, result\n\n## 2.19 \u7279\u6b8a\u7aef\u70b9\n\n\u9664\u4e0a\u8ff0 18 \u4e2a API \u6a21\u5757\u5916\uff0c\u7cfb\u7edf\u8fd8\u63d0\u4f9b\u4ee5\u4e0b\u7279\u6b8a\u7aef\u70b9\uff1a\n\n| \u65b9\u6cd5 | \u7aef\u70b9 | \u529f\u80fd\u63cf\u8ff0 |\n|------|------|----------|\n| GET | /api/health | \u5065\u5eb7",
+          "payloads": [],
+          "key_insights": "",
+          "bypass_techniques": [
+            "and_injection, auth_bypass, ssrf, ssti \u7b49 |\n| high | xss, csrf, idor, bola, bfla \u7b49 |\n\n| \u65b9\u6cd5\u7b7e\u540d | \u8bf4\u660e |\n|----------|------|\n| `async run(self, vuln_types, test_targets, prioritized_types) -> Dict` | \u6309\u4f18\u5148\u7ea7\u6279\u6b21",
+            "\u2502    \u2502\n\u2502  \u2502  WAFDetector             \u2502  TokenBudget                     \u2502    \u2502\n\u2502  \u2502  StrategyAdapter         \u2502  CVEHunter                       \u2502    \u2502\n\u2502  \u2502  ChainEngine             \u2502  DeepRecon/Banner",
+            "tification_severity_filter` | \u901a\u77e5\u4e25\u91cd\u7ea7\u522b\u8fc7\u6ee4 |\n\n**\u5173\u952e\u7279\u5f81**:\n- **\u5355\u63d0\u4f9b\u5546\u6a21\u5f0f**: \u4e00\u6b21\u53ea\u7528\u4e00\u4e2a LLM \u63d0\u4f9b\u5546\n- **API Key \u5b58\u50a8\u5728 `.env` \u6587\u4ef6**: \u5982 `ANTHROPIC_API_KEY=sk-ant-...`\n- **\u901a\u8fc7 `PUT /api/v1/settings` \u4fdd\u5b58**: \u4fee\u6539\u540e\u9700\u8981\u91cd\u542f\u670d\u52a1\n- **\u4e0d\u542f\u7528 Sma"
+          ]
+        },
+        {
+          "vuln_type": "ssrf",
+          "methodology": "CLI-compatible provider objects\n- \u65b9\u6cd5\u8bba\u5217\u8868: list of methodology objects with name, description, phases\n\n## 2.18 Agent Tasks API \u2014 \u4ee3\u7406\u4efb\u52a1\n\n**\u8def\u5f84\u524d\u7f00**: `/api/v1/agent-tasks`\n\n\u4ee3\u7406\u4efb\u52a1\u6a21\u5757\u63d0\u4f9b\u4ee3\u7406\u4efb\u52a1\u7684\u67e5\u8be2\u548c\u626b\u63cf\u65f6\u95f4\u7ebf\u63a5\u53e3\u3002\n\n| \u65b9\u6cd5 | \u7aef\u70b9 | \u529f\u80fd\u63cf\u8ff0 | \u76f8\u5173\u524d\u7aef |\n|------|------|----------|----------|\n| GET | / | \u5217\u51fa\u4ee3\u7406\u4efb\u52a1 | TaskLibraryPage |\n| GET | /summary | \u83b7\u53d6\u4ee3\u7406\u4efb\u52a1\u6458\u8981 | TaskLibraryPage |\n| GET | /{task_id} | \u83b7\u53d6\u7279\u5b9a\u4ee3\u7406\u4efb\u52a1 | TaskLibraryPage |\n| GET | /scan/{scan_id}/timeline | \u83b7\u53d6\u626b\u63cf\u4efb\u52a1\u65f6\u95f4\u7ebf | ScanDetailsPage |\n\n**\u5173\u952e\u6570\u636e\u6a21\u578b**:\n\n- \u4efb\u52a1\u5217\u8868: list of task objects with id, name, category, status, created_at\n- \u4efb\u52a1\u6458\u8981: total_tasks, by_category, by_status\n- \u4efb\u52a1\u8be6\u60c5: id, name, description, category, steps, prompt_template, is_custom\n- \u65f6\u95f4\u7ebf: list of timeline events with timestamp, phase, action, result\n\n## 2.19 \u7279\u6b8a\u7aef\u70b9\n\n\u9664\u4e0a\u8ff0 18 \u4e2a API \u6a21\u5757\u5916\uff0c\u7cfb\u7edf\u8fd8\u63d0\u4f9b\u4ee5\u4e0b\u7279\u6b8a\u7aef\u70b9\uff1a\n\n| \u65b9\u6cd5 | \u7aef\u70b9 | \u529f\u80fd\u63cf\u8ff0 |\n|------|------|----------|\n| GET | /api/health | \u5065\u5eb7",
+          "payloads": [],
+          "key_insights": "",
+          "bypass_techniques": [
+            "and_injection, auth_bypass, ssrf, ssti \u7b49 |\n| high | xss, csrf, idor, bola, bfla \u7b49 |\n\n| \u65b9\u6cd5\u7b7e\u540d | \u8bf4\u660e |\n|----------|------|\n| `async run(self, vuln_types, test_targets, prioritized_types) -> Dict` | \u6309\u4f18\u5148\u7ea7\u6279\u6b21",
+            "\u2502    \u2502\n\u2502  \u2502  WAFDetector             \u2502  TokenBudget                     \u2502    \u2502\n\u2502  \u2502  StrategyAdapter         \u2502  CVEHunter                       \u2502    \u2502\n\u2502  \u2502  ChainEngine             \u2502  DeepRecon/Banner",
+            "tification_severity_filter` | \u901a\u77e5\u4e25\u91cd\u7ea7\u522b\u8fc7\u6ee4 |\n\n**\u5173\u952e\u7279\u5f81**:\n- **\u5355\u63d0\u4f9b\u5546\u6a21\u5f0f**: \u4e00\u6b21\u53ea\u7528\u4e00\u4e2a LLM \u63d0\u4f9b\u5546\n- **API Key \u5b58\u50a8\u5728 `.env` \u6587\u4ef6**: \u5982 `ANTHROPIC_API_KEY=sk-ant-...`\n- **\u901a\u8fc7 `PUT /api/v1/settings` \u4fdd\u5b58**: \u4fee\u6539\u540e\u9700\u8981\u91cd\u542f\u670d\u52a1\n- **\u4e0d\u542f\u7528 Sma"
+          ]
+        },
+        {
+          "vuln_type": "idor",
+          "methodology": "CLI-compatible provider objects\n- \u65b9\u6cd5\u8bba\u5217\u8868: list of methodology objects with name, description, phases\n\n## 2.18 Agent Tasks API \u2014 \u4ee3\u7406\u4efb\u52a1\n\n**\u8def\u5f84\u524d\u7f00**: `/api/v1/agent-tasks`\n\n\u4ee3\u7406\u4efb\u52a1\u6a21\u5757\u63d0\u4f9b\u4ee3\u7406\u4efb\u52a1\u7684\u67e5\u8be2\u548c\u626b\u63cf\u65f6\u95f4\u7ebf\u63a5\u53e3\u3002\n\n| \u65b9\u6cd5 | \u7aef\u70b9 | \u529f\u80fd\u63cf\u8ff0 | \u76f8\u5173\u524d\u7aef |\n|------|------|----------|----------|\n| GET | / | \u5217\u51fa\u4ee3\u7406\u4efb\u52a1 | TaskLibraryPage |\n| GET | /summary | \u83b7\u53d6\u4ee3\u7406\u4efb\u52a1\u6458\u8981 | TaskLibraryPage |\n| GET | /{task_id} | \u83b7\u53d6\u7279\u5b9a\u4ee3\u7406\u4efb\u52a1 | TaskLibraryPage |\n| GET | /scan/{scan_id}/timeline | \u83b7\u53d6\u626b\u63cf\u4efb\u52a1\u65f6\u95f4\u7ebf | ScanDetailsPage |\n\n**\u5173\u952e\u6570\u636e\u6a21\u578b**:\n\n- \u4efb\u52a1\u5217\u8868: list of task objects with id, name, category, status, created_at\n- \u4efb\u52a1\u6458\u8981: total_tasks, by_category, by_status\n- \u4efb\u52a1\u8be6\u60c5: id, name, description, category, steps, prompt_template, is_custom\n- \u65f6\u95f4\u7ebf: list of timeline events with timestamp, phase, action, result\n\n## 2.19 \u7279\u6b8a\u7aef\u70b9\n\n\u9664\u4e0a\u8ff0 18 \u4e2a API \u6a21\u5757\u5916\uff0c\u7cfb\u7edf\u8fd8\u63d0\u4f9b\u4ee5\u4e0b\u7279\u6b8a\u7aef\u70b9\uff1a\n\n| \u65b9\u6cd5 | \u7aef\u70b9 | \u529f\u80fd\u63cf\u8ff0 |\n|------|------|----------|\n| GET | /api/health | \u5065\u5eb7",
+          "payloads": [],
+          "key_insights": "",
+          "bypass_techniques": [
+            "and_injection, auth_bypass, ssrf, ssti \u7b49 |\n| high | xss, csrf, idor, bola, bfla \u7b49 |\n\n| \u65b9\u6cd5\u7b7e\u540d | \u8bf4\u660e |\n|----------|------|\n| `async run(self, vuln_types, test_targets, prioritized_types) -> Dict` | \u6309\u4f18\u5148\u7ea7\u6279\u6b21",
+            "\u2502    \u2502\n\u2502  \u2502  WAFDetector             \u2502  TokenBudget                     \u2502    \u2502\n\u2502  \u2502  StrategyAdapter         \u2502  CVEHunter                       \u2502    \u2502\n\u2502  \u2502  ChainEngine             \u2502  DeepRecon/Banner",
+            "tification_severity_filter` | \u901a\u77e5\u4e25\u91cd\u7ea7\u522b\u8fc7\u6ee4 |\n\n**\u5173\u952e\u7279\u5f81**:\n- **\u5355\u63d0\u4f9b\u5546\u6a21\u5f0f**: \u4e00\u6b21\u53ea\u7528\u4e00\u4e2a LLM \u63d0\u4f9b\u5546\n- **API Key \u5b58\u50a8\u5728 `.env` \u6587\u4ef6**: \u5982 `ANTHROPIC_API_KEY=sk-ant-...`\n- **\u901a\u8fc7 `PUT /api/v1/settings` \u4fdd\u5b58**: \u4fee\u6539\u540e\u9700\u8981\u91cd\u542f\u670d\u52a1\n- **\u4e0d\u542f\u7528 Sma"
+          ]
+        },
+        {
+          "vuln_type": "rce",
+          "methodology": "CLI-compatible provider objects\n- \u65b9\u6cd5\u8bba\u5217\u8868: list of methodology objects with name, description, phases\n\n## 2.18 Agent Tasks API \u2014 \u4ee3\u7406\u4efb\u52a1\n\n**\u8def\u5f84\u524d\u7f00**: `/api/v1/agent-tasks`\n\n\u4ee3\u7406\u4efb\u52a1\u6a21\u5757\u63d0\u4f9b\u4ee3\u7406\u4efb\u52a1\u7684\u67e5\u8be2\u548c\u626b\u63cf\u65f6\u95f4\u7ebf\u63a5\u53e3\u3002\n\n| \u65b9\u6cd5 | \u7aef\u70b9 | \u529f\u80fd\u63cf\u8ff0 | \u76f8\u5173\u524d\u7aef |\n|------|------|----------|----------|\n| GET | / | \u5217\u51fa\u4ee3\u7406\u4efb\u52a1 | TaskLibraryPage |\n| GET | /summary | \u83b7\u53d6\u4ee3\u7406\u4efb\u52a1\u6458\u8981 | TaskLibraryPage |\n| GET | /{task_id} | \u83b7\u53d6\u7279\u5b9a\u4ee3\u7406\u4efb\u52a1 | TaskLibraryPage |\n| GET | /scan/{scan_id}/timeline | \u83b7\u53d6\u626b\u63cf\u4efb\u52a1\u65f6\u95f4\u7ebf | ScanDetailsPage |\n\n**\u5173\u952e\u6570\u636e\u6a21\u578b**:\n\n- \u4efb\u52a1\u5217\u8868: list of task objects with id, name, category, status, created_at\n- \u4efb\u52a1\u6458\u8981: total_tasks, by_category, by_status\n- \u4efb\u52a1\u8be6\u60c5: id, name, description, category, steps, prompt_template, is_custom\n- \u65f6\u95f4\u7ebf: list of timeline events with timestamp, phase, action, result\n\n## 2.19 \u7279\u6b8a\u7aef\u70b9\n\n\u9664\u4e0a\u8ff0 18 \u4e2a API \u6a21\u5757\u5916\uff0c\u7cfb\u7edf\u8fd8\u63d0\u4f9b\u4ee5\u4e0b\u7279\u6b8a\u7aef\u70b9\uff1a\n\n| \u65b9\u6cd5 | \u7aef\u70b9 | \u529f\u80fd\u63cf\u8ff0 |\n|------|------|----------|\n| GET | /api/health | \u5065\u5eb7",
+          "payloads": [],
+          "key_insights": "",
+          "bypass_techniques": [
+            "and_injection, auth_bypass, ssrf, ssti \u7b49 |\n| high | xss, csrf, idor, bola, bfla \u7b49 |\n\n| \u65b9\u6cd5\u7b7e\u540d | \u8bf4\u660e |\n|----------|------|\n| `async run(self, vuln_types, test_targets, prioritized_types) -> Dict` | \u6309\u4f18\u5148\u7ea7\u6279\u6b21",
+            "\u2502    \u2502\n\u2502  \u2502  WAFDetector             \u2502  TokenBudget                     \u2502    \u2502\n\u2502  \u2502  StrategyAdapter         \u2502  CVEHunter                       \u2502    \u2502\n\u2502  \u2502  ChainEngine             \u2502  DeepRecon/Banner",
+            "tification_severity_filter` | \u901a\u77e5\u4e25\u91cd\u7ea7\u522b\u8fc7\u6ee4 |\n\n**\u5173\u952e\u7279\u5f81**:\n- **\u5355\u63d0\u4f9b\u5546\u6a21\u5f0f**: \u4e00\u6b21\u53ea\u7528\u4e00\u4e2a LLM \u63d0\u4f9b\u5546\n- **API Key \u5b58\u50a8\u5728 `.env` \u6587\u4ef6**: \u5982 `ANTHROPIC_API_KEY=sk-ant-...`\n- **\u901a\u8fc7 `PUT /api/v1/settings` \u4fdd\u5b58**: \u4fee\u6539\u540e\u9700\u8981\u91cd\u542f\u670d\u52a1\n- **\u4e0d\u542f\u7528 Sma"
+          ]
+        }
+      ]
     }
   ],
-  "vuln_type_index": {},
+  "vuln_type_index": {
+    "xss": [
+      "a86d636c-6a1"
+    ],
+    "sqli": [
+      "a86d636c-6a1"
+    ],
+    "ssrf": [
+      "a86d636c-6a1"
+    ],
+    "idor": [
+      "a86d636c-6a1"
+    ],
+    "rce": [
+      "a86d636c-6a1"
+    ],
+    "lfi": [
+      "a86d636c-6a1"
+    ],
+    "rfi": [
+      "a86d636c-6a1"
+    ],
+    "csrf": [
+      "a86d636c-6a1"
+    ],
+    "xxe": [
+      "a86d636c-6a1"
+    ],
+    "ssti": [
+      "a86d636c-6a1"
+    ],
+    "open_redirect": [
+      "a86d636c-6a1"
+    ],
+    "deserialization": [
+      "a86d636c-6a1"
+    ],
+    "graphql": [
+      "a86d636c-6a1"
+    ],
+    "nosql": [
+      "a86d636c-6a1"
+    ],
+    "jwt": [
+      "a86d636c-6a1"
+    ],
+    "cors": [
+      "a86d636c-6a1"
+    ],
+    "crlf": [
+      "a86d636c-6a1"
+    ],
+    "bola": [
+      "a86d636c-6a1"
+    ],
+    "bfla": [
+      "a86d636c-6a1"
+    ],
+    "websocket": [
+      "a86d636c-6a1"
+    ],
+    "clickjacking": [
+      "a86d636c-6a1"
+    ]
+  },
   "version": "1.0",
-  "updated_at": "2026-02-16T14:50:31.618046"
+  "updated_at": "2026-05-20T03:24:55.328086"
 }
