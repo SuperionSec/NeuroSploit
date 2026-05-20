@@ -18,13 +18,32 @@
       "timestamp": 1779193404.8593047,
       "scan_target": "http://testphp.vulnweb.com",
       "trace_id": "c778ef3787"
+    },
+    {
+      "vuln_type": "cleartext_transmission",
+      "technology": "unknown",
+      "endpoint_pattern": "http://www.motis-tech.com/",
+      "parameter": "",
+      "reasoning_steps": [
+        "Tested cleartext_transmission on http://www.motis-tech.com/",
+        "Parameter: N/A",
+        "Payload: N/A",
+        "Evidence: No HTTPS endpoint available | [AI Validation] Insufficient evidence. 'No HTTPS endpoint available' is a statement, not proof of exploitation. Cleartext transmission requires demonstrating: (1) HTTP en",
+        "Confidence: 0"
+      ],
+      "payload_used": "",
+      "evidence_summary": "No HTTPS endpoint available | [AI Validation] Insufficient evidence. 'No HTTPS endpoint available' is a statement, not proof of exploitation. Cleartext transmission requires demonstrating: (1) HTTP endpoint responds, (2) sensitive data transmitted (login forms, cookies, personal info, tokens), (3) a",
+      "confidence": 0.0,
+      "timestamp": 1779248376.3028057,
+      "scan_target": "http://www.motis-tech.com/",
+      "trace_id": "c490c50ce8"
     }
   ],
   "failures": [],
   "strategies": {},
-  "last_updated": 1779193459.8593817,
+  "last_updated": 1779249095.710972,
   "stats": {
-    "total_traces": 1,
+    "total_traces": 2,
     "total_failures": 0,
     "technologies": []
   }

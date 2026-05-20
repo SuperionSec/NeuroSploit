@@ -115,7 +115,20 @@
     "base_url": "https://api.openai.com/v1",
     "tier": 1,
     "default_model": "gpt-4o",
-    "accounts": {},
+    "accounts": {
+      "acct_28f3616c": {
+        "id": "acct_28f3616c",
+        "label": "EmptyKey",
+        "source": "manual",
+        "credential_type": "api_key",
+        "created_at": "2026-05-20T03:48:08Z",
+        "last_used": null,
+        "tokens_used": 0,
+        "is_active": false,
+        "expires_at": null,
+        "model_override": null
+      }
+    },
     "env_key": "OPENAI_API_KEY",
     "enabled": true
   },
@@ -182,8 +195,8 @@
         "source": "env_var",
         "credential_type": "api_key",
         "created_at": "2026-05-19T01:38:56Z",
-        "last_used": "2026-05-20T03:42:18Z",
-        "tokens_used": 1020249,
+        "last_used": "2026-05-20T03:57:19Z",
+        "tokens_used": 1383291,
         "is_active": true,
         "expires_at": null,
         "model_override": null
