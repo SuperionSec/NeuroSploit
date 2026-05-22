@@ -9,7 +9,6 @@ interface CustomCardProps extends AntCardProps {
   style?: CSSProperties;
   className?: string;
   hoverable?: boolean;
-  bordered?: boolean;
   loading?: boolean;
 }
 
@@ -20,7 +19,6 @@ const Card: React.FC<CustomCardProps> = ({
   style,
   className,
   hoverable = false,
-  bordered = true,
   loading = false,
   ...props
 }) => {
@@ -29,7 +27,6 @@ const Card: React.FC<CustomCardProps> = ({
       title={title}
       extra={extra}
       hoverable={hoverable}
-      bordered={bordered}
       loading={loading}
       style={style}
       className={className}
