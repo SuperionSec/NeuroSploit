@@ -7,12 +7,79 @@ import type {
   VulnTypeCategory, VulnLabStats, SandboxPoolStatus
 } from '../types'
 
+export interface User {
+  id: string
+  username: string
+  email: string
+  role: string
+  is_active: boolean
+  created_at: string
+}
+
+export interface UserCreate {
+  username: string
+  email: string
+  password: string
+}
+
+export interface UserUpdate {
+  username?: string
+  email?: string
+  password?: string
+  role?: string
+  is_active?: boolean
+}
+
 const api = axios.create({
   baseURL: '/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
 })
+
+// Auth & Users API
+export const authApi = {
+  // Auth
+  login: async (username: string, password: string) => {
+    const formData = new FormData()
+    formData.append('username', username)
+    formData.append('password', password)
+    const response = await api.post('/auth/login', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return response.data
+  },
+
+  getCurrentUser: async (): Promise<User> => {
+    const response = await api.get('/auth/me')
+    return response.data
+  },
+
+  // User management
+  listUsers: async (): Promise<User[]> => {
+    const response = await api.get('/auth/users')
+    return response.data
+  },
+
+  getUser: async (userId: string): Promise<User> => {
+    const response = await api.get(`/auth/users/${userId}`)
+    return response.data
+  },
+
+  createUser: async (user: UserCreate): Promise<User> => {
+    const response = await api.post('/auth/users', user)
+    return response.data
+  },
+
+  updateUser: async (userId: string, user: UserUpdate): Promise<User> => {
+    const response = await api.put(`/auth/users/${userId}`, user)
+    return response.data
+  },
+
+  deleteUser: async (userId: string): Promise<void> => {
+    await api.delete(`/auth/users/${userId}`)
+  },
+}
 
 // Scans API
 export const scansApi = {

@@ -18,6 +18,7 @@ import KnowledgePage from './pages/KnowledgePage'
 import MCPManagementPage from './pages/MCPManagementPage'
 import ProvidersPage from './pages/ProvidersPage'
 import FullIATestingPage from './pages/FullIATestingPage'
+import UserManagementPage from './pages/UserManagementPage'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route index element={<HomePage />} />
         <Route path="dashboard" element={<HomePage />} />
+        <Route path="users" element={<UserManagementPage />} />
         <Route path="scan/new" element={<NewScanPage />} />
         <Route path="scan/:scanId" element={<ScanDetailsPage />} />
         <Route path="auto-pentest" element={<AutoPentestPage />} />

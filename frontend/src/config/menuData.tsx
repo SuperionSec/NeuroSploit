@@ -1,10 +1,15 @@
-import { QuestionCircleOutlined, CrownOutlined, ToolOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, CrownOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons';
 
 export const menuData = [
   {
     path: '/dashboard',
     name: '仪表板',
     icon: <CrownOutlined />,
+  },
+  {
+    path: '/users',
+    name: '用户管理',
+    icon: <UserOutlined />,
   },
   {
     path: '/scan',

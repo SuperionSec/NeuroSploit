@@ -28,6 +28,15 @@ class UserCreate(UserBase):
     password: str
 
 
+class UserUpdate(BaseModel):
+    """User Update Schema"""
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
+    role: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
 class UserLogin(BaseModel):
     """User Login Schema"""
     username: str
