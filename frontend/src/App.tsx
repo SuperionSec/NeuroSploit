@@ -21,28 +21,30 @@ import FullIATestingPage from './pages/FullIATestingPage'
 
 function App() {
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/auto" element={<AutoPentestPage />} />
-        <Route path="/full-ia" element={<FullIATestingPage />} />
-        <Route path="/vuln-lab" element={<VulnLabPage />} />
-        <Route path="/terminal" element={<TerminalAgentPage />} />
-        <Route path="/scan/new" element={<NewScanPage />} />
-        <Route path="/scan/:scanId" element={<ScanDetailsPage />} />
-        <Route path="/agent/:agentId" element={<AgentStatusPage />} />
-        <Route path="/tasks" element={<TaskLibraryPage />} />
-        <Route path="/realtime" element={<RealtimeTaskPage />} />
-        <Route path="/knowledge" element={<KnowledgePage />} />
-        <Route path="/mcp" element={<MCPManagementPage />} />
-        <Route path="/scheduler" element={<SchedulerPage />} />
-        <Route path="/sandboxes" element={<SandboxDashboardPage />} />
-        <Route path="/reports" element={<ReportsPage />} />
-        <Route path="/reports/:reportId" element={<ReportViewPage />} />
-        <Route path="/providers" element={<ProvidersPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-      </Routes>
-    </Layout>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<HomePage />} />
+        <Route path="dashboard" element={<HomePage />} />
+        <Route path="scan/new" element={<NewScanPage />} />
+        <Route path="scan/:scanId" element={<ScanDetailsPage />} />
+        <Route path="auto-pentest" element={<AutoPentestPage />} />
+        <Route path="full-ia" element={<FullIATestingPage />} />
+        <Route path="agent/:agentId" element={<AgentStatusPage />} />
+        <Route path="agent" element={<AgentStatusPage />} />
+        <Route path="tasks" element={<TaskLibraryPage />} />
+        <Route path="realtime" element={<RealtimeTaskPage />} />
+        <Route path="reports" element={<ReportsPage />} />
+        <Route path="reports/:reportId" element={<ReportViewPage />} />
+        <Route path="scheduler" element={<SchedulerPage />} />
+        <Route path="vuln-lab" element={<VulnLabPage />} />
+        <Route path="terminal" element={<TerminalAgentPage />} />
+        <Route path="sandbox" element={<SandboxDashboardPage />} />
+        <Route path="knowledge" element={<KnowledgePage />} />
+        <Route path="mcp" element={<MCPManagementPage />} />
+        <Route path="providers" element={<ProvidersPage />} />
+        <Route path="settings" element={<SettingsPage />} />
+      </Route>
+    </Routes>
   )
 }
 

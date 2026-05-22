@@ -3,18 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --bg-primary: #1a1a2e;
-  --bg-secondary: #16213e;
-  --bg-card: #0f3460;
-  --text-primary: #eee;
-  --text-secondary: #aaa;
-  --accent: #e94560;
-  --border: #333;
+  --ant-primary-color: #1890ff;
+  --bg-primary: #f0f2f5;
+  --bg-secondary: #ffffff;
+  --text-primary: #262626;
+  --text-secondary: #8c8c8c;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
@@ -24,6 +22,30 @@ body {
   box-sizing: border-box;
 }
 
+/* ProLayout custom styles */
+.ant-pro-sider {
+  background: #001529 !important;
+}
+
+.ant-pro-sider-menu {
+  background: #001529 !important;
+}
+
+.ant-menu-dark {
+  background: #001529 !important;
+}
+
+.ant-pro-global-header {
+  background: #fff !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+/* Content area */
+.ant-pro-page-container {
+  background: #f0f2f5;
+  min-height: calc(100vh - 48px);
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -31,16 +53,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: #f0f2f5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-card);
+  background: #d9d9d9;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
+  background: #1890ff;
 }
 
 /* Animations */
@@ -60,4 +82,41 @@ body {
 
 .animate-pulse {
   animation: pulse 2s infinite;
+}
+
+/* Card hover effects */
+.ant-card-hoverable:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* Table styles */
+.ant-table-wrapper {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Form styles */
+.ant-form-item-label > label {
+  font-weight: 500;
+}
+
+/* Button styles */
+.ant-btn {
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.ant-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+}
+
+/* Badge styles */
+.ant-badge-status-dot {
+  width: 8px;
+  height: 8px;
 }

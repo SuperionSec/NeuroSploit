@@ -1,27 +1,43 @@
-import { ReactNode } from 'react'
-import { clsx } from 'clsx'
+import React from 'react';
+import { Card as AntCard, CardProps as AntCardProps } from 'antd';
+import { CSSProperties } from 'react';
 
-interface CardProps {
-  children: ReactNode
-  className?: string
-  title?: ReactNode
-  subtitle?: string
-  action?: ReactNode
+interface CustomCardProps extends AntCardProps {
+  title?: React.ReactNode;
+  extra?: React.ReactNode;
+  children: React.ReactNode;
+  style?: CSSProperties;
+  className?: string;
+  hoverable?: boolean;
+  bordered?: boolean;
+  loading?: boolean;
 }
 
-export default function Card({ children, className, title, subtitle, action }: CardProps) {
+const Card: React.FC<CustomCardProps> = ({
+  title,
+  extra,
+  children,
+  style,
+  className,
+  hoverable = false,
+  bordered = true,
+  loading = false,
+  ...props
+}) => {
   return (
-    <div className={clsx('bg-dark-800 rounded-xl border border-dark-900/50', className)}>
-      {(title || action) && (
-        <div className="flex items-center justify-between p-4 border-b border-dark-900/50">
-          <div>
-            {title && <h3 className="text-lg font-semibold text-white">{title}</h3>}
-            {subtitle && <p className="text-sm text-dark-400 mt-1">{subtitle}</p>}
-          </div>
-          {action}
-        </div>
-      )}
-      <div className="p-4">{children}</div>
-    </div>
-  )
-}
+    <AntCard
+      title={title}
+      extra={extra}
+      hoverable={hoverable}
+      bordered={bordered}
+      loading={loading}
+      style={style}
+      className={className}
+      {...props}
+    >
+      {children}
+    </AntCard>
+  );
+};
+
+export default Card;

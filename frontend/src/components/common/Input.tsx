@@ -1,41 +1,74 @@
-import { InputHTMLAttributes, forwardRef } from 'react'
-import { clsx } from 'clsx'
+import React from 'react';
+import { Input as AntInput, InputProps } from 'antd';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string
-  error?: string
-  helperText?: string
+const { TextArea: AntTextArea } = AntInput;
+
+interface CustomInputProps extends InputProps {
+  label?: string;
+  error?: string;
+  helper?: string;
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, helperText, className, ...props }, ref) => {
-    return (
-      <div className="w-full">
-        {label && (
-          <label className="block text-sm font-medium text-dark-200 mb-1.5">
-            {label}
-          </label>
-        )}
-        <input
-          ref={ref}
-          className={clsx(
-            'w-full px-4 py-2.5 bg-dark-900 border rounded-lg text-white placeholder-dark-500',
-            'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
-            'transition-colors',
-            error ? 'border-red-500' : 'border-dark-700',
-            className
-          )}
-          {...props}
-        />
-        {error && <p className="mt-1 text-sm text-red-400">{error}</p>}
-        {helperText && !error && (
-          <p className="mt-1 text-sm text-dark-400">{helperText}</p>
-        )}
-      </div>
-    )
-  }
-)
+const Input: React.FC<CustomInputProps> = ({
+  label,
+  error,
+  helper,
+  ...props
+}) => {
+  return (
+    <div>
+      {label && (
+        <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
+          {label}
+        </label>
+      )}
+      <AntInput {...props} />
+      {helper && !error && (
+        <div style={{ color: '#999', marginTop: 4, fontSize: 12 }}>
+          {helper}
+        </div>
+      )}
+      {error && (
+        <div style={{ color: '#ff4d4f', marginTop: 4, fontSize: 12 }}>
+          {error}
+        </div>
+      )}
+    </div>
+  );
+};
 
-Input.displayName = 'Input'
+interface CustomTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label?: string;
+  error?: string;
+  helper?: string;
+}
 
-export default Input
+const TextArea: React.FC<CustomTextAreaProps> = ({
+  label,
+  error,
+  helper,
+  ...props
+}) => {
+  return (
+    <div>
+      {label && (
+        <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
+          {label}
+        </label>
+      )}
+      <AntTextArea {...props} />
+      {helper && !error && (
+        <div style={{ color: '#999', marginTop: 4, fontSize: 12 }}>
+          {helper}
+        </div>
+      )}
+      {error && (
+        <div style={{ color: '#ff4d4f', marginTop: 4, fontSize: 12 }}>
+          {error}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export { Input as default, TextArea };

@@ -1,0 +1,76 @@
+import { QuestionCircleOutlined, CrownOutlined, ToolOutlined } from '@ant-design/icons';
+
+export const menuData = [
+  {
+    path: '/dashboard',
+    name: '仪表板',
+    icon: <CrownOutlined />,
+  },
+  {
+    path: '/scan',
+    name: '扫描管理',
+    icon: <ToolOutlined />,
+  },
+  {
+    path: '/auto-pentest',
+    name: '自动渗透',
+    icon: <ToolOutlined />,
+  },
+  {
+    path: '/full-ia',
+    name: 'FULL AI Testing',
+    icon: <ToolOutlined />,
+  },
+  {
+    path: '/agent',
+    name: 'AI Agent',
+    icon: <ToolOutlined />,
+  },
+  {
+    path: '/reports',
+    name: '报告管理',
+    icon: <ToolOutlined />,
+  },
+  {
+    path: '/scheduler',
+    name: '任务调度',
+    icon: <ToolOutlined />,
+  },
+  {
+    path: '/vuln-lab',
+    name: '漏洞实验室',
+    icon: <ToolOutlined />,
+  },
+  {
+    path: '/sandbox',
+    name: '沙箱管理',
+    icon: <ToolOutlined />,
+  },
+  {
+    path: '/knowledge',
+    name: '知识库',
+    icon: <ToolOutlined />,
+  },
+  {
+    path: '/mcp',
+    name: 'MCP 管理',
+    icon: <ToolOutlined />,
+  },
+  {
+    path: '/providers',
+    name: 'LLM 提供商',
+    icon: <ToolOutlined />,
+  },
+  {
+    path: '/settings',
+    name: '系统设置',
+    icon: <ToolOutlined />,
+  },
+  {
+    path: '/help',
+    name: '帮助文档',
+    icon: <QuestionCircleOutlined />,
+  },
+];
+
+export default menuData;
