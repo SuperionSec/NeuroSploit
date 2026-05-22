@@ -15,6 +15,22 @@ const theme = {
     colorPrimary: '#1890ff',
     borderRadius: 6,
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    colorBgBase: '#ffffff',
+  },
+  components: {
+    Menu: {
+      darkItemBg: '#001529',
+      darkItemColor: '#ffffff',
+      darkItemSelectedBg: '#1890ff',
+      darkItemSelectedColor: '#ffffff',
+      darkBg: '#001529',
+      darkSubMenuItemBg: '#000c17',
+      darkItemHoverBg: '#1890ff20',
+    },
+    Layout: {
+      siderBg: '#001529',
+      headerBg: '#ffffff',
+    },
   },
 }
 

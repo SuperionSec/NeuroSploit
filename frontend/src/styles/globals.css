@@ -35,6 +35,43 @@ body {
   background: #001529 !important;
 }
 
+/* 导航菜单文字样式 */
+.ant-menu-dark .ant-menu-item {
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.ant-menu-dark .ant-menu-item:hover {
+  color: #ffffff !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected {
+  color: #ffffff !important;
+  background: #1890ff !important;
+}
+
+.ant-menu-dark .ant-menu-submenu-title {
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.ant-menu-dark .ant-menu-submenu-title:hover {
+  color: #ffffff !important;
+}
+
+.ant-menu-dark .ant-menu-submenu-selected .ant-menu-submenu-title {
+  color: #ffffff !important;
+}
+
+/* 侧边栏标题文字 */
+.ant-pro-sider .ant-pro-sider-logo {
+  color: #ffffff !important;
+}
+
+.ant-pro-sider .ant-pro-sider-logo h1 {
+  color: #ffffff !important;
+}
+
 .ant-pro-global-header {
   background: #fff !important;
   border-bottom: 1px solid #f0f0f0 !important;
