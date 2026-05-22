@@ -11,7 +11,7 @@ from pathlib import Path
 
 from backend.config import settings
 from backend.db.database import init_db, close_db
-from backend.api.v1 import scans, targets, prompts, reports, dashboard, vulnerabilities, settings as settings_router, agent, agent_tasks, scheduler, vuln_lab, terminal, sandbox, knowledge, mcp, providers, full_ia, cli_agent
+from backend.api.v1 import scans, targets, prompts, reports, dashboard, vulnerabilities, settings as settings_router, agent, agent_tasks, scheduler, vuln_lab, terminal, sandbox, knowledge, mcp, providers, full_ia, cli_agent, auth
 from backend.api.websocket import manager as ws_manager
 
 
@@ -99,7 +99,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API routers
+# Include API routers (auth first)
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(scans.router, prefix="/api/v1/scans", tags=["Scans"])
 app.include_router(targets.router, prefix="/api/v1/targets", tags=["Targets"])
 app.include_router(prompts.router, prefix="/api/v1/prompts", tags=["Prompts"])

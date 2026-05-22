@@ -69,7 +69,12 @@ class Settings(BaseSettings):
     MAX_REQUESTS_PER_SECOND: int = 10
 
     # CORS
-    CORS_ORIGINS: list = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    CORS_ORIGINS: list = ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001"]
+
+    # JWT Authentication
+    SECRET_KEY: str = "neurosploit_v3_super_secret_key_change_this_in_production_12345"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
 
     class Config:
         env_file = ".env"
