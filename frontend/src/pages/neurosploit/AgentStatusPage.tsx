@@ -1,7 +1,8 @@
+import { useToast } from "../../hooks/useToast"
 import { useState, useEffect, useCallback, useRef } from "react"
 import {
   Box, Heading, Text, Card, CardBody, CardHeader, SimpleGrid, VStack, HStack,
-  Button, Progress, Badge, Divider, Spinner, Alert, Code, Tag, useToast} from "@chakra-ui/react"
+  Button, Progress, Badge, Divider, Spinner, Alert, Code, Tag} from "@chakra-ui/react"
 import { useParams, useNavigate } from "react-router-dom"
 import { AlertTriangle } from "lucide-react"
 import { neurosploitApi } from "../../services/neurosploitApi"

@@ -1,8 +1,10 @@
+import { useColorMode } from "../../hooks/useColorMode"
+import { useToast } from "../../hooks/useToast"
 import { useState, useEffect, useCallback } from "react"
 import {
   Box, Heading, Text, Card, CardBody, CardHeader, SimpleGrid, VStack, HStack,
   FormControl, FormLabel, Input, Switch, Select, Button, Divider, Spinner,
-  Alert, NumberInput, NumberInputField, useToast, useColorMode,
+  Alert, NumberInput, NumberInputField,
   Tab, Tabs, TabList, TabPanels, TabPanel, Badge, Code} from "@chakra-ui/react"
 import { AlertTriangle } from "lucide-react"
 import { neurosploitApi } from "../../services/neurosploitApi"

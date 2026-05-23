@@ -1,10 +1,12 @@
+import { useColorMode } from "../../hooks/useColorMode"
+import { useToast } from "../../hooks/useToast"
 import { useState, useEffect, useCallback } from "react"
 import {
   Box, Heading, Text, Card, CardBody, CardHeader, SimpleGrid, VStack, HStack,
   Button, Table, Thead, Tbody, Tr, Th, Td, Badge, IconButton, Spinner,
   Alert, Modal, ModalOverlay, ModalContent, ModalHeader,
   ModalBody, ModalFooter, ModalCloseButton, FormControl, FormLabel,
-  Input, Textarea, Select, Tag, useToast, useColorMode, Divider} from "@chakra-ui/react"
+  Input, Textarea, Select, Tag, Divider} from "@chakra-ui/react"
 import { Plus, Trash2, Pencil, RefreshCw } from "lucide-react"
 import { neurosploitApi } from "../../services/neurosploitApi"
 import type { PromptPublic } from "../../types/neurosploit"
