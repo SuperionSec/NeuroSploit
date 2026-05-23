@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 import {
   Box, Heading, Text, Card, CardBody, Flex, Grid, Button, Badge, Progress,
   Input, FormControl, FormLabel, HStack, VStack, Spinner, Divider,
-  Alert, AlertIcon, useColorMode, useToast, Code, Tabs, TabList, Tab,
+  Alert, useColorMode, useToast, Code, Tabs, TabList, Tab,
   TabPanels, TabPanel, Select, SimpleGrid, Stat, StatLabel, StatNumber,
   Collapse, Tooltip
 } from "@chakra-ui/react"
@@ -169,7 +169,7 @@ export function VulnLabPage() {
     <Box p={6} maxW="1400px" mx="auto">
       {error && (
         <Alert status="error" mb={4} borderRadius="md">
-          <AlertIcon />
+          < />
           {error}
         </Alert>
       )}

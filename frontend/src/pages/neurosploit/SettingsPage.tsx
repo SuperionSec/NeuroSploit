@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react"
 import {
   Box, Heading, Text, Card, CardBody, CardHeader, SimpleGrid, VStack, HStack,
   FormControl, FormLabel, Input, Switch, Select, Button, Divider, Spinner,
-  Alert, AlertIcon, NumberInput, NumberInputField, useToast, useColorMode,
+  Alert, NumberInput, NumberInputField, useToast, useColorMode,
   Tab, Tabs, TabList, TabPanels, TabPanel, Badge, Code,
 } from "@chakra-ui/react"
 import { neurosploitApi } from "../../services/neurosploitApi"
@@ -61,7 +61,7 @@ export function SettingsPage() {
   if (error) {
     return (
       <Box textAlign="center" py={20}>
-        <Alert status="error"><AlertIcon />{error}</Alert>
+        <Alert status="error">< />{error}</Alert>
         <Button mt={4} onClick={fetchSettings}>Retry</Button>
       </Box>
     )
@@ -321,7 +321,7 @@ export function SettingsPage() {
               <CardHeader><Heading size="sm">Kali Sandbox</Heading></CardHeader>
               <CardBody>
                 <Alert status="info" mb={4}>
-                  <AlertIcon />
+                  < />
                   Sandbox functionality requires Docker. Install Docker to enable Kali-based tool execution.
                 </Alert>
                 <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>

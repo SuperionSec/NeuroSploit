@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import {
   Box, Heading, Text, Card, CardBody, Flex, Grid, Button, Badge, Progress,
   Table, Thead, Tbody, Tr, Th, Td, Select, Input, Textarea, FormControl,
-  FormLabel, HStack, VStack, Spinner, Divider, Alert, AlertIcon,
+  FormLabel, HStack, VStack, Spinner, Divider, Alert,
   useColorMode, useToast, IconButton, Modal, ModalOverlay, ModalContent,
   ModalHeader, ModalBody, ModalFooter
 } from "@chakra-ui/react"
@@ -134,7 +134,7 @@ export function ScansPage() {
     <Box p={6} maxW="1400px" mx="auto">
       {error && (
         <Alert status="error" mb={4} borderRadius="md">
-          <AlertIcon />
+          < />
           {error}
         </Alert>
       )}

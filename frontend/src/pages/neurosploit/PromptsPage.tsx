@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react"
 import {
   Box, Heading, Text, Card, CardBody, CardHeader, SimpleGrid, VStack, HStack,
   Button, Table, Thead, Tbody, Tr, Th, Td, Badge, IconButton, Spinner,
-  Alert, AlertIcon, Modal, ModalOverlay, ModalContent, ModalHeader,
+  Alert, Modal, ModalOverlay, ModalContent, ModalHeader,
   ModalBody, ModalFooter, ModalCloseButton, FormControl, FormLabel,
   Input, Textarea, Select, Tag, useToast, useColorMode, Divider,
 } from "@chakra-ui/react"
@@ -108,7 +108,7 @@ export function PromptsPage() {
   if (error) {
     return (
       <Box textAlign="center" py={20}>
-        <Alert status="error"><AlertIcon />{error}</Alert>
+        <Alert status="error">< />{error}</Alert>
         <Button mt={4} onClick={fetchAll}>Retry</Button>
       </Box>
     )

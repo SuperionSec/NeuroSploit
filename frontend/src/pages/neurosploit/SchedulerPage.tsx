@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 import {
   Box, Heading, Text, Card, CardBody, Flex, Button, Badge,
   Input, FormControl, FormLabel, HStack, VStack, Spinner, Divider,
-  Alert, AlertIcon, useColorMode, useToast, Select, SimpleGrid, Stat,
+  Alert, useColorMode, useToast, Select, SimpleGrid, Stat,
   StatLabel, StatNumber, Modal, ModalOverlay, ModalContent, ModalHeader,
   ModalBody, ModalFooter, Switch
 } from "@chakra-ui/react"
@@ -176,7 +176,7 @@ export function SchedulerPage() {
     <Box p={6} maxW="1400px" mx="auto">
       {error && (
         <Alert status="error" mb={4} borderRadius="md">
-          <AlertIcon />
+          < />
           {error}
         </Alert>
       )}

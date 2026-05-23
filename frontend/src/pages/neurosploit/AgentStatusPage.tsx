@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import {
   Box, Heading, Text, Card, CardBody, CardHeader, SimpleGrid, VStack, HStack,
-  Button, Progress, Badge, Divider, Spinner, Alert, AlertIcon, Code,
+  Button, Progress, Badge, Divider, Spinner, Alert, Code,
   Stat, StatLabel, StatNumber, StatGroup, Tag, useToast,
 } from "@chakra-ui/react"
 import { useParams, useNavigate } from "react-router-dom"
@@ -141,7 +141,7 @@ export function AgentStatusPage() {
   if (error || !agent) {
     return (
       <Box textAlign="center" py={20}>
-        <Alert status="error"><AlertIcon />{error || "Agent not found"}</Alert>
+        <Alert status="error">< />{error || "Agent not found"}</Alert>
         <Button mt={4} onClick={() => navigate("/neurosploit/scans")}>Back to Scans</Button>
       </Box>
     )

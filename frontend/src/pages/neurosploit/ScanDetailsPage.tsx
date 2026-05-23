@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import {
   Box, Heading, Text, Card, CardBody, Flex, Grid, Button, Badge, Progress,
   Table, Thead, Tbody, Tr, Th, Td, HStack, VStack, Spinner, Divider,
-  Alert, AlertIcon, useColorMode, useToast, IconButton, Code, Tabs,
+  Alert, useColorMode, useToast, IconButton, Code, Tabs,
   TabList, Tab, TabPanels, TabPanel, Stat, StatLabel, StatNumber
 } from "@chakra-ui/react"
 import {
@@ -102,7 +102,7 @@ export function ScanDetailsPage() {
     return (
       <Flex justify="center" align="center" h="64">
         <Alert status="error" borderRadius="md">
-          <AlertIcon />
+          < />
           {error || "Scan not found"}
         </Alert>
       </Flex>

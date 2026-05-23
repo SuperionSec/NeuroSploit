@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import {
   Box, Heading, Text, SimpleGrid, Card, CardBody, Flex, Grid, Stat, StatLabel,
   StatNumber, Badge, Progress, Table, Thead, Tbody, Tr, Th, Td, Spinner, HStack,
-  VStack, Divider, Tag, Container, Alert, AlertIcon, IconButton, Select,
+  VStack, Divider, Tag, Container, Alert, IconButton, Select,
   useColorMode, useToast
 } from "@chakra-ui/react"
 import {
@@ -133,7 +133,7 @@ export function HomePage() {
     <Box p={6} maxW="1400px" mx="auto">
       {error && (
         <Alert status="warning" mb={4} borderRadius="md">
-          <AlertIcon />
+          < />
           {error}
         </Alert>
       )}

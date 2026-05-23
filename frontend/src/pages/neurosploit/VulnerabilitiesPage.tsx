@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 import {
   Box, Heading, Text, Card, CardBody, Flex, Grid, Button, Badge, Progress,
   Table, Thead, Tbody, Tr, Th, Td, Select, Input, HStack, VStack, Spinner,
-  Divider, Alert, AlertIcon, useColorMode, useToast, Code, IconButton,
+  Divider, Alert, useColorMode, useToast, Code, IconButton,
   Collapse
 } from "@chakra-ui/react"
 import {
@@ -101,7 +101,7 @@ export function VulnerabilitiesPage() {
     <Box p={6} maxW="1400px" mx="auto">
       {error && (
         <Alert status="error" mb={4} borderRadius="md">
-          <AlertIcon />
+          < />
           {error}
         </Alert>
       )}
