@@ -8,8 +8,8 @@ import {
   ModalHeader, ModalBody, ModalFooter
 } from "@chakra-ui/react"
 import {
-  AddIcon, DeleteIcon, EditIcon, ViewIcon, RepeatIcon, InfoIcon, WarningIcon
-} from "@chakra-ui/icons"
+  Plus, Trash2, Pencil, Eye, RefreshCw, Info, AlertTriangle
+} from "lucide-react"
 import { neurosploitApi } from "../../services/neurosploitApi"
 import type { ScanPublic } from "../../types/neurosploit"
 
@@ -30,7 +30,7 @@ const STATUS_COLORS: Record<string, string> = {
   stopped: "orange",
 }
 
-export default function NeuroSploitScansPage() {
+export function ScansPage() {
   const { colorMode } = useColorMode()
   const toast = useToast()
   const navigate = useNavigate()
@@ -161,7 +161,7 @@ export default function NeuroSploitScansPage() {
             <option value="failed">Failed</option>
             <option value="stopped">Stopped</option>
           </Select>
-          <Button colorScheme="blue" leftIcon={<AddIcon />} onClick={() => setShowCreateModal(true)}>
+          <Button colorScheme="blue" leftIcon={<Plus />} onClick={() => setShowCreateModal(true)}>
             New Scan
           </Button>
         </HStack>
@@ -171,9 +171,9 @@ export default function NeuroSploitScansPage() {
         <Card variant="outline">
           <CardBody>
             <VStack spacing={4} py={8} textAlign="center">
-              <InfoIcon boxSize={10} color="gray.400" />
+              <Info boxSize={10} color="gray.400" />
               <Text color="gray.500">No scans found</Text>
-              <Button colorScheme="blue" leftIcon={<AddIcon />} onClick={() => setShowCreateModal(true)}>
+              <Button colorScheme="blue" leftIcon={<Plus />} onClick={() => setShowCreateModal(true)}>
                 Create First Scan
               </Button>
             </VStack>
@@ -223,26 +223,26 @@ export default function NeuroSploitScansPage() {
                   <HStack spacing={1}>
                     <IconButton
                       aria-label="View"
-                      icon={<ViewIcon />}
+                      icon={<Eye />}
                       size="sm"
                       variant="ghost"
                       onClick={() => navigate(`/scan/${scan.id}`)}
                     />
                     {scan.status === "pending" && (
-                      <IconButton aria-label="Start" icon={<RepeatIcon />} size="sm" variant="ghost" colorScheme="green" onClick={() => handleAction(scan.id, "start")} />
+                      <IconButton aria-label="Start" icon={<RefreshCw />} size="sm" variant="ghost" colorScheme="green" onClick={() => handleAction(scan.id, "start")} />
                     )}
                     {scan.status === "running" && (
                       <>
-                        <IconButton aria-label="Pause" icon={<InfoIcon />} size="sm" variant="ghost" colorScheme="yellow" onClick={() => handleAction(scan.id, "pause")} />
-                        <IconButton aria-label="Stop" icon={<WarningIcon />} size="sm" variant="ghost" colorScheme="red" onClick={() => handleAction(scan.id, "stop")} />
+                        <IconButton aria-label="Pause" icon={<Info />} size="sm" variant="ghost" colorScheme="yellow" onClick={() => handleAction(scan.id, "pause")} />
+                        <IconButton aria-label="Stop" icon={<AlertTriangle />} size="sm" variant="ghost" colorScheme="red" onClick={() => handleAction(scan.id, "stop")} />
                       </>
                     )}
                     {scan.status === "paused" && (
-                      <IconButton aria-label="Resume" icon={<RepeatIcon />} size="sm" variant="ghost" colorScheme="green" onClick={() => handleAction(scan.id, "resume")} />
+                      <IconButton aria-label="Resume" icon={<RefreshCw />} size="sm" variant="ghost" colorScheme="green" onClick={() => handleAction(scan.id, "resume")} />
                     )}
                     <IconButton
                       aria-label="Delete"
-                      icon={<DeleteIcon />}
+                      icon={<Trash2 />}
                       size="sm"
                       variant="ghost"
                       colorScheme="red"

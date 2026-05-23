@@ -7,9 +7,9 @@ import {
   useColorMode, useToast
 } from "@chakra-ui/react"
 import {
-  AddIcon, DeleteIcon, EditIcon, ViewIcon, RepeatIcon, SettingsIcon,
-  InfoIcon, WarningIcon, CheckCircleIcon, TimeIcon, ExternalLinkIcon
-} from "@chakra-ui/icons"
+  Plus, Trash2, Pencil, Eye, RefreshCw, Settings,
+  Info, AlertTriangle, CheckCircle2, Clock, ExternalLink
+} from "lucide-react"
 import { neurosploitApi } from "../../services/neurosploitApi"
 import type { ActivityFeedItem, DashboardStats } from "../../types/neurosploit"
 
@@ -32,7 +32,7 @@ const ACTIVITY_ICONS: Record<string, string> = {
   report: "green",
 }
 
-export default function NeuroSploitHomePage() {
+export function HomePage() {
   const { colorMode } = useColorMode()
   const toast = useToast()
 
@@ -151,14 +151,14 @@ export default function NeuroSploitHomePage() {
         <HStack>
           <IconButton
             aria-label="Refresh"
-            icon={<RepeatIcon />}
+            icon={<RefreshCw />}
             onClick={handleRefresh}
             isLoading={refreshing}
             variant="outline"
           />
           <Link to="/scan/new">
             <Box as="span" display="inline-flex" alignItems="center" gap={2} px={4} py={2} bg="blue.500" color="white" borderRadius="md" fontWeight="semibold" _hover={{ bg: "blue.600" }}>
-              <AddIcon />
+              <Plus />
               New Scan
             </Box>
           </Link>

@@ -6,8 +6,8 @@ import {
   ModalBody, ModalFooter, FormControl, FormLabel, Input
 } from "@chakra-ui/react"
 import {
-  DownloadIcon, DeleteIcon, ViewIcon, RepeatIcon, AddIcon, ExternalLinkIcon
-} from "@chakra-ui/icons"
+  DownloadIcon, Trash2, Eye, RefreshCw, Plus, ExternalLink
+} from "lucide-react"
 import { neurosploitApi } from "../../services/neurosploitApi"
 import type { ReportPublic } from "../../types/neurosploit"
 
@@ -25,7 +25,7 @@ const FORMAT_STYLE: Record<string, { color: string; label: string }> = {
   pdf: { color: "red", label: "PDF" },
 }
 
-export default function NeuroSploitReportsPage() {
+export function ReportsPage() {
   const { colorMode } = useColorMode()
   const toast = useToast()
 
@@ -151,11 +151,11 @@ export default function NeuroSploitReportsPage() {
         <HStack>
           <IconButton
             aria-label="Refresh"
-            icon={<RepeatIcon />}
+            icon={<RefreshCw />}
             variant="outline"
             onClick={fetchReports}
           />
-          <Button colorScheme="blue" leftIcon={<AddIcon />} onClick={() => setShowGenerateModal(true)}>
+          <Button colorScheme="blue" leftIcon={<Plus />} onClick={() => setShowGenerateModal(true)}>
             Generate Report
           </Button>
         </HStack>
@@ -193,9 +193,9 @@ export default function NeuroSploitReportsPage() {
         <Card variant="outline">
           <CardBody>
             <VStack spacing={4} py={8} textAlign="center">
-              <ExternalLinkIcon boxSize={8} color="gray.400" />
+              <ExternalLink boxSize={8} color="gray.400" />
               <Text color="gray.500">No reports yet</Text>
-              <Button colorScheme="blue" leftIcon={<AddIcon />} onClick={() => setShowGenerateModal(true)}>
+              <Button colorScheme="blue" leftIcon={<Plus />} onClick={() => setShowGenerateModal(true)}>
                 Generate First Report
               </Button>
             </VStack>
@@ -227,7 +227,7 @@ export default function NeuroSploitReportsPage() {
                     <HStack spacing={1}>
                       <IconButton
                         aria-label="View"
-                        icon={<ViewIcon />}
+                        icon={<Eye />}
                         size="sm"
                         variant="ghost"
                         onClick={() => handleView(report.id)}
@@ -250,7 +250,7 @@ export default function NeuroSploitReportsPage() {
                       />
                       <IconButton
                         aria-label="Delete"
-                        icon={<DeleteIcon />}
+                        icon={<Trash2 />}
                         size="sm"
                         variant="ghost"
                         colorScheme="red"

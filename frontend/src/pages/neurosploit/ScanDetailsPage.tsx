@@ -7,8 +7,8 @@ import {
   TabList, Tab, TabPanels, TabPanel, Stat, StatLabel, StatNumber
 } from "@chakra-ui/react"
 import {
-  RepeatIcon, InfoIcon, WarningIcon, CheckCircleIcon, ViewIcon
-} from "@chakra-ui/icons"
+  RefreshCw, Info, AlertTriangle, CheckCircle2, Eye
+} from "lucide-react"
 import { neurosploitApi } from "../../services/neurosploitApi"
 import type { ScanPublic, EndpointPublic, VulnerabilityPublic, ScanAgentTask } from "../../types/neurosploit"
 
@@ -16,7 +16,7 @@ const SEVERITY_COLORS: Record<string, string> = {
   critical: "red", high: "orange", medium: "yellow", low: "blue", info: "gray",
 }
 
-export default function NeuroSploitScanDetailsPage() {
+export function ScanDetailsPage() {
   const { scanId } = useParams<{ scanId: string }>()
   const navigate = useNavigate()
   const { colorMode } = useColorMode()
@@ -125,19 +125,19 @@ export default function NeuroSploitScanDetailsPage() {
 
         <HStack>
           {scan.status === "pending" && (
-            <Button colorScheme="green" leftIcon={<RepeatIcon />} size="sm" onClick={() => handleAction("start")}>Start</Button>
+            <Button colorScheme="green" leftIcon={<RefreshCw />} size="sm" onClick={() => handleAction("start")}>Start</Button>
           )}
           {scan.status === "running" && (
             <>
-              <Button colorScheme="yellow" leftIcon={<InfoIcon />} size="sm" onClick={() => handleAction("pause")}>Pause</Button>
-              <Button colorScheme="red" leftIcon={<WarningIcon />} size="sm" onClick={() => handleAction("stop")}>Stop</Button>
+              <Button colorScheme="yellow" leftIcon={<Info />} size="sm" onClick={() => handleAction("pause")}>Pause</Button>
+              <Button colorScheme="red" leftIcon={<AlertTriangle />} size="sm" onClick={() => handleAction("stop")}>Stop</Button>
             </>
           )}
           {scan.status === "paused" && (
-            <Button colorScheme="green" leftIcon={<RepeatIcon />} size="sm" onClick={() => handleAction("resume")}>Resume</Button>
+            <Button colorScheme="green" leftIcon={<RefreshCw />} size="sm" onClick={() => handleAction("resume")}>Resume</Button>
           )}
           <Button variant="outline" size="sm" onClick={() => { fetchScan(); fetchEndpoints(); fetchVulnerabilities() }}>
-            <RepeatIcon mr={1} />Refresh
+            <RefreshCw mr={1} />Refresh
           </Button>
         </HStack>
       </Flex>

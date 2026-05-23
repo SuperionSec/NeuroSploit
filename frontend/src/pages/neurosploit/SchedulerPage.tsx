@@ -7,8 +7,8 @@ import {
   ModalBody, ModalFooter, Switch
 } from "@chakra-ui/react"
 import {
-  AddIcon, DeleteIcon, RepeatIcon, TimeIcon
-} from "@chakra-ui/icons"
+  Plus, Trash2, RefreshCw, Clock
+} from "lucide-react"
 import { neurosploitApi } from "../../services/neurosploitApi"
 import type { ScheduleJob } from "../../types/neurosploit"
 
@@ -41,7 +41,7 @@ const CRON_PRESETS = [
 
 const SCAN_TYPES = ["quick", "full", "custom"] as const
 
-export default function NeuroSploitSchedulerPage() {
+export function SchedulerPage() {
   const { colorMode } = useColorMode()
   const toast = useToast()
 
@@ -188,7 +188,7 @@ export default function NeuroSploitSchedulerPage() {
             Schedule automated recurring scans with cron or interval
           </Text>
         </Box>
-        <Button colorScheme="blue" leftIcon={<AddIcon />} onClick={() => setShowCreateModal(true)}>
+        <Button colorScheme="blue" leftIcon={<Plus />} onClick={() => setShowCreateModal(true)}>
           New Schedule
         </Button>
       </Flex>
@@ -226,9 +226,9 @@ export default function NeuroSploitSchedulerPage() {
         <Card variant="outline">
           <CardBody>
             <VStack spacing={4} py={8} textAlign="center">
-              <TimeIcon boxSize={10} color="gray.400" />
+              <Clock boxSize={10} color="gray.400" />
               <Text color="gray.500">No scheduled jobs yet</Text>
-              <Button colorScheme="blue" leftIcon={<AddIcon />} onClick={() => setShowCreateModal(true)}>
+              <Button colorScheme="blue" leftIcon={<Plus />} onClick={() => setShowCreateModal(true)}>
                 Create First Schedule
               </Button>
             </VStack>
@@ -276,7 +276,7 @@ export default function NeuroSploitSchedulerPage() {
                       </Button>
                     )}
                     <Button size="sm" variant="outline" colorScheme="red" onClick={() => setDeleteTarget(job.id)}>
-                      <DeleteIcon />
+                      <Trash2 />
                     </Button>
                   </HStack>
                 </Flex>

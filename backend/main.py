@@ -13,6 +13,8 @@ from backend.config import settings
 from backend.db.database import init_db, close_db
 from backend.api.v1 import scans, targets, prompts, reports, dashboard, vulnerabilities, settings as settings_router, agent, agent_tasks, scheduler, vuln_lab, terminal, sandbox, knowledge, mcp, providers, full_ia, cli_agent, auth
 from backend.api.websocket import manager as ws_manager
+# 移植的 neurosploit 业务逻辑路由
+from app.api.v1.neurosploit import neurosploit_router
 
 
 @asynccontextmanager
@@ -119,6 +121,8 @@ app.include_router(mcp.router, prefix="/api/v1/mcp", tags=["MCP Servers"])
 app.include_router(providers.router, prefix="/api/v1/providers", tags=["Providers"])
 app.include_router(full_ia.router, prefix="/api/v1/full-ia", tags=["FULL AI Testing"])
 app.include_router(cli_agent.router)
+# 移植的 NeuroSploit 业务逻辑路由（前缀 /api/v1/neurosploit）
+app.include_router(neurosploit_router, prefix="/api/v1", tags=["NeuroSploit"])
 
 
 @app.get("/api/health")

@@ -6,7 +6,7 @@ import {
   ModalBody, ModalFooter, ModalCloseButton, FormControl, FormLabel,
   Input, Textarea, Select, Tag, useToast, useColorMode, Divider,
 } from "@chakra-ui/react"
-import { AddIcon, DeleteIcon, EditIcon, RepeatIcon } from "@chakra-ui/icons"
+import { Plus, Trash2, Pencil, RefreshCw } from "lucide-react"
 import { neurosploitApi } from "../../services/neurosploitApi"
 import type { PromptPublic } from "../../types/neurosploit"
 
@@ -118,7 +118,7 @@ export function PromptsPage() {
     <Box py={6} px={4} maxW="1200px" mx="auto">
       <HStack justify="space-between" mb={6}>
         <Heading size="lg">Prompt Manager</Heading>
-        <Button leftIcon={<AddIcon />} colorScheme="blue" onClick={openCreate}>
+        <Button leftIcon={<Plus />} colorScheme="blue" onClick={openCreate}>
           Create Prompt
         </Button>
       </HStack>
@@ -173,7 +173,7 @@ export function PromptsPage() {
                     <HStack spacing={1}>
                       <IconButton
                         aria-label="Parse"
-                        icon={<RepeatIcon />}
+                        icon={<RefreshCw />}
                         size="sm"
                         variant="ghost"
                         onClick={() => handleParse(p.id)}
@@ -182,14 +182,14 @@ export function PromptsPage() {
                       />
                       <IconButton
                         aria-label="Edit"
-                        icon={<EditIcon />}
+                        icon={<Pencil />}
                         size="sm"
                         variant="ghost"
                         onClick={() => openEdit(p)}
                       />
                       <IconButton
                         aria-label="Delete"
-                        icon={<DeleteIcon />}
+                        icon={<Trash2 />}
                         size="sm"
                         variant="ghost"
                         colorScheme="red"

@@ -6,8 +6,8 @@ import {
   Collapse
 } from "@chakra-ui/react"
 import {
-  ChevronDownIcon, ChevronUpIcon, ViewIcon, SearchIcon
-} from "@chakra-ui/icons"
+  ChevronDown, ChevronUp, Eye, Search
+} from "lucide-react"
 import { neurosploitApi } from "../../services/neurosploitApi"
 import type { VulnerabilityPublic } from "../../types/neurosploit"
 
@@ -19,7 +19,7 @@ const SEVERITY_ORDER: Record<string, number> = {
   critical: 0, high: 1, medium: 2, low: 3, info: 4,
 }
 
-export default function NeuroSploitVulnerabilitiesPage() {
+export function VulnerabilitiesPage() {
   const { colorMode } = useColorMode()
   const toast = useToast()
 
@@ -166,7 +166,7 @@ export default function NeuroSploitVulnerabilitiesPage() {
         <Card variant="outline">
           <CardBody>
             <VStack spacing={3} py={8} textAlign="center">
-              <SearchIcon boxSize={8} color="gray.400" />
+              <Search boxSize={8} color="gray.400" />
               <Text color="gray.500">No vulnerabilities match your filters</Text>
               {severityFilter || typeFilter || searchQuery ? (
                 <Button
@@ -221,7 +221,7 @@ export default function NeuroSploitVulnerabilitiesPage() {
                   </Box>
                   <IconButton
                     aria-label="Toggle details"
-                    icon={expandedId === vuln.id ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                    icon={expandedId === vuln.id ? <ChevronUp /> : <ChevronDown />}
                     size="xs"
                     variant="ghost"
                     onClick={(e) => { e.stopPropagation(); toggleExpand(vuln.id) }}

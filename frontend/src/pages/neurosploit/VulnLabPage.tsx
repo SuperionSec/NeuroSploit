@@ -7,8 +7,8 @@ import {
   Collapse, Tooltip
 } from "@chakra-ui/react"
 import {
-  AddIcon, ChevronDownIcon, ChevronUpIcon, InfoIcon, SearchIcon
-} from "@chakra-ui/icons"
+  Plus, ChevronDown, ChevronUp, Info, Search
+} from "lucide-react"
 import { neurosploitApi } from "../../services/neurosploitApi"
 import type { VulnTypeCategoryPublic, VulnLabChallengePublic, VulnLabStats } from "../../types/neurosploit"
 
@@ -29,7 +29,7 @@ const CATEGORY_TABS = [
   "Cryptography",
 ]
 
-export default function NeuroSploitVulnLabPage() {
+export function VulnLabPage() {
   const { colorMode } = useColorMode()
   const toast = useToast()
 
@@ -271,7 +271,7 @@ export default function NeuroSploitVulnLabPage() {
                   <Heading size="sm">{cat.label}</Heading>
                   <Badge colorScheme="purple" fontSize="xs">{cat.types.length} types</Badge>
                 </Flex>
-                <ChevronDownIcon
+                <ChevronDown
                   transform={expandedCat === cat.key ? "rotate(180deg)" : undefined}
                   transition="transform 0.2s"
                 />
