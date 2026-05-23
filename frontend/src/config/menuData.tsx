@@ -1,4 +1,8 @@
 import { QuestionCircleOutlined, CrownOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  HomeOutlined, ThunderboltOutlined, RadarChartOutlined, BugOutlined,
+  ExperimentOutlined, FileTextOutlined, FormOutlined, ClockCircleOutlined, SettingOutlined
+} from '@ant-design/icons';
 
 export const menuData = [
   {
@@ -65,6 +69,21 @@ export const menuData = [
     path: '/providers',
     name: 'LLM 提供商',
     icon: <ToolOutlined />,
+  },
+  {
+    name: 'NeuroSploit',
+    icon: '🛡️',
+    children: [
+      { name: 'Dashboard', path: '/neurosploit', icon: <HomeOutlined /> },
+      { name: 'Auto Pentest', path: '/neurosploit/auto', icon: <ThunderboltOutlined /> },
+      { name: 'Scans', path: '/neurosploit/scans', icon: <RadarChartOutlined /> },
+      { name: 'Vulnerabilities', path: '/neurosploit/vulnerabilities', icon: <BugOutlined /> },
+      { name: 'Vuln Lab', path: '/neurosploit/vuln-lab', icon: <ExperimentOutlined /> },
+      { name: 'Reports', path: '/neurosploit/reports', icon: <FileTextOutlined /> },
+      { name: 'Prompts', path: '/neurosploit/prompts', icon: <FormOutlined /> },
+      { name: 'Scheduler', path: '/neurosploit/scheduler', icon: <ClockCircleOutlined /> },
+      { name: 'Settings', path: '/neurosploit/settings', icon: <SettingOutlined /> },
+    ],
   },
   {
     path: '/settings',

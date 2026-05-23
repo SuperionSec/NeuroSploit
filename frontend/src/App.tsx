@@ -19,6 +19,17 @@ import MCPManagementPage from './pages/MCPManagementPage'
 import ProvidersPage from './pages/ProvidersPage'
 import FullIATestingPage from './pages/FullIATestingPage'
 import UserManagementPage from './pages/UserManagementPage'
+import { HomePage as NeurosploitHome } from "./pages/neurosploit/HomePage"
+import { AutoPentestPage as NeurosploitAutoPentest } from "./pages/neurosploit/AutoPentestPage"
+import { ScansPage as NeurosploitScans } from "./pages/neurosploit/ScansPage"
+import { ScanDetailsPage as NeurosploitScanDetails } from "./pages/neurosploit/ScanDetailsPage"
+import { VulnerabilitiesPage as NeurosploitVulnerabilities } from "./pages/neurosploit/VulnerabilitiesPage"
+import { ReportsPage as NeurosploitReports } from "./pages/neurosploit/ReportsPage"
+import { VulnLabPage as NeurosploitVulnLab } from "./pages/neurosploit/VulnLabPage"
+import { SchedulerPage as NeurosploitScheduler } from "./pages/neurosploit/SchedulerPage"
+import { SettingsPage as NeurosploitSettings } from "./pages/neurosploit/SettingsPage"
+import { PromptsPage as NeurosploitPrompts } from "./pages/neurosploit/PromptsPage"
+import { AgentStatusPage as NeurosploitAgentStatus } from "./pages/neurosploit/AgentStatusPage"
 
 function App() {
   return (
@@ -45,6 +56,17 @@ function App() {
         <Route path="mcp" element={<MCPManagementPage />} />
         <Route path="providers" element={<ProvidersPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="neurosploit" element={<NeurosploitHome />} />
+        <Route path="neurosploit/auto" element={<NeurosploitAutoPentest />} />
+        <Route path="neurosploit/scans" element={<NeurosploitScans />} />
+        <Route path="neurosploit/scans/:id" element={<NeurosploitScanDetails />} />
+        <Route path="neurosploit/vulnerabilities" element={<NeurosploitVulnerabilities />} />
+        <Route path="neurosploit/reports" element={<NeurosploitReports />} />
+        <Route path="neurosploit/vuln-lab" element={<NeurosploitVulnLab />} />
+        <Route path="neurosploit/scheduler" element={<NeurosploitScheduler />} />
+        <Route path="neurosploit/settings" element={<NeurosploitSettings />} />
+        <Route path="neurosploit/prompts" element={<NeurosploitPrompts />} />
+        <Route path="neurosploit/agent/:id" element={<NeurosploitAgentStatus />} />
       </Route>
     </Routes>
   )

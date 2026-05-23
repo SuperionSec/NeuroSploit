@@ -93,3 +93,42 @@ class NeuroSploitConfig:
         elif self.llm_provider == "gemini":
             return self.gemini_base_url
         return ""
+
+
+from pydantic_settings import BaseSettings
+
+
+class NeuroSploitSettings(BaseSettings):
+    model_config = {"env_prefix": "NEUROSPLOIT_"}
+
+    MAX_CONCURRENT_SCANS: int = 5
+    MAX_REQUESTS_PER_SECOND: int = 10
+    MAX_OUTPUT_TOKENS: int = 64000
+    DEFAULT_LLM_MODEL: str = "claude-sonnet-4-20250514"
+    ENABLE_REASONING: bool = True
+    ENABLE_CVE_HUNT: bool = True
+    ENABLE_KNOWLEDGE_AUGMENTATION: bool = False
+    ENABLE_BROWSER_VALIDATION: bool = False
+    ENABLE_VULN_AGENTS: bool = False
+    ENABLE_SMART_ROUTER: bool = False
+    ENABLE_RAG: bool = True
+    RAG_BACKEND: str = "auto"
+    ENABLE_CLI_AGENT: bool = False
+    CLI_AGENT_MAX_RUNTIME: int = 1800
+    ENABLE_MULTI_AGENT: bool = False
+    ENABLE_RESEARCHER_AI: bool = True
+    ANTHROPIC_API_KEY: str = ""
+    OPENAI_API_KEY: str = ""
+    GEMINI_API_KEY: str = ""
+    OPENROUTER_API_KEY: str = ""
+    TOGETHER_API_KEY: str = ""
+    FIREWORKS_API_KEY: str = ""
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    LMSTUDIO_BASE_URL: str = "http://localhost:1234"
+    NVD_API_KEY: str = ""
+    GITHUB_TOKEN: str = ""
+    TOKEN_BUDGET: int | None = None
+    KALI_SANDBOX_IMAGE: str = "neurosploit-kali:latest"
+
+
+neurosploit_settings = NeuroSploitSettings()
