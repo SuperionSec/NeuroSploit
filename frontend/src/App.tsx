@@ -4,6 +4,7 @@ import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
 import NewScanPage from './pages/NewScanPage';
 import ScanDetailsPage from './pages/ScanDetailsPage';
+import ScansPage from './pages/ScansPage';
 import AgentStatusPage from './pages/AgentStatusPage';
 import TaskLibraryPage from './pages/TaskLibraryPage';
 import RealtimeTaskPage from './pages/RealtimeTaskPage';
@@ -78,6 +79,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="dashboard" element={<HomePage />} />
           <Route path="users" element={<UserManagementPage />} />
+          <Route path="scans" element={<ScansPage />} />
           <Route path="scan/new" element={<NewScanPage />} />
           <Route path="scan/:scanId" element={<ScanDetailsPage />} />
           <Route path="auto-pentest" element={<AutoPentestPage />} />

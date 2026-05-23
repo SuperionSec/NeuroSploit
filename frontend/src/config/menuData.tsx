@@ -1,10 +1,26 @@
-import { QuestionCircleOutlined, CrownOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  DashboardOutlined,
+  UserOutlined,
+  ScanOutlined,
+  RocketOutlined,
+  ExperimentOutlined,
+  RobotOutlined,
+  FileTextOutlined,
+  ClockCircleOutlined,
+  BugOutlined,
+  CloudServerOutlined,
+  BookOutlined,
+  ApiOutlined,
+  CloudOutlined,
+  SettingOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons';
 
 export const menuData = [
   {
     path: '/dashboard',
     name: '仪表板',
-    icon: <CrownOutlined />,
+    icon: <DashboardOutlined />,
   },
   {
     path: '/users',
@@ -12,64 +28,68 @@ export const menuData = [
     icon: <UserOutlined />,
   },
   {
-    path: '/scan',
+    path: '/scans',
     name: '扫描管理',
-    icon: <ToolOutlined />,
+    icon: <ScanOutlined />,
+    children: [
+      { path: '/scans', name: '扫描列表' },
+      { path: '/scan/new', name: '新建扫描' },
+    ],
   },
   {
     path: '/auto-pentest',
     name: '自动渗透',
-    icon: <ToolOutlined />,
+    icon: <RocketOutlined />,
   },
   {
     path: '/full-ia',
     name: 'FULL AI Testing',
-    icon: <ToolOutlined />,
+    icon: <ExperimentOutlined />,
   },
   {
     path: '/agent',
     name: 'AI Agent',
-    icon: <ToolOutlined />,
+    icon: <RobotOutlined />,
   },
   {
     path: '/reports',
     name: '报告管理',
-    icon: <ToolOutlined />,
+    icon: <FileTextOutlined />,
   },
   {
     path: '/scheduler',
     name: '任务调度',
-    icon: <ToolOutlined />,
+    icon: <ClockCircleOutlined />,
   },
   {
     path: '/vuln-lab',
     name: '漏洞实验室',
-    icon: <ToolOutlined />,
+    icon: <BugOutlined />,
   },
   {
     path: '/sandbox',
     name: '沙箱管理',
-    icon: <ToolOutlined />,
+    icon: <CloudServerOutlined />,
   },
   {
     path: '/knowledge',
     name: '知识库',
-    icon: <ToolOutlined />,
+    icon: <BookOutlined />,
   },
   {
     path: '/mcp',
     name: 'MCP 管理',
-    icon: <ToolOutlined />,
+    icon: <ApiOutlined />,
   },
   {
     path: '/providers',
     name: 'LLM 提供商',
-    icon: <ToolOutlined />,
+    icon: <CloudOutlined />,
   },
   {
     path: '/settings',
     name: '系统设置',
-    icon: <ToolOutlined />,
+    icon: <SettingOutlined />,
   },
   {
     path: '/help',
