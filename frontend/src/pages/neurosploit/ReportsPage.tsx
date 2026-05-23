@@ -22,8 +22,7 @@ function relativeTime(ts: string): string {
 const FORMAT_STYLE: Record<string, { color: string; label: string }> = {
   html: { color: "blue", label: "HTML" },
   json: { color: "green", label: "JSON" },
-  pdf: { color: "red", label: "PDF" },
-}
+  pdf: { color: "red", label: "PDF" }}
 
 export function ReportsPage() {
   const { colorMode } = useColorMode()
@@ -87,8 +86,7 @@ export function ReportsPage() {
       await neurosploitApi.reports.generate({
         scan_id: generateScanId.trim(),
         format: generateFormat,
-        title: generateTitle || undefined,
-      })
+        title: generateTitle || undefined})
       toast({ title: "Report generated", status: "success", duration: 3000, position: "top-right" })
       setShowGenerateModal(false)
       setGenerateScanId("")
@@ -136,7 +134,7 @@ export function ReportsPage() {
     <Box p={6} maxW="1400px" mx="auto">
       {error && (
         <Alert status="error" mb={4} borderRadius="md">
-          < />
+          <AlertTriangle size={16} />
           {error}
         </Alert>
       )}

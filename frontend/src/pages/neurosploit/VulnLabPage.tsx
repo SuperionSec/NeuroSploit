@@ -3,7 +3,7 @@ import {
   Box, Heading, Text, Card, CardBody, Flex, Grid, Button, Badge, Progress,
   Input, FormControl, FormLabel, HStack, VStack, Spinner, Divider,
   Alert, useColorMode, useToast, Code, Tabs, TabList, Tab,
-  TabPanels, TabPanel, Select, SimpleGrid, Stat, StatLabel, StatNumber,
+  TabPanels, TabPanel, Select, SimpleGrid,
   Collapse, Tooltip
 } from "@chakra-ui/react"
 import {
@@ -13,8 +13,7 @@ import { neurosploitApi } from "../../services/neurosploitApi"
 import type { VulnTypeCategoryPublic, VulnLabChallengePublic, VulnLabStats } from "../../types/neurosploit"
 
 const SEVERITY_COLORS: Record<string, string> = {
-  critical: "red", high: "orange", medium: "yellow", low: "blue", info: "gray",
-}
+  critical: "red", high: "orange", medium: "yellow", low: "blue", info: "gray"}
 
 const CATEGORY_TABS = [
   "All",
@@ -83,8 +82,7 @@ export function VulnLabPage() {
               title: status.result === "detected" ? "Vulnerability detected!" : "Test completed",
               status: status.result === "detected" ? "success" : "info",
               duration: 4000,
-              position: "top-right",
-            })
+              position: "top-right"})
           }
         }
       } catch {
@@ -104,8 +102,7 @@ export function VulnLabPage() {
     try {
       const resp = await neurosploitApi.vulnLab.run({
         target_url: targetUrl.trim(),
-        vuln_type: vulnType,
-      })
+        vuln_type: vulnType})
       setRunningChallengeId(resp.challenge_id)
       toast({ title: `Testing ${vulnType}...`, status: "info", duration: 3000, position: "top-right" })
     } catch (err: unknown) {
@@ -114,8 +111,7 @@ export function VulnLabPage() {
         title: errObj?.response?.data?.detail || "Failed to start test",
         status: "error",
         duration: 3000,
-        position: "top-right",
-      })
+        position: "top-right"})
       setIsRunning(false)
     }
   }, [targetUrl, toast])
@@ -132,8 +128,7 @@ export function VulnLabPage() {
                 t.key.toLowerCase().includes(searchFilter.toLowerCase()) ||
                 t.title.toLowerCase().includes(searchFilter.toLowerCase())
             )
-          : cat.types,
-      })).filter((c) => c.types.length > 0)
+          : cat.types})).filter((c) => c.types.length > 0)
     }
     const matchEntries = entries.filter(([key]) =>
       key.toLowerCase().includes(activeCategory.toLowerCase())
@@ -147,8 +142,7 @@ export function VulnLabPage() {
               t.key.toLowerCase().includes(searchFilter.toLowerCase()) ||
               t.title.toLowerCase().includes(searchFilter.toLowerCase())
           )
-        : cat.types,
-    })).filter((c) => c.types.length > 0)
+        : cat.types})).filter((c) => c.types.length > 0)
   }, [categories, activeCategory, searchFilter])
 
   const totalTypes = useMemo(() => {
@@ -169,7 +163,7 @@ export function VulnLabPage() {
     <Box p={6} maxW="1400px" mx="auto">
       {error && (
         <Alert status="error" mb={4} borderRadius="md">
-          < />
+          <AlertTriangle size={16} />
           {error}
         </Alert>
       )}
@@ -193,12 +187,12 @@ export function VulnLabPage() {
           ].map((s) => (
             <Card key={s.label} variant="outline">
               <CardBody p={4}>
-                <Stat>
-                  <StatNumber fontSize="xl" color={`${s.color}.500`}>
+                <Box textAlign="center" flex="1">
+                  <Text fontWeight="bold" fontSize="xl" color={`${s.color}.500`}>
                     {s.value}
-                  </StatNumber>
-                  <StatLabel fontSize="xs">{s.label}</StatLabel>
-                </Stat>
+                  </Text>
+                  <Text fontSize="xs">{s.label}</Text>
+                </Box>
               </CardBody>
             </Card>
           ))}

@@ -4,8 +4,7 @@ import {
   Button, Table, Thead, Tbody, Tr, Th, Td, Badge, IconButton, Spinner,
   Alert, Modal, ModalOverlay, ModalContent, ModalHeader,
   ModalBody, ModalFooter, ModalCloseButton, FormControl, FormLabel,
-  Input, Textarea, Select, Tag, useToast, useColorMode, Divider,
-} from "@chakra-ui/react"
+  Input, Textarea, Select, Tag, useToast, useColorMode, Divider} from "@chakra-ui/react"
 import { Plus, Trash2, Pencil, RefreshCw } from "lucide-react"
 import { neurosploitApi } from "../../services/neurosploitApi"
 import type { PromptPublic } from "../../types/neurosploit"
@@ -108,7 +107,7 @@ export function PromptsPage() {
   if (error) {
     return (
       <Box textAlign="center" py={20}>
-        <Alert status="error">< />{error}</Alert>
+        <Alert status="error"><AlertTriangle size={16} />{error}</Alert>
         <Button mt={4} onClick={fetchAll}>Retry</Button>
       </Box>
     )

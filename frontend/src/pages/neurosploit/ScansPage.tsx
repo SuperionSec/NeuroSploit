@@ -27,8 +27,7 @@ const STATUS_COLORS: Record<string, string> = {
   paused: "yellow",
   completed: "blue",
   failed: "red",
-  stopped: "orange",
-}
+  stopped: "orange"}
 
 export function ScansPage() {
   const { colorMode } = useColorMode()
@@ -81,8 +80,7 @@ export function ScansPage() {
         name: newScanName || undefined,
         targets,
         scan_type: newScanType,
-        recon_enabled: newScanRecon,
-      })
+        recon_enabled: newScanRecon})
       toast({ title: "Scan created", status: "success", duration: 3000, position: "top-right" })
       setShowCreateModal(false)
       setNewScanName("")
@@ -134,7 +132,7 @@ export function ScansPage() {
     <Box p={6} maxW="1400px" mx="auto">
       {error && (
         <Alert status="error" mb={4} borderRadius="md">
-          < />
+          <AlertTriangle size={16} />
           {error}
         </Alert>
       )}

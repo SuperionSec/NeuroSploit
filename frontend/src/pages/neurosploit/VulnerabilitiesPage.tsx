@@ -12,12 +12,10 @@ import { neurosploitApi } from "../../services/neurosploitApi"
 import type { VulnerabilityPublic } from "../../types/neurosploit"
 
 const SEVERITY_COLORS: Record<string, string> = {
-  critical: "red", high: "orange", medium: "yellow", low: "blue", info: "gray",
-}
+  critical: "red", high: "orange", medium: "yellow", low: "blue", info: "gray"}
 
 const SEVERITY_ORDER: Record<string, number> = {
-  critical: 0, high: 1, medium: 2, low: 3, info: 4,
-}
+  critical: 0, high: 1, medium: 2, low: 3, info: 4}
 
 export function VulnerabilitiesPage() {
   const { colorMode } = useColorMode()
@@ -42,8 +40,7 @@ export function VulnerabilitiesPage() {
         vulnerability_type: v.vulnerability_type || "unknown",
         title: v.title || "Untitled",
         id: v.id || String(Math.random()),
-        cvss_score: v.cvss_score ?? null,
-      })) as VulnerabilityPublic[])
+        cvss_score: v.cvss_score ?? null})) as VulnerabilityPublic[])
       setError(null)
     } catch {
       setError("Failed to load vulnerabilities")
@@ -101,7 +98,7 @@ export function VulnerabilitiesPage() {
     <Box p={6} maxW="1400px" mx="auto">
       {error && (
         <Alert status="error" mb={4} borderRadius="md">
-          < />
+          <AlertTriangle size={16} />
           {error}
         </Alert>
       )}

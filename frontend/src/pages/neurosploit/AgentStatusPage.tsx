@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import {
   Box, Heading, Text, Card, CardBody, CardHeader, SimpleGrid, VStack, HStack,
-  Button, Progress, Badge, Divider, Spinner, Alert, Code,
-  Stat, StatLabel, StatNumber, StatGroup, Tag, useToast,
-} from "@chakra-ui/react"
+  Button, Progress, Badge, Divider, Spinner, Alert, Code, Tag, useToast} from "@chakra-ui/react"
 import { useParams, useNavigate } from "react-router-dom"
+import { AlertTriangle } from "lucide-react"
 import { neurosploitApi } from "../../services/neurosploitApi"
 import type { AgentStatus, AgentFinding } from "../../types/neurosploit"
 
@@ -141,7 +140,7 @@ export function AgentStatusPage() {
   if (error || !agent) {
     return (
       <Box textAlign="center" py={20}>
-        <Alert status="error">< />{error || "Agent not found"}</Alert>
+        <Alert status="error"><AlertTriangle size={16} />{error || "Agent not found"}</Alert>
         <Button mt={4} onClick={() => navigate("/neurosploit/scans")}>Back to Scans</Button>
       </Box>
     )
@@ -176,28 +175,28 @@ export function AgentStatusPage() {
             borderRadius="md"
             mb={4}
           />
-          <StatGroup>
-            <Stat>
-              <StatLabel>Status</StatLabel>
-              <StatNumber><Badge colorScheme={statusColor(agent.status)} fontSize="lg" px={3} py={1}>{agent.status}</Badge></StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel>Progress</StatLabel>
-              <StatNumber>{agent.progress}%</StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel>Phase</StatLabel>
-              <StatNumber><Tag size="lg">{agent.current_phase || "N/A"}</Tag></StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel>Elapsed</StatLabel>
-              <StatNumber>{formatElapsed(elapsed)}</StatNumber>
-            </Stat>
-            <Stat>
-              <StatLabel>Findings</StatLabel>
-              <StatNumber>{agent.findings_count}</StatNumber>
-            </Stat>
-          </StatGroup>
+          <HStack spacing={4} wrap="wrap">
+            <Box textAlign="center" flex="1">
+              <Text>Status</Text>
+              <Text fontWeight="bold"><Badge colorScheme={statusColor(agent.status)} fontSize="lg" px={3} py={1}>{agent.status}</Badge></Text>
+            </Box>
+            <Box textAlign="center" flex="1">
+              <Text>Progress</Text>
+              <Text fontWeight="bold">{agent.progress}%</Text>
+            </Box>
+            <Box textAlign="center" flex="1">
+              <Text>Phase</Text>
+              <Text fontWeight="bold"><Tag size="lg">{agent.current_phase || "N/A"}</Tag></Text>
+            </Box>
+            <Box textAlign="center" flex="1">
+              <Text>Elapsed</Text>
+              <Text fontWeight="bold">{formatElapsed(elapsed)}</Text>
+            </Box>
+            <Box textAlign="center" flex="1">
+              <Text>Findings</Text>
+              <Text fontWeight="bold">{agent.findings_count}</Text>
+            </Box>
+          </HStack>
         </CardBody>
       </Card>
 

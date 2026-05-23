@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 import {
   Box, Heading, Text, Card, CardBody, Flex, Button, Badge,
   Input, FormControl, FormLabel, HStack, VStack, Spinner, Divider,
-  Alert, useColorMode, useToast, Select, SimpleGrid, Stat,
-  StatLabel, StatNumber, Modal, ModalOverlay, ModalContent, ModalHeader,
+  Alert, useColorMode, useToast, Select, SimpleGrid, Modal, ModalOverlay, ModalContent, ModalHeader,
   ModalBody, ModalFooter, Switch
 } from "@chakra-ui/react"
 import {
@@ -112,8 +111,7 @@ export function SchedulerPage() {
         target: target.trim(),
         scan_type: scanType,
         cron_expression: cron,
-        interval_minutes: interval,
-      })
+        interval_minutes: interval})
       toast({ title: `Schedule "${jobId}" created`, status: "success", duration: 3000, position: "top-right" })
       setShowCreateModal(false)
       resetForm()
@@ -124,8 +122,7 @@ export function SchedulerPage() {
         title: errObj?.response?.data?.detail || "Failed to create schedule",
         status: "error",
         duration: 3000,
-        position: "top-right",
-      })
+        position: "top-right"})
     } finally {
       setCreating(false)
     }
@@ -176,7 +173,7 @@ export function SchedulerPage() {
     <Box p={6} maxW="1400px" mx="auto">
       {error && (
         <Alert status="error" mb={4} borderRadius="md">
-          < />
+          <AlertTriangle size={16} />
           {error}
         </Alert>
       )}
@@ -197,26 +194,26 @@ export function SchedulerPage() {
         <SimpleGrid columns={{ base: 1, sm: 3 }} spacing={4} mb={6}>
           <Card variant="outline">
             <CardBody p={4}>
-              <Stat>
-                <StatNumber fontSize="xl" color="blue.500">{jobs.length}</StatNumber>
-                <StatLabel fontSize="xs">Total Schedules</StatLabel>
-              </Stat>
+              <Box textAlign="center" flex="1">
+                <Text fontWeight="bold" fontSize="xl" color="blue.500">{jobs.length}</Text>
+                <Text fontSize="xs">Total Schedules</Text>
+              </Box>
             </CardBody>
           </Card>
           <Card variant="outline">
             <CardBody p={4}>
-              <Stat>
-                <StatNumber fontSize="xl" color="green.500">{activeJobCount}</StatNumber>
-                <StatLabel fontSize="xs">Active</StatLabel>
-              </Stat>
+              <Box textAlign="center" flex="1">
+                <Text fontWeight="bold" fontSize="xl" color="green.500">{activeJobCount}</Text>
+                <Text fontSize="xs">Active</Text>
+              </Box>
             </CardBody>
           </Card>
           <Card variant="outline">
             <CardBody p={4}>
-              <Stat>
-                <StatNumber fontSize="xl" color="purple.500">{totalRunCount}</StatNumber>
-                <StatLabel fontSize="xs">Total Runs</StatLabel>
-              </Stat>
+              <Box textAlign="center" flex="1">
+                <Text fontWeight="bold" fontSize="xl" color="purple.500">{totalRunCount}</Text>
+                <Text fontSize="xs">Total Runs</Text>
+              </Box>
             </CardBody>
           </Card>
         </SimpleGrid>

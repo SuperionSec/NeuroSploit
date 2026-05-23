@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react"
 import { Link } from "react-router-dom"
 import {
-  Box, Heading, Text, SimpleGrid, Card, CardBody, Flex, Grid, Stat, StatLabel,
-  StatNumber, Badge, Progress, Table, Thead, Tbody, Tr, Th, Td, Spinner, HStack,
+  Box, Heading, Text, SimpleGrid, Card, CardBody, Flex, Grid, Badge, Progress, Table, Thead, Tbody, Tr, Th, Td, Spinner, HStack,
   VStack, Divider, Tag, Container, Alert, IconButton, Select,
   useColorMode, useToast
 } from "@chakra-ui/react"
@@ -22,15 +21,13 @@ function relativeTime(ts: string): string {
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
-  critical: "red", high: "orange", medium: "yellow", low: "blue", info: "gray",
-}
+  critical: "red", high: "orange", medium: "yellow", low: "blue", info: "gray"}
 
 const ACTIVITY_ICONS: Record<string, string> = {
   scan: "blue",
   vulnerability: "red",
   agent_task: "purple",
-  report: "green",
-}
+  report: "green"}
 
 export function HomePage() {
   const { colorMode } = useColorMode()
@@ -62,8 +59,7 @@ export function HomePage() {
           title: `${diff} new finding${diff > 1 ? "s" : ""} discovered`,
           status: "warning",
           duration: 3000,
-          position: "top-right",
-        })
+          position: "top-right"})
       }
       prevFindingsRef.current = totalFindings
 
@@ -133,7 +129,7 @@ export function HomePage() {
     <Box p={6} maxW="1400px" mx="auto">
       {error && (
         <Alert status="warning" mb={4} borderRadius="md">
-          < />
+          <AlertTriangle size={16} />
           {error}
         </Alert>
       )}
@@ -170,10 +166,10 @@ export function HomePage() {
           <Card key={stat.label} variant="outline">
             <CardBody p={4}>
               <Flex align="center" gap={3}>
-                <Stat>
-                  <StatNumber fontSize="xl" color={`${stat.color}.500`}>{stat.value}</StatNumber>
-                  <StatLabel fontSize="xs" color={colorMode === "dark" ? "gray.400" : "gray.600"}>{stat.label}</StatLabel>
-                </Stat>
+                <Box textAlign="center" flex="1">
+                  <Text fontWeight="bold" fontSize="xl" color={`${stat.color}.500`}>{stat.value}</Text>
+                  <Text fontSize="xs" color={colorMode === "dark" ? "gray.400" : "gray.600"}>{stat.label}</Text>
+                </Box>
               </Flex>
             </CardBody>
           </Card>

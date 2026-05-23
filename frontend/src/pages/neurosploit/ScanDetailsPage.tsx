@@ -4,7 +4,7 @@ import {
   Box, Heading, Text, Card, CardBody, Flex, Grid, Button, Badge, Progress,
   Table, Thead, Tbody, Tr, Th, Td, HStack, VStack, Spinner, Divider,
   Alert, useColorMode, useToast, IconButton, Code, Tabs,
-  TabList, Tab, TabPanels, TabPanel, Stat, StatLabel, StatNumber
+  TabList, Tab, TabPanels, TabPanel
 } from "@chakra-ui/react"
 import {
   RefreshCw, Info, AlertTriangle, CheckCircle2, Eye
@@ -13,8 +13,7 @@ import { neurosploitApi } from "../../services/neurosploitApi"
 import type { ScanPublic, EndpointPublic, VulnerabilityPublic, ScanAgentTask } from "../../types/neurosploit"
 
 const SEVERITY_COLORS: Record<string, string> = {
-  critical: "red", high: "orange", medium: "yellow", low: "blue", info: "gray",
-}
+  critical: "red", high: "orange", medium: "yellow", low: "blue", info: "gray"}
 
 export function ScanDetailsPage() {
   const { scanId } = useParams<{ scanId: string }>()
@@ -102,7 +101,7 @@ export function ScanDetailsPage() {
     return (
       <Flex justify="center" align="center" h="64">
         <Alert status="error" borderRadius="md">
-          < />
+          <AlertTriangle size={16} />
           {error || "Scan not found"}
         </Alert>
       </Flex>
@@ -163,10 +162,10 @@ export function ScanDetailsPage() {
         ].map((s) => (
           <Card key={s.label} variant="outline">
             <CardBody p={3} textAlign="center">
-              <Stat>
-                <StatNumber fontSize="xl" color={`${s.color}.500`}>{s.value}</StatNumber>
-                <StatLabel fontSize="xs">{s.label}</StatLabel>
-              </Stat>
+              <Box textAlign="center" flex="1">
+                <Text fontWeight="bold" fontSize="xl" color={`${s.color}.500`}>{s.value}</Text>
+                <Text fontSize="xs">{s.label}</Text>
+              </Box>
             </CardBody>
           </Card>
         ))}
