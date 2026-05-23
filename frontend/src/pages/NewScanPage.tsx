@@ -392,21 +392,21 @@ export default function NewScanPage() {
             {/* Mode Selector */}
             <div className="flex gap-2 flex-wrap">
               <Button
-                variant={targetMode === 'single' ? 'primary' : 'secondary'}
+                customVariant={targetMode === 'single' ? 'primary' : 'secondary'}
                 onClick={() => setTargetMode('single')}
               >
                 <LinkIcon className="w-4 h-4 mr-2" />
                 Single URL
               </Button>
               <Button
-                variant={targetMode === 'multiple' ? 'primary' : 'secondary'}
+                customVariant={targetMode === 'multiple' ? 'primary' : 'secondary'}
                 onClick={() => setTargetMode('multiple')}
               >
                 <FileText className="w-4 h-4 mr-2" />
                 Multiple URLs
               </Button>
               <Button
-                variant={targetMode === 'file' ? 'primary' : 'secondary'}
+                customVariant={targetMode === 'file' ? 'primary' : 'secondary'}
                 onClick={() => setTargetMode('file')}
               >
                 <Upload className="w-4 h-4 mr-2" />
@@ -476,8 +476,8 @@ export default function NewScanPage() {
                 <span>Task Library</span>
               </div>
               <Button
-                variant="ghost"
-                size="sm"
+                customVariant="ghost"
+                size="small"
                 onClick={handleToggleTaskLibrary}
               >
                 <ChevronDown className={`w-4 h-4 transition-transform ${showTaskLibrary ? 'rotate-180' : ''}`} />
@@ -516,8 +516,8 @@ export default function NewScanPage() {
                     {TASK_CATEGORIES.map((cat) => (
                       <Button
                         key={cat.id}
-                        variant={taskCategory === cat.id ? 'primary' : 'secondary'}
-                        size="sm"
+                        customVariant={taskCategory === cat.id ? 'primary' : 'secondary'}
+                        size="small"
                         onClick={() => handleCategoryChange(cat.id)}
                       >
                         {cat.name}
@@ -572,7 +572,7 @@ export default function NewScanPage() {
 
               {!showTaskLibrary && tasks.length > 4 && (
                 <Button
-                  variant="ghost"
+                  customVariant="ghost"
                   className="w-full mt-3"
                   onClick={() => setShowTaskLibrary(true)}
                 >
@@ -587,7 +587,7 @@ export default function NewScanPage() {
             <div className="mt-4 p-4 bg-dark-800 rounded-lg border border-dark-700">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-medium text-white">Selected: {selectedTask.name}</span>
-                <Button variant="ghost" size="sm" onClick={handleClearTask}>
+                <Button customVariant="ghost" size="small" onClick={handleClearTask}>
                   Clear
                 </Button>
               </div>
@@ -615,8 +615,8 @@ export default function NewScanPage() {
               {AUTH_TYPE_OPTIONS.map((type) => (
                 <Button
                   key={type.id}
-                  variant={authType === type.id ? 'primary' : 'secondary'}
-                  size="sm"
+                  customVariant={authType === type.id ? 'primary' : 'secondary'}
+                  size="small"
                   onClick={() => handleSetAuthType(type.id)}
                 >
                   {type.label}
@@ -703,10 +703,10 @@ export default function NewScanPage() {
         className="flex justify-end gap-3 sticky bottom-4 bg-dark-950/90 backdrop-blur p-4 -mx-4 rounded-lg"
         style={{ animation: 'fadeSlideIn 0.3s ease-out 0.3s both' }}
       >
-        <Button variant="secondary" onClick={handleNavigateHome}>
+        <Button customVariant="secondary" onClick={handleNavigateHome}>
           Cancel
         </Button>
-        <Button onClick={handleStartAgent} isLoading={isLoading} size="lg">
+        <Button onClick={handleStartAgent} isLoading={isLoading} size="large">
           <Play className="w-5 h-5 mr-2" />
           Deploy Agent ({currentModeInfo.name})
         </Button>

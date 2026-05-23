@@ -358,7 +358,7 @@ export default function HomePage() {
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
           </button>
           <Link to="/scan/new">
-            <Button size="lg">
+            <Button size="large">
               <Plus className="w-5 h-5 mr-2" />
               New Scan
             </Button>
@@ -497,7 +497,13 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 ml-2">
-                    <SeverityBadge severity={scan.status} />
+                    <SeverityBadge severity={
+                      scan.status === 'running' ? 'info' :
+                      scan.status === 'completed' ? 'success' :
+                      scan.status === 'failed' ? 'critical' :
+                      scan.status === 'paused' ? 'warning' :
+                      'info'
+                    } />
                     {scan.total_vulnerabilities > 0 && (
                       <span className="text-xs text-dark-400 tabular-nums">
                         {scan.total_vulnerabilities} vulns

@@ -113,8 +113,8 @@ function DeleteModal({ title, onConfirm, onCancel }: {
           This cannot be undone.
         </p>
         <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onCancel}>Cancel</Button>
-          <Button variant="danger" onClick={onConfirm}>
+          <Button customVariant="ghost" onClick={onCancel}>Cancel</Button>
+          <Button customVariant="danger" onClick={onConfirm}>
             <Trash2 className="w-4 h-4 mr-2" />
             Delete
           </Button>

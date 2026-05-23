@@ -2,33 +2,40 @@ import React from 'react';
 import { Button as AntButton, ButtonProps } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 
-interface CustomButtonProps extends ButtonProps {
-  variant?: 'primary' | 'secondary' | 'danger' | 'success';
+type CustomVariant = 'primary' | 'secondary' | 'danger' | 'success' | 'ghost';
+
+interface CustomButtonProps extends Omit<ButtonProps, 'variant'> {
+  customVariant?: CustomVariant;
+  isLoading?: boolean;
 }
 
 const Button: React.FC<CustomButtonProps> = ({ 
   children, 
-  variant = 'primary', 
+  customVariant = 'primary', 
   loading, 
+  isLoading,
   icon,
   ...props 
 }) => {
+  const actualLoading = isLoading || loading;
   const getButtonType = () => {
-    switch (variant) {
+    switch (customVariant) {
       case 'danger':
         return 'primary';
       case 'success':
         return 'primary';
+      case 'ghost':
+        return 'default';
       default:
         return props.type || 'default';
     }
   };
 
   const getButtonColor = () => {
-    if (variant === 'danger') {
+    if (customVariant === 'danger') {
       return '#ff4d4f';
     }
-    if (variant === 'success') {
+    if (customVariant === 'success') {
       return '#52c41a';
     }
     return undefined;
@@ -41,8 +48,8 @@ const Button: React.FC<CustomButtonProps> = ({
         backgroundColor: getButtonColor(),
         borderColor: getButtonColor(),
       }}
-      loading={loading}
-      icon={loading ? <LoadingOutlined /> : icon}
+      loading={actualLoading}
+      icon={actualLoading ? <LoadingOutlined /> : icon}
       {...props}
     >
       {children}

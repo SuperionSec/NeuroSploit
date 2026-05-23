@@ -653,7 +653,7 @@ export default function RealtimeTaskPage() {
                 )}
 
                 <div className="flex justify-end gap-2 pt-2">
-                  <Button variant="secondary" onClick={() => { setShowNewSession(false); setError(null) }}>
+                  <Button customVariant="secondary" onClick={() => { setShowNewSession(false); setError(null) }}>
                     Cancel
                   </Button>
                   <Button onClick={createSession} isLoading={isCreating} disabled={!newTarget.trim()}>
@@ -801,8 +801,8 @@ export default function RealtimeTaskPage() {
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <Button
-                      variant="secondary"
-                      size="sm"
+                      customVariant="secondary"
+                      size="small"
                       onClick={() => setShowToolsModal(true)}
                       disabled={executingTool !== null}
                     >
@@ -811,8 +811,8 @@ export default function RealtimeTaskPage() {
                     </Button>
                     <div className="relative group">
                       <Button
-                        variant="secondary"
-                        size="sm"
+                        customVariant="secondary"
+                        size="small"
                         onClick={downloadReportHtml}
                         isLoading={generatingReport}
                       >

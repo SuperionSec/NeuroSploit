@@ -4,7 +4,9 @@ import { CSSProperties } from 'react';
 
 interface CustomCardProps extends AntCardProps {
   title?: React.ReactNode;
+  subtitle?: React.ReactNode;
   extra?: React.ReactNode;
+  action?: React.ReactNode;
   children: React.ReactNode;
   style?: CSSProperties;
   className?: string;
@@ -14,7 +16,9 @@ interface CustomCardProps extends AntCardProps {
 
 const Card: React.FC<CustomCardProps> = ({
   title,
+  subtitle,
   extra,
+  action,
   children,
   style,
   className,
@@ -24,8 +28,8 @@ const Card: React.FC<CustomCardProps> = ({
 }) => {
   return (
     <AntCard
-      title={title}
-      extra={extra}
+      title={subtitle ? <div>{title}<div style={{fontSize: 12, color: '#999', marginTop: 4}}>{subtitle}</div></div> : title}
+      extra={action || extra}
       hoverable={hoverable}
       loading={loading}
       style={style}

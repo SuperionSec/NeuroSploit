@@ -34,7 +34,7 @@ const Badge: React.FC<CustomBadgeProps> = ({
 };
 
 interface SeverityBadgeProps {
-  severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
+  severity: 'critical' | 'high' | 'medium' | 'low' | 'info' | 'success' | 'warning';
 }
 
 const SeverityBadge: React.FC<SeverityBadgeProps> = ({ severity }) => {
@@ -44,6 +44,8 @@ const SeverityBadge: React.FC<SeverityBadgeProps> = ({ severity }) => {
     medium: { color: '#faad14', text: '中危' },
     low: { color: '#52c41a', text: '低危' },
     info: { color: '#1890ff', text: '信息' },
+    success: { color: '#52c41a', text: '成功' },
+    warning: { color: '#faad14', text: '警告' },
   };
 
   const { color, text } = config[severity] || config.info;

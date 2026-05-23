@@ -572,7 +572,7 @@ export default function SettingsPage() {
                   </select>
                   <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-dark-400 pointer-events-none" />
                 </div>
-                <Button variant="secondary" onClick={handleRefreshModels} title="Refresh models">
+                <Button customVariant="secondary" onClick={handleRefreshModels} title="Refresh models">
                   <RefreshCw
                     className="w-4 h-4"
                     style={refreshSpinning ? { animation: 'spinOnce 0.6s ease-in-out' } : undefined}
@@ -990,7 +990,7 @@ export default function SettingsPage() {
                     </p>
                   </div>
                 </div>
-                <Button variant="danger" onClick={() => setShowClearConfirm(true)}>
+                <Button customVariant="danger" onClick={() => setShowClearConfirm(true)}>
                   <Trash2 className="w-4 h-4 mr-2" />
                   Clear Database
                 </Button>
@@ -1011,10 +1011,10 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="flex gap-3 justify-end">
-                  <Button variant="secondary" onClick={() => setShowClearConfirm(false)}>
+                  <Button customVariant="secondary" onClick={() => setShowClearConfirm(false)}>
                     Cancel
                   </Button>
-                  <Button variant="danger" onClick={handleClearDatabase} isLoading={isClearing}>
+                  <Button customVariant="danger" onClick={handleClearDatabase} isLoading={isClearing}>
                     <Trash2 className="w-4 h-4 mr-2" />
                     Yes, Clear Everything
                   </Button>
@@ -1023,7 +1023,7 @@ export default function SettingsPage() {
             )}
 
             {/* Refresh Stats */}
-            <Button variant="secondary" onClick={handleRefreshStats} className="w-full">
+            <Button customVariant="secondary" onClick={handleRefreshStats} className="w-full">
               <RefreshCw
                 className="w-4 h-4 mr-2"
                 style={statsRefreshing ? { animation: 'spinOnce 0.6s ease-in-out' } : undefined}
@@ -1076,7 +1076,7 @@ export default function SettingsPage() {
         className="flex justify-end pb-4"
         style={{ animation: 'fadeSlideIn 0.3s ease-out 0.35s both' }}
       >
-        <Button onClick={handleSave} isLoading={isSaving} size="lg">
+        <Button onClick={handleSave} isLoading={isSaving} size="large">
           <Save className="w-5 h-5 mr-2" />
           Save Settings
         </Button>

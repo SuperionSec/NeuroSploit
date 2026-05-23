@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { message, Modal } from 'antd'
 import {
   ProTable,
@@ -13,14 +13,14 @@ import { PlusOutlined, UserOutlined, DeleteOutlined, EditOutlined } from '@ant-d
 import { authApi, User, UserCreate, UserUpdate } from '../services/api'
 
 export default function UserManagementPage() {
-  const [loading, setLoading] = useState(false)
-  const [actionRef, setActionRef] = useState<ActionType>()
+  const [, setIsLoading] = useState(false)
+  const actionRef = useRef<ActionType>(null)
 
   const columns: ProColumns<User>[] = [
     {
       title: '用户名',
       dataIndex: 'username',
-      render: (text, record) => (
+      render: (text) => (
         <div className="flex items-center gap-2">
           <UserOutlined />
           <span>{text}</span>
@@ -56,11 +56,11 @@ export default function UserManagementPage() {
       title: '操作',
       valueType: 'option',
       key: 'option',
-      render: (_, record, __, action) => [
+      render: (_, row, __, action) => [
         <a
           key="edit"
           onClick={() => {
-            setEditingUser(record)
+            setEditingUser(row)
             setEditModalVisible(true)
           }}
         >
@@ -71,18 +71,18 @@ export default function UserManagementPage() {
           onClick={async () => {
             Modal.confirm({
               title: '确认删除',
-              content: `确定要删除用户 "${record.username}" 吗？`,
+              content: `确定要删除用户 "${row.username}" 吗？`,
               onOk: async () => {
                 try {
-                  setLoading(true)
-                  await authApi.deleteUser(record.id)
+                  setIsLoading(true)
+                  await authApi.deleteUser(row.id)
                   message.success('删除成功')
                   action?.reload()
                 } catch (err) {
                   console.error('Error deleting user:', err)
                   message.error('删除失败')
                 } finally {
-                  setLoading(false)
+                  setIsLoading(false)
                 }
               },
             })
@@ -98,45 +98,45 @@ export default function UserManagementPage() {
   const [editModalVisible, setEditModalVisible] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
 
-  const handleCreate = async (values: UserCreate) => {
+  const handleCreate = useCallback(async (values: UserCreate) => {
     try {
-      setLoading(true)
+      setIsLoading(true)
       await authApi.createUser(values)
       message.success('创建成功')
-      actionRef?.reload()
+      actionRef.current?.reload()
       setCreateModalVisible(false)
     } catch (err) {
       console.error('Error creating user:', err)
       message.error('创建失败')
       return false
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
-  }
+  }, [])
 
-  const handleEdit = async (values: UserUpdate) => {
+  const handleEdit = useCallback(async (values: UserUpdate) => {
     if (!editingUser) return
 
     try {
-      setLoading(true)
+      setIsLoading(true)
       await authApi.updateUser(editingUser.id, values)
       message.success('更新成功')
-      actionRef?.reload()
+      actionRef.current?.reload()
       setEditModalVisible(false)
     } catch (err) {
       console.error('Error updating user:', err)
       message.error('更新失败')
       return false
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
-  }
+  }, [editingUser])
 
   return (
     <div style={{ padding: 24 }}>
       <ProTable<User>
         headerTitle="用户管理"
-        actionRef={setActionRef}
+        actionRef={actionRef}
         columns={columns}
         rowKey="id"
         pagination={{ pageSize: 10 }}

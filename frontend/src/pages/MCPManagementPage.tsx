@@ -116,8 +116,8 @@ function DeleteModal({ name, onConfirm, onCancel }: {
           This cannot be undone.
         </p>
         <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onCancel}>Cancel</Button>
-          <Button variant="danger" onClick={onConfirm}>
+          <Button customVariant="ghost" onClick={onCancel}>Cancel</Button>
+          <Button customVariant="danger" onClick={onConfirm}>
             <Trash2 className="w-4 h-4 mr-2" />
             Delete
           </Button>
@@ -492,7 +492,7 @@ export default function MCPManagementPage() {
             <p className="text-dark-400 mt-1 ml-14">Manage Model Context Protocol server connections and tools</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={handleRefresh} disabled={refreshing}>
+            <Button customVariant="secondary" onClick={handleRefresh} disabled={refreshing}>
               <RefreshCw
                 className="w-4 h-4 mr-2"
                 style={refreshing ? { animation: 'refreshSpin 0.8s linear infinite' } : undefined}
@@ -683,8 +683,8 @@ export default function MCPManagementPage() {
 
                         {/* Tool browser toggle */}
                         <Button
-                          variant="ghost"
-                          size="sm"
+                          customVariant="ghost"
+                          size="small"
                           onClick={() => toggleToolBrowser(server.name)}
                           title="Browse tools"
                         >
@@ -696,8 +696,8 @@ export default function MCPManagementPage() {
 
                         {/* Test */}
                         <Button
-                          variant="ghost"
-                          size="sm"
+                          customVariant="ghost"
+                          size="small"
                           onClick={() => handleTest(server.name)}
                           disabled={testingServer === server.name}
                           title="Test connection"
@@ -710,8 +710,8 @@ export default function MCPManagementPage() {
 
                         {/* Edit */}
                         <Button
-                          variant="ghost"
-                          size="sm"
+                          customVariant="ghost"
+                          size="small"
                           onClick={() => openEditModal(server)}
                           title="Edit server"
                         >
@@ -720,8 +720,8 @@ export default function MCPManagementPage() {
 
                         {/* Delete */}
                         <Button
-                          variant="ghost"
-                          size="sm"
+                          customVariant="ghost"
+                          size="small"
                           onClick={() => setDeleteTarget(server.name)}
                           disabled={server.is_builtin}
                           title={server.is_builtin ? 'Cannot delete builtin server' : 'Delete server'}
@@ -946,7 +946,7 @@ export default function MCPManagementPage() {
 
               {/* Modal Footer */}
               <div className="flex items-center justify-end gap-3 p-5 border-t border-dark-700">
-                <Button variant="secondary" onClick={closeModal}>
+                <Button customVariant="secondary" onClick={closeModal}>
                   Cancel
                 </Button>
                 <Button onClick={handleSave} isLoading={isSaving}>

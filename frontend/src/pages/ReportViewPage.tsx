@@ -52,7 +52,7 @@ export default function ReportViewPage() {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" onClick={() => navigate('/reports')}>
+            <Button customVariant="ghost" onClick={() => navigate('/reports')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
             </Button>
@@ -63,30 +63,30 @@ export default function ReportViewPage() {
           </div>
 
           <div className="flex gap-2 flex-wrap">
-            <Button variant="ghost" size="sm" onClick={handleRefresh} title="Refresh report">
+            <Button customVariant="ghost" size="small" onClick={handleRefresh} title="Refresh report">
               <RefreshCw className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={toggleFullscreen} title="Toggle fullscreen">
+            <Button customVariant="ghost" size="small" onClick={toggleFullscreen} title="Toggle fullscreen">
               <Maximize2 className="w-4 h-4" />
             </Button>
             <Button
-              variant="secondary"
-              size="sm"
+              customVariant="secondary"
+              size="small"
               onClick={() => window.open(reportsApi.getDownloadUrl(reportId, 'html'), '_blank')}
             >
               <Download className="w-4 h-4 mr-1.5" />
               <span className="hidden sm:inline">HTML</span>
             </Button>
             <Button
-              variant="secondary"
-              size="sm"
+              customVariant="secondary"
+              size="small"
               onClick={() => window.open(reportsApi.getDownloadUrl(reportId, 'json'), '_blank')}
             >
               <Download className="w-4 h-4 mr-1.5" />
               <span className="hidden sm:inline">JSON</span>
             </Button>
             <Button
-              size="sm"
+              size="small"
               onClick={() => window.open(reportsApi.getViewUrl(reportId), '_blank')}
             >
               <ExternalLink className="w-4 h-4 mr-1.5" />

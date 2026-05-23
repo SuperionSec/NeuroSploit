@@ -405,7 +405,7 @@ export default function KnowledgePage() {
             Upload and manage vulnerability research, methodologies, and attack knowledge
           </p>
         </div>
-        <Button variant="secondary" onClick={handleRefresh} disabled={refreshing}>
+        <Button customVariant="secondary" onClick={handleRefresh} disabled={refreshing}>
           <RefreshCw
             className="w-4 h-4 mr-2"
             style={refreshing ? { animation: 'refreshSpin 0.8s linear infinite' } : undefined}
@@ -610,7 +610,7 @@ export default function KnowledgePage() {
               </p>
               {!filterVulnType && (
                 <Button
-                  variant="primary"
+                  customVariant="primary"
                   className="mt-6"
                   onClick={() => fileInputRef.current?.click()}
                 >
@@ -700,10 +700,10 @@ export default function KnowledgePage() {
 
                       {deleteConfirm === doc.id ? (
                         <div className="flex items-center gap-1">
-                          <Button variant="danger" size="sm" onClick={() => handleDelete(doc.id)}>
+                          <Button customVariant="danger" size="small" onClick={() => handleDelete(doc.id)}>
                             Confirm
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => setDeleteConfirm(null)}>
+                          <Button customVariant="ghost" size="small" onClick={() => setDeleteConfirm(null)}>
                             <span className="text-dark-400 text-xs">Cancel</span>
                           </Button>
                         </div>

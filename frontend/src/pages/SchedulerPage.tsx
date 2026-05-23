@@ -76,8 +76,8 @@ function DeleteModal({ jobId, onConfirm, onCancel }: {
           This action cannot be undone.
         </p>
         <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={onCancel}>Cancel</Button>
-          <Button variant="danger" onClick={onConfirm}>
+          <Button customVariant="ghost" onClick={onCancel}>Cancel</Button>
+          <Button customVariant="danger" onClick={onConfirm}>
             <Trash2 className="w-4 h-4 mr-2" />
             Delete
           </Button>
@@ -425,7 +425,7 @@ export default function SchedulerPage() {
             <p className="text-dark-400 mt-1 ml-14">Schedule automated recurring scans with agent specialization</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={handleRefresh} disabled={refreshing}>
+            <Button customVariant="secondary" onClick={handleRefresh} disabled={refreshing}>
               <RefreshCw
                 className="w-4 h-4 mr-2"
                 style={refreshing ? { animation: 'refreshSpin 0.8s linear infinite' } : undefined}
@@ -754,7 +754,7 @@ export default function SchedulerPage() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-2 border-t border-dark-700 gap-3">
                 <p className="text-xs text-dark-500">{scheduleSummaryText}</p>
                 <div className="flex gap-3">
-                  <Button variant="secondary" onClick={handleCancelForm}>
+                  <Button customVariant="secondary" onClick={handleCancelForm}>
                     Cancel
                   </Button>
                   <Button onClick={handleCreate} isLoading={isCreating}>

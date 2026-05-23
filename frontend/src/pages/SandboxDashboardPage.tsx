@@ -277,8 +277,8 @@ export default function SandboxDashboardPage() {
 
         <div className="flex items-center gap-2 flex-wrap">
           <Button
-            variant="ghost"
-            size="sm"
+            customVariant="ghost"
+            size="small"
             onClick={() => handleCleanup('expired')}
             isLoading={actionLoading}
           >
@@ -286,8 +286,8 @@ export default function SandboxDashboardPage() {
             Cleanup Expired
           </Button>
           <Button
-            variant="ghost"
-            size="sm"
+            customVariant="ghost"
+            size="small"
             onClick={() => handleCleanup('orphans')}
             isLoading={actionLoading}
           >
@@ -295,8 +295,8 @@ export default function SandboxDashboardPage() {
             Cleanup Orphans
           </Button>
           <Button
-            variant="secondary"
-            size="sm"
+            customVariant="secondary"
+            size="small"
             onClick={handleRefreshClick}
           >
             <RefreshCw
@@ -583,8 +583,8 @@ export default function SandboxDashboardPage() {
                 {/* Actions */}
                 <div className="flex items-center gap-2 pt-3 border-t border-dark-700 flex-wrap">
                   <Button
-                    variant="ghost"
-                    size="sm"
+                    customVariant="ghost"
+                    size="small"
                     onClick={() => handleHealthCheck(container.scan_id)}
                     isLoading={isHealthLoading}
                   >
@@ -593,8 +593,8 @@ export default function SandboxDashboardPage() {
                   </Button>
 
                   <Button
-                    variant={isConfirming ? 'danger' : 'ghost'}
-                    size="sm"
+                    customVariant={isConfirming ? 'danger' : 'ghost'}
+                    size="small"
                     onClick={() => handleDestroy(container.scan_id)}
                     isLoading={actionLoading}
                   >

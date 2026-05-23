@@ -372,8 +372,8 @@ export default function TaskLibraryPage() {
             {CATEGORIES.map((cat) => (
               <Button
                 key={cat.id}
-                variant={selectedCategory === cat.id ? 'primary' : 'secondary'}
-                size="sm"
+                customVariant={selectedCategory === cat.id ? 'primary' : 'secondary'}
+                size="small"
                 onClick={() => setSelectedCategory(cat.id)}
               >
                 {cat.name}
@@ -478,8 +478,8 @@ export default function TaskLibraryPage() {
 
                     <div className="flex items-center gap-2">
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        customVariant="ghost"
+                        size="small"
                         onClick={(e) => {
                           e.stopPropagation()
                           handleRunTask(task)
@@ -489,8 +489,8 @@ export default function TaskLibraryPage() {
                       </Button>
                       {!task.is_preset && (
                         <Button
-                          variant="ghost"
-                          size="sm"
+                          customVariant="ghost"
+                          size="small"
                           onClick={(e) => {
                             e.stopPropagation()
                             setDeleteConfirm(task.id)
@@ -588,7 +588,7 @@ export default function TaskLibraryPage() {
           >
             <div className="flex items-center justify-between p-4 border-b border-dark-700">
               <h3 className="text-xl font-bold text-white">Create New Task</h3>
-              <Button variant="ghost" size="sm" onClick={() => setShowCreateModal(false)}>
+              <Button customVariant="ghost" size="small" onClick={() => setShowCreateModal(false)}>
                 <X className="w-5 h-5" />
               </Button>
             </div>
@@ -648,7 +648,7 @@ export default function TaskLibraryPage() {
             </div>
 
             <div className="flex justify-end gap-3 p-4 border-t border-dark-700">
-              <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
+              <Button customVariant="secondary" onClick={() => setShowCreateModal(false)}>
                 Cancel
               </Button>
               <Button
@@ -682,10 +682,10 @@ export default function TaskLibraryPage() {
               Are you sure you want to delete this task? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
-              <Button variant="secondary" onClick={() => setDeleteConfirm(null)}>
+              <Button customVariant="secondary" onClick={() => setDeleteConfirm(null)}>
                 Cancel
               </Button>
-              <Button variant="danger" onClick={() => handleDeleteTask(deleteConfirm)}>
+              <Button customVariant="danger" onClick={() => handleDeleteTask(deleteConfirm)}>
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete
               </Button>

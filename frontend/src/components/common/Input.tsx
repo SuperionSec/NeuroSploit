@@ -7,14 +7,17 @@ interface CustomInputProps extends InputProps {
   label?: string;
   error?: string;
   helper?: string;
+  helperText?: string;
 }
 
 const Input: React.FC<CustomInputProps> = ({
   label,
   error,
   helper,
+  helperText,
   ...props
 }) => {
+  const actualHelper = helperText || helper;
   return (
     <div>
       {label && (
@@ -23,9 +26,9 @@ const Input: React.FC<CustomInputProps> = ({
         </label>
       )}
       <AntInput {...props} />
-      {helper && !error && (
+      {actualHelper && !error && (
         <div style={{ color: '#999', marginTop: 4, fontSize: 12 }}>
-          {helper}
+          {actualHelper}
         </div>
       )}
       {error && (
@@ -41,14 +44,17 @@ interface CustomTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaE
   label?: string;
   error?: string;
   helper?: string;
+  helperText?: string;
 }
 
 const TextArea: React.FC<CustomTextAreaProps> = ({
   label,
   error,
   helper,
+  helperText,
   ...props
 }) => {
+  const actualHelper = helperText || helper;
   return (
     <div>
       {label && (
@@ -57,9 +63,9 @@ const TextArea: React.FC<CustomTextAreaProps> = ({
         </label>
       )}
       <AntTextArea {...props} />
-      {helper && !error && (
+      {actualHelper && !error && (
         <div style={{ color: '#999', marginTop: 4, fontSize: 12 }}>
-          {helper}
+          {actualHelper}
         </div>
       )}
       {error && (

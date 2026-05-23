@@ -7,7 +7,7 @@ export const proSettings = {
   title: 'NeuroSploit v3',
   pwa: false,
   logo: '/favicon.svg',
-  locale: 'zh-CN',
+  locale: 'zh-CN' as const,
   showFooter: false,
   colorPrimary: '#1890ff',
   headerHeight: 48,

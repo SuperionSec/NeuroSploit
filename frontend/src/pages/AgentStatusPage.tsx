@@ -831,7 +831,7 @@ export default function AgentStatusPage() {
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-dark-500">Payload Used:</span>
-              <Button variant="ghost" size="sm" onClick={() => copyToClipboard(finding.payload!)}>
+              <Button customVariant="ghost" size="small" onClick={() => copyToClipboard(finding.payload!)}>
                 <Copy className="w-3 h-3" />
               </Button>
             </div>
@@ -846,7 +846,7 @@ export default function AgentStatusPage() {
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-dark-500">HTTP Request:</span>
-              <Button variant="ghost" size="sm" onClick={() => copyToClipboard(finding.request!)}>
+              <Button customVariant="ghost" size="small" onClick={() => copyToClipboard(finding.request!)}>
                 <Copy className="w-3 h-3" />
               </Button>
             </div>
@@ -861,7 +861,7 @@ export default function AgentStatusPage() {
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-dark-500">HTTP Response (excerpt):</span>
-              <Button variant="ghost" size="sm" onClick={() => copyToClipboard(finding.response!)}>
+              <Button customVariant="ghost" size="small" onClick={() => copyToClipboard(finding.response!)}>
                 <Copy className="w-3 h-3" />
               </Button>
             </div>
@@ -903,7 +903,7 @@ export default function AgentStatusPage() {
         <div>
           <div className="flex items-center justify-between mb-1">
             <p className="text-sm font-medium text-dark-300">Proof of Concept</p>
-            <Button variant="ghost" size="sm" onClick={() => copyToClipboard(finding.poc_code)}>
+            <Button customVariant="ghost" size="small" onClick={() => copyToClipboard(finding.poc_code)}>
               <Copy className="w-3 h-3 mr-1" />
               Copy
             </Button>
@@ -1119,11 +1119,11 @@ export default function AgentStatusPage() {
             </button>
             {status.status === 'running' && (
               <>
-                <Button variant="secondary" onClick={handlePauseScan}>
+                <Button customVariant="secondary" onClick={handlePauseScan}>
                   <Pause className="w-4 h-4 mr-2" />
                   Pause
                 </Button>
-                <Button variant="danger" onClick={handleStopScan} isLoading={isStopping}>
+                <Button customVariant="danger" onClick={handleStopScan} isLoading={isStopping}>
                   <StopCircle className="w-4 h-4 mr-2" />
                   Stop
                 </Button>
@@ -1131,18 +1131,18 @@ export default function AgentStatusPage() {
             )}
             {status.status === 'paused' && (
               <>
-                <Button variant="primary" onClick={handleResumeScan}>
+                <Button customVariant="primary" onClick={handleResumeScan}>
                   <Play className="w-4 h-4 mr-2" />
                   Resume
                 </Button>
-                <Button variant="danger" onClick={handleStopScan} isLoading={isStopping}>
+                <Button customVariant="danger" onClick={handleStopScan} isLoading={isStopping}>
                   <StopCircle className="w-4 h-4 mr-2" />
                   Stop
                 </Button>
               </>
             )}
             {status.scan_id && (
-              <Button variant="secondary" onClick={() => navigate(`/scan/${status.scan_id}`)}>
+              <Button customVariant="secondary" onClick={() => navigate(`/scan/${status.scan_id}`)}>
                 <Shield className="w-4 h-4 mr-2" />
                 View in Dashboard
               </Button>
@@ -1150,16 +1150,16 @@ export default function AgentStatusPage() {
             {/* Always show export if there are findings */}
             {(status.findings.length > 0 || status.report) && (
               <>
-                <Button onClick={() => handleGenerateReport('html')} isLoading={isGeneratingReport} variant="primary">
+                <Button onClick={() => handleGenerateReport('html')} isLoading={isGeneratingReport} customVariant="primary">
                   <FileText className="w-4 h-4 mr-2" />
                   HTML Report
                 </Button>
-                <Button onClick={() => handleGenerateReport('json')} isLoading={isGeneratingReport} variant="secondary">
+                <Button onClick={() => handleGenerateReport('json')} isLoading={isGeneratingReport} customVariant="secondary">
                   <Download className="w-4 h-4 mr-2" />
                   JSON
                 </Button>
                 {status.scan_id && (
-                  <Button onClick={handleGenerateAiReport} isLoading={isGeneratingAiReport} variant="secondary">
+                  <Button onClick={handleGenerateAiReport} isLoading={isGeneratingAiReport} customVariant="secondary">
                     <Sparkles className="w-4 h-4 mr-2" />
                     AI Report
                   </Button>
