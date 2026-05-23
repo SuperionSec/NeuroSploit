@@ -16,6 +16,7 @@ class VulnLabChallenge(Base):
     __tablename__ = "vuln_lab_challenges"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_by: Mapped[Optional[str]] = mapped_column(String(36), nullable=True, index=True)
 
     # Target info
     target_url: Mapped[str] = mapped_column(Text)

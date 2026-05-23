@@ -14,6 +14,7 @@ class Scan(Base):
     __tablename__ = "scans"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_by: Mapped[Optional[str]] = mapped_column(String(36), nullable=True, index=True)
     name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     status: Mapped[str] = mapped_column(String(50), default="pending")  # pending, running, completed, failed, stopped
     scan_type: Mapped[str] = mapped_column(String(50), default="full")  # quick, full, custom

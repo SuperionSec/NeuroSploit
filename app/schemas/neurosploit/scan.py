@@ -1,0 +1,73 @@
+from datetime import datetime
+from typing import Optional, List
+from pydantic import ConfigDict
+from sqlmodel import Field, SQLModel
+
+
+class AuthConfig(SQLModel):
+    auth_type: str = Field(default="none", description="Auth type: none, cookie, header, basic, bearer")
+    cookie: Optional[str] = Field(default=None, description="Session cookie value")
+    bearer_token: Optional[str] = Field(default=None, description="Bearer/JWT token")
+    username: Optional[str] = Field(default=None, description="Username for basic auth")
+    password: Optional[str] = Field(default=None, description="Password for basic auth")
+    header_name: Optional[str] = Field(default=None, description="Custom header name")
+    header_value: Optional[str] = Field(default=None, description="Custom header value")
+
+
+class ScanCreate(SQLModel):
+    name: Optional[str] = Field(default=None, max_length=255, description="Scan name")
+    targets: List[str] = Field(..., min_length=1, description="List of target URLs")
+    scan_type: str = Field(default="full", description="Scan type: quick, full, custom")
+    recon_enabled: bool = Field(default=True, description="Enable reconnaissance phase")
+    custom_prompt: Optional[str] = Field(default=None, description="Custom prompt (up to 32k tokens)")
+    prompt_id: Optional[str] = Field(default=None, description="ID of preset prompt to use")
+    config: dict = Field(default_factory=dict, description="Additional configuration")
+    auth: Optional[AuthConfig] = Field(default=None, description="Authentication configuration")
+    custom_headers: Optional[dict] = Field(default=None, description="Custom HTTP headers to include")
+
+
+class ScanUpdate(SQLModel):
+    name: Optional[str] = None
+    status: Optional[str] = None
+    progress: Optional[int] = None
+    current_phase: Optional[str] = None
+    error_message: Optional[str] = None
+
+
+class ScanPublic(SQLModel):
+    id: str
+    name: Optional[str]
+    status: str
+    scan_type: str
+    recon_enabled: bool
+    progress: int
+    current_phase: Optional[str]
+    config: dict
+    custom_prompt: Optional[str]
+    prompt_id: Optional[str]
+    auth_type: Optional[str] = None
+    custom_headers: Optional[dict] = None
+    created_at: datetime
+    started_at: Optional[datetime]
+    completed_at: Optional[datetime]
+    error_message: Optional[str]
+    total_endpoints: int
+    total_vulnerabilities: int
+    critical_count: int
+    high_count: int
+    medium_count: int
+    low_count: int
+    info_count: int
+    targets: List[dict] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ScanProgress(SQLModel):
+    scan_id: str
+    status: str
+    progress: int
+    current_phase: Optional[str] = None
+    message: Optional[str] = None
+    total_endpoints: int = 0
+    total_vulnerabilities: int = 0

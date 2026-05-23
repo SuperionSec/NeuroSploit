@@ -14,6 +14,7 @@ class Prompt(Base):
     __tablename__ = "prompts"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_by: Mapped[Optional[str]] = mapped_column(String(36), nullable=True, index=True)
     name: Mapped[str] = mapped_column(String(255))
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     content: Mapped[str] = mapped_column(Text)

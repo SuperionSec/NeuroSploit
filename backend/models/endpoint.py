@@ -14,6 +14,7 @@ class Endpoint(Base):
     __tablename__ = "endpoints"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_by: Mapped[Optional[str]] = mapped_column(String(36), nullable=True, index=True)
     scan_id: Mapped[str] = mapped_column(String(36), ForeignKey("scans.id", ondelete="CASCADE"))
     target_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("targets.id", ondelete="SET NULL"), nullable=True)
 
