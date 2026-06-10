@@ -1,0 +1,50 @@
+{
+  "traces": [
+    {
+      "vuln_type": "cleartext_transmission",
+      "technology": "unknown",
+      "endpoint_pattern": "http://localhost:8089/login.php",
+      "parameter": "",
+      "reasoning_steps": [
+        "Tested cleartext_transmission on http://localhost:8089/login.php",
+        "Parameter: N/A",
+        "Payload: N/A",
+        "Evidence: No HTTPS endpoint available",
+        "Confidence: 0"
+      ],
+      "payload_used": "",
+      "evidence_summary": "No HTTPS endpoint available",
+      "confidence": 0.0,
+      "timestamp": 1781079552.8154378,
+      "scan_target": "http://localhost:8089/login.php",
+      "trace_id": "b68e1955a6"
+    },
+    {
+      "vuln_type": "cleartext_transmission",
+      "technology": "unknown",
+      "endpoint_pattern": "http://localhost:8089/login.php",
+      "parameter": "",
+      "reasoning_steps": [
+        "Tested cleartext_transmission on http://localhost:8089/login.php",
+        "Parameter: N/A",
+        "Payload: N/A",
+        "Evidence: No HTTPS endpoint available",
+        "Confidence: 0"
+      ],
+      "payload_used": "",
+      "evidence_summary": "No HTTPS endpoint available",
+      "confidence": 0.0,
+      "timestamp": 1781079614.18476,
+      "scan_target": "http://localhost:8089/login.php",
+      "trace_id": "b68e1955a6"
+    }
+  ],
+  "failures": [],
+  "strategies": {},
+  "last_updated": 1781079614.4845939,
+  "stats": {
+    "total_traces": 2,
+    "total_failures": 0,
+    "technologies": []
+  }
+}
